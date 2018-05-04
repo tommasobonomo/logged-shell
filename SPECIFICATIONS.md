@@ -98,4 +98,4 @@ $ ./xlog --logfile="/tmp/run.log" --format=txt "ls; wc"
 - capire il livello di coplessità richiesto per Shell & Parser (potremmo rischiare di perdere un sacco di tempo in puttanate invece che perfezionare altre cose che potrebbero essere considerate più inportanti)
 
 # Other
-- i comandi vanno messi in versione compatta ed estesa
+- le opzioni vanno messe sia in versione compatta che estesa (es `-f --full`)
