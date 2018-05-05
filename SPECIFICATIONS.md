@@ -7,18 +7,17 @@ $ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --forma
 
 ## Esecuzione comandi
 - Analizzare il comando
-- Eseguire in ordine i comandi
 - creare una struttura con:
-  - ID
-  - stringa del comando totale
-  - path del file di log
-  - formato del file di log
-  - log file mode: crea o errore (default crea)
-  - < output | error > stream mode (scarta, stampaAVideo, scriviSuLog, fileOverwrite, fileAppend) _implementare con la redirezione(usare /dev/null per scartare)_
-  - creare un array di strutture di n posti, dove n è il numero di sub-comandi
-    - nome del sub-comando
-    - parametri del sub-comando eseguito
-    - **Inserisci statistiche**
+  - [ ] ID
+  - [x] stringa del comando totale
+  - [x] path del file di log
+  - [x] formato del file di log
+  - [x] log file mode: crea o errore (default crea)
+  - [x] < output | error > stream mode (scarta, stampaAVideo, scriviSuLog, fileOverwrite, fileAppend) _implementare con la redirezione(usare /dev/null per scartare)_
+  - [ ] Analizzare il comando creare un array di strutture di n posti, dove n è il numero di sub-comandi
+     - [ ] nome del sub-comando
+     - [ ] parametri del sub-comando eseguito
+     - [ ] **Inserisci statistiche**
 
 ## Ottenere un'istanza del logger
 - se non esiste creare il demone //approfondire la tecnica migliore!
@@ -59,7 +58,8 @@ $ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --forma
 - [ ] output del comando su log o a console
 - [ ] Diversi tipi di file di output:
   - [ ] txt
-  - [ ] csv (delimitatore a scelta)
+  - [ ] csv
+    - [ ] (delimitatore a scelta)
 - [ ] cancellare il file di log (controlla se non ci sono processi collegati)
 - [ ] ~~rotazione del log con cancellazione dell'ultimo o creazione di più file (log1, log2, ...) (occhio al fatto che il file dovrebbe essere univoco)~~
 
@@ -80,9 +80,9 @@ $ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --forma
 - [ ] quali altri processi vengono chiamati all'interno di un comando _(possibile?)_
 
 ## Makefile
-- [ ] compila
-- [ ] clean
-- [ ] usare i file obj
+- [x] compila
+- [x] clean
+- [x] usare i file obj
 - [ ] usare guardie di compilazione `#IFDEF nomefile`
 
 ## Special effects
@@ -97,7 +97,7 @@ $ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --forma
 # Domande
 - creiamo un demone per ogni file di log? o uno per tutti?
   lo possiamo clonare?
-- capire il livello di coplessità richiesto per Shell & Parser (potremmo rischiare di perdere un sacco di tempo in puttanate invece che perfezionare altre cose che potrebbero essere considerate più inportanti)
+- capire il livello di coplessità richiesto per Shell & Parser (potremmo rischiare di perdere un sacco di tempo in puttanate invece che perfezionare altre cose che potrebbero essere considerate più importanti)
 
 # Other
 - le opzioni vanno messe sia in versione compatta che estesa (es `-f --full`)
