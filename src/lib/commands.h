@@ -12,13 +12,19 @@
 #define MODE_FILEAPP  3
 #define MODE_FILEOVER 4
 
-struct SubCommand
+/**
+ * Struct where a single sub-command is stored
+ */
+struct SubCommandResult
 {
     char subCommand[CMD_STRING_LENGHT_MAX + 1];
     char parameters[CMD_STRING_LENGHT_MAX + 1];
     //TODO aggiungere statistiche
 };
 
+/**
+ * Main struct where a full command is stored
+ */
 struct Command
 {
     char *command;
@@ -30,7 +36,7 @@ struct Command
     int error_mode;
     char *error_path;
     int n_subCommands;
-    struct SubCommand *subCommands[];
+    struct SubCommandResult *subCommands[];
 };
 
 #endif

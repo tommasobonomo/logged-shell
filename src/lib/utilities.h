@@ -16,7 +16,17 @@ typedef enum
 #define DEBUG_PRINT( ... )
 #endif
 
+/**
+ * Print an help screen to stdout
+ */
 void printHelp();
+
+/**
+ * Check is the string <b>str</b> starts with the prefix <b>*prefix</b>
+ * @param str string to check
+ * @param prefix prefix to match
+ * @return true if <b>str</b> starts with the prefix <b>*prefix</b>, false otherwise
+ */
 bool strStartWith(const char *str, const char *prefix);
 
 #endif

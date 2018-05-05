@@ -138,7 +138,7 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
     return getFromHere;
 }
 
-struct Command *parse(int argc, char *argv[])
+struct Command *parseCommand(int argc, char **argv)
 {
     struct Command *result = malloc(sizeof(struct Command));
     addDefault(result);

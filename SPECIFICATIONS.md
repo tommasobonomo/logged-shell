@@ -49,7 +49,7 @@ $ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --forma
 - [ ] Creare argomenti
   - [ ] normali
     - [ ] `-f` formato del file di log
-    - [ ] `-h` time human readable
+    - [ ] `-h` time human readable //TODO si confonde con il comando dell'help
     - [ ] `-e` non crea il file di log se non esiste, ma restituisce un errore
   - [ ] mnemonici
     - [ ] `--format` _alias_ `-f`
