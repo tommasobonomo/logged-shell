@@ -2,6 +2,7 @@
 ```bash
 $ ./xlog --logfile="/tmp/run.log" --format=csv "ls | wc"
 $ ./xlog --logfile="/tmp/run.log" --format=csv "ls; wc"
+$ ./xlog --logfile="/tmp/run.log" --outpath="/tmp/out.txt" --outoverride --format=csv "ls; wc"
 ```
 
 ## Esecuzione comandi
