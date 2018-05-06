@@ -1,6 +1,5 @@
 #include "errors.h"
 #include "utilities.h"
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -16,13 +15,13 @@ void error_fatal(int id, char *msg)
             printHelp();
             break;
         case ERR_BAD_ARG_X:
-            printf("ERROR: Bad argument %s\n", msg);
+            printf("ERROR, bad argument: %s\n", msg);
             break;
         case ERR_UNKNOWN_ARG_X:
-            printf("ERROR: Unknown argument %s\n", msg);
+            printf("ERROR, unknown argument: %s\n", msg);
             break;
         default:
-            printf("ERROR: not specified: %s\n", msg);
+            printf("ERROR not specified: %s\n", msg);
             break;
     }
 

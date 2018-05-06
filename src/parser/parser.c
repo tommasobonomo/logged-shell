@@ -1,9 +1,11 @@
 #include "parser.h"
 #include "../lib/commands.h"
 #include "../lib/errors.h"
-#include "../lib/utilities.h"
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
+
+#define ARG_MEM_LOGPATH "logpath"
 
 /**
  * Add all the default parameters
@@ -13,6 +15,8 @@
 struct Command *addDefault(struct Command *cmd)
 {
     //TODO aggiungi tutti i parametri di default
+    cmd->command = NULL;
+    cmd->log_path = NULL;
     return cmd;
 }
 
@@ -27,13 +31,14 @@ void setCommand(struct Command *cmd, char *str_cmd)
         cmd->command = str_cmd;
     }
 }
+
 void setLogformat(struct Command *cmd, char *format)
 {
-    if(strcmp(format,"txt")==0)
+    if (strcmp(format, "txt") == 0)
     {
         cmd->log_format = LOG_FORMAT_TXT;
     }
-    else if(strcmp(format,"csv")==0)
+    else if (strcmp(format, "csv") == 0)
     {
         cmd->log_format = LOG_FORMAT_CSV;
     }
@@ -42,6 +47,7 @@ void setLogformat(struct Command *cmd, char *format)
         error_fatal(ERR_BAD_ARG_X, format);
     }
 }
+
 void setLogfile(struct Command *cmd, char *path)
 {
     if (cmd->log_path != NULL)
@@ -53,14 +59,17 @@ void setLogfile(struct Command *cmd, char *path)
         cmd->log_path = path;
     }
 }
+
 void setOutputMode(struct Command *cmd, int mode)
 {
     cmd->output_mode = mode;
 }
+
 void setErrorMode(struct Command *cmd, int mode)
 {
     cmd->error_mode = mode;
 }
+
 void setOutputPath(struct Command *cmd, char *path)
 {
     if (cmd->output_path != NULL)
@@ -72,6 +81,7 @@ void setOutputPath(struct Command *cmd, char *path)
         cmd->output_path = path;
     }
 }
+
 void setErrorPath(struct Command *cmd, char *path)
 {
     if (cmd->error_path != NULL)
@@ -138,7 +148,7 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
     return getFromHere;
 }
 
-struct Command *parseCommand(int argc, char **argv)
+struct Command *parseCommand(int argc, char *argv[])
 {
     struct Command *result = malloc(sizeof(struct Command));
     addDefault(result);
@@ -156,7 +166,8 @@ struct Command *parseCommand(int argc, char **argv)
             else
             {
                 //MNEMONIC ARG
-                if (strStartWith(&argv[currArgc][2], "logfile"))
+                //TODO fare per tutti ARG_NOR_... e ARG_MEM_...
+                if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogfile(result, secondaryArg);
@@ -202,7 +213,7 @@ struct Command *parseCommand(int argc, char **argv)
                 {
                     setOutputMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setOutputPath(result, secondaryArg );
+                    setOutputPath(result, secondaryArg);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
@@ -218,7 +229,7 @@ struct Command *parseCommand(int argc, char **argv)
                 {
                     setOutputMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setOutputPath(result, secondaryArg );
+                    setOutputPath(result, secondaryArg);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
@@ -250,4 +261,63 @@ struct Command *parseCommand(int argc, char **argv)
     }
 
     return result;
+}
+
+/**
+ * Spot a command delimiter
+ * @param c Character to analyse
+ * @return True when <b>c</b> is a command delimiter, false otherwise
+ */
+bool isspecial(char c)
+{
+    switch (c)
+    {
+        case '|':
+        case ';':
+        case '<':
+        case '>':
+        case '&':
+            return true;
+        default:
+            return false;
+    }
+}
+
+void getNextSubCommand(char *str, char **start, char **end)
+{
+    if (str == NULL)
+    {
+        error_fatal(ERR_BAD_ARG_X, "Command to execute not specified");
+    }
+
+    bool exit = false;
+    *start = NULL;
+    *end = NULL;
+
+    for (int i = 0; !exit; i++)
+    {
+        if (str[i] == '\0')
+        {
+            exit = true;
+        }
+        else if (isspecial(str[i]))
+        {
+            if (*start == NULL) //trovato primo carattere
+            {
+                *start = *end = &str[i];
+            }
+            exit = true;
+        }
+        else
+        {
+            if (*start == NULL && !isspace(str[i])) //trovato primo carattere
+            {
+                *start = &str[i];
+            }
+            else if (!isspace(str[i]))//trovato ulteriore carattere
+            {
+                *end = &str[i];
+            }
+        }
+    }
 }
