@@ -3,7 +3,7 @@
 #include "../lib/errors.h"
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include <ctype.h> //TODO controllare se si può mettere
 
 #define ARG_MEM_LOGPATH "logpath"
 
@@ -291,6 +291,8 @@ void getNextSubCommand(char *str, char **start, char **end)
     }
 
     bool exit = false;
+    bool precSpecial = false;
+    bool precNumb = false;
     *start = NULL;
     *end = NULL;
 
@@ -300,23 +302,54 @@ void getNextSubCommand(char *str, char **start, char **end)
         {
             exit = true;
         }
-        else if (isspecial(str[i]))
-        {
-            if (*start == NULL) //trovato primo carattere
-            {
-                *start = *end = &str[i];
-            }
-            exit = true;
-        }
         else
         {
-            if (*start == NULL && !isspace(str[i])) //trovato primo carattere
+            if (isdigit(str[i]) && str[i + 1] == '>') //2> or 1> or ...
             {
-                *start = &str[i];
+                if (*start == NULL) //first char
+                {
+                    *start = *end = &str[i];
+                }
+                else //it's not the first so terminate current //e.g. abcd 1>
+                {
+                    exit = true;
+                }
+
+                precNumb = true;
             }
-            else if (!isspace(str[i]))//trovato ulteriore carattere
+            else if (isspecial(str[i]))
             {
-                *end = &str[i];
+                if (precSpecial == true || precNumb == true) //go on, we are between some specials char
+                {
+                    *end = &str[i];
+                }
+                else
+                {
+                    if (*start == NULL) //first special char
+                    {
+                        *start = *end = &str[i];
+                    }
+                    else //it's not the first so terminate current //e.g. abcd;
+                        exit = true;
+                }
+
+                precSpecial = true;
+            }
+            else if (precSpecial == true &&
+                     (!isdigit(str[i]) || str[i - 1] != '&')) //special sequence ended e.g. &&aaa or 2>&1 aaa
+            {
+                exit = true;
+            }
+            else
+            {
+                if (*start == NULL && !isspace(str[i])) //first text char found (save only non-space chars)
+                {
+                    *start = &str[i];
+                }
+                else if (!isspace(str[i]))//another text char found  (save only non-space chars)
+                {
+                    *end = &str[i];
+                }
             }
         }
     }
