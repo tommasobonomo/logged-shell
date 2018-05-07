@@ -1,8 +1,14 @@
 #include "../lib/wrapper.h"
+#include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+
+#define PIDPATH "/tmp/xlog/pidpath.txt"
+#define MAXLEN 80
 
 void daemonize() {
 
@@ -27,29 +33,40 @@ void daemonize() {
   fid = frk();
 
   // Termino il padre
-  if (fid > 0) {
-    exit(EXIT_SUCCESS);
-  }
+  if (fid <= 0) {
+    // exit(EXIT_SUCCESS);
+    // }
 
-  // Cambio directory
-  if (chdir("/") < 0) {
-    perror("Changing directory failure:");
-    exit(EXIT_FAILURE);
-  }
+    // Cambio directory
+    if (chdir("/") < 0) {
+      perror("Changing directory failure:");
+      exit(EXIT_FAILURE);
+    }
 
-  // Chiudo tutti i fd
-  for (int x = 0; x < sysconf(_SC_OPEN_MAX); x++) {
-    close(x);
+    // Chiudo tutti i fd
+    for (int x = 0; x < sysconf(_SC_OPEN_MAX); x++) {
+      close(x);
+    }
+
+    // Setto pid corrente come il demone
+    int fd = open(PIDPATH, O_CREAT, 0755);
+    if (fd < 0) {
+      perror("Error in creating file: ");
+    }
+
+    char str[MAXLEN];
+    sprintf(str, "%d", fid);
+    write(fd, str, MAXLEN);
+    close(fd);
   }
 }
 
 int main() {
+
   daemonize();
 
   while (1) {
-
-    // Daemon executing
-    sleep(30);
+    sleep(60);
 
     break;
   }
