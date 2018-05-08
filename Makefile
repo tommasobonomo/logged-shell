@@ -29,13 +29,13 @@ debug: $(BIN) checkNotDebug $(OBJ)
 
 # if DEBUGGUARD is present, it removes all the content of /bin
 checkDebug:
-	@if [[ -f $(DEBUGGUARD) ]]; then \
+	@if [ -f $(DEBUGGUARD) ]; then \
 		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
 	fi
 
 # if DEBUGGUARD is not present, it removes all the content of /bin
 checkNotDebug:
-	@if [[ ! -f $(DEBUGGUARD) ]]; then \
+	@if [ ! -f $(DEBUGGUARD) ]; then \
 		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
 	fi
 
