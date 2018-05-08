@@ -21,9 +21,9 @@ int main(int argc, char *argv[])
         {
             int length = (end - start) * sizeof(*start) + 1;
             char subcommand[MAXLEN];
-            sprintf(subcommand, "\"%.*s\"", length, start);
+            sprintf(subcommand, "%.*s", length, start);
+            printf("%.*s\n", length, start);
             executeSubCommand(subcommand);
-            printf("\"%.*s\"\n", length, start);
         }
 
     } while (start != NULL && end != NULL);
