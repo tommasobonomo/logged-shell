@@ -12,7 +12,7 @@
 #define PIDPATH "/tmp/xlog/pidpath"
 #define MAXLEN 80
 
-/*
+/**
  * Cerca di recuperare il pid del demone se esiste
  * @return 0 se non esiste il demone, il pid del demone se esiste
  */
@@ -30,7 +30,7 @@ int recover_pid() {
   return pid;
 }
 
-/*
+/**
  * Crea un demone eseguendo il kill dei processi che lo generano
  * Scrive il PID del demone nel file specificato nella macro PIDPATH
  */
@@ -83,7 +83,7 @@ void daemonize() {
   }
 }
 
-/*
+/**
  * Cerca di recuperare pid del demone se esiste:
  * Se esiste, ritorna il pid al chiamante
  * Se non esiste, fa partire il demone e ritorna il suo pid
