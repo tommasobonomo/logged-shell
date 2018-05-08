@@ -1,29 +1,49 @@
+
 PNAME = out
 SRC = ./src
 BIN = ./bin
-LIBRARY = ./src/lib
-PARSER = ./src/parser
+LIBRARY = $(SRC)/lib
+PARSER = $(SRC)/parser
+DEBUGGUARD = $(BIN)/DEBUG
 
+# list of object files, needs to be kept updated
 OBJ = 	$(BIN)/main.o \
 		$(BIN)/parser.o \
 		$(BIN)/errors.o \
 		$(BIN)/utilities.o
 
 
-.PHONY = build debug clean
+.PHONY = build debug checkDebug clean
 
-build: $(BIN) $(OBJ)
+# build rule, the standard one
+build: $(BIN) checkDebug $(OBJ)
 	@gcc -o $(BIN)/$(PNAME) $(OBJ)
 	@echo Finished building
 
+# debug rule, use it when debugging. It sets custom flags
 debug: FLAGS = -Wall -Wextra -DDEBUG
-debug: $(BIN) clean $(OBJ)
+debug: $(BIN) checkNotDebug $(OBJ)
 	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
+	@touch $(DEBUGGUARD)
 	@echo Finished building in debug mode
 
+# if DEBUGGUARD is present, it removes all the content of /bin
+checkDebug:
+	@if [[ -f $(DEBUGGUARD) ]]; then \
+		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
+	fi
+
+# if DEBUGGUARD is not present, it removes all the content of /bin
+checkNotDebug:
+	@if [[ ! -f $(DEBUGGUARD) ]]; then \
+		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
+	fi
+
+# creates /bin folder if it doesn't exist
 $(BIN):
 	@mkdir -p bin
 
+# object files
 $(BIN)/main.o: $(SRC)/main.c $(LIBRARY)/commands.h
 	gcc -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
 
@@ -36,6 +56,7 @@ $(BIN)/errors.o: $(LIBRARY)/errors.c $(LIBRARY)/errors.h
 $(BIN)/utilities.o: $(LIBRARY)/utilities.c $(LIBRARY)/utilities.h
 	gcc -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
 
+# clean rule, it completely removes /bin folder
 clean:
-	@rm -f $(BIN)/$(PNAME) $(OBJ)
-	@echo Removed temp files
+	@rm -rf $(BIN)
+	@echo Removed /bin folder
