@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <ctype.h> //TODO controllare se si può mettere
 
-#define ARG_MEM_LOGPATH "logpath"
-
 /**
  * Add all the default parameters
  * @param cmd the struct in which add the parameters
@@ -166,50 +164,49 @@ struct Command *parseCommand(int argc, char *argv[])
             else
             {
                 //MNEMONIC ARG
-                //TODO fare per tutti ARG_NOR_... e ARG_MEM_...
                 if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogfile(result, secondaryArg);
                     DEBUG_PRINT("path logfile: %s\n", result->log_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "format"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGFORMAT))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogformat(result, secondaryArg);
                     DEBUG_PRINT("format: %d\n", result->log_format);
                 }
-                else if (strStartWith(&argv[currArgc][2], "discardout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTDISCARD))
                 {
                     setOutputMode(result, MODE_DISCARD);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "discarderr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRDISCARD))
                 {
                     setErrorMode(result, MODE_DISCARD);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "printout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTSCEEN))
                 {
                     setOutputMode(result, MODE_SCREEN);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "printerr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRSCEEN))
                 {
                     setErrorMode(result, MODE_SCREEN);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "logout")) //TODO not the best name in the world
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTLOG)) //TODO not the best name in the world
                 {
                     setOutputMode(result, MODE_LOG);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "logerr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRLOG))
                 {
                     setErrorMode(result, MODE_LOG);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileappout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEAPP))
                 {
                     setOutputMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -217,7 +214,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileapperr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEAPP))
                 {
                     setErrorMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -225,7 +222,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileoverout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEOVER))
                 {
                     setOutputMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -233,7 +230,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileovererr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEOVER))
                 {
                     setErrorMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -242,7 +239,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
 
-                else if (strStartWith(&argv[currArgc][2], "dontcreate"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_DONTCREATELOG))
                 {
                     setCreate_log_ifNotExist(result, false);
                     DEBUG_PRINT("create_log_ifNotExist: %d\n", result->create_log_ifNotExist);
@@ -345,7 +342,7 @@ void getNextSubCommand(char *str, char **start, char **end)
                     {
                         *start = *end = &str[i];
                     }
-                    else //it's not the first so terminate current //e.g. abcd; whe are on the ; that should not be included now
+                    else //it's not the first so terminate current //e.g. abcd;
                         exit = true;
                 }
 

@@ -1,6 +1,27 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+// NORMAL ARGUMENTS
+//TODO normal args
+
+// MNEMONIC ARGUMENTS
+#define ARG_MEM_LOGPATH "logpath"
+#define ARG_MEM_LOGFORMAT "format"
+
+#define ARG_MEM_OUTDISCARD "discardout"
+#define ARG_MEM_OUTSCEEN "printout"
+#define ARG_MEM_OUTLOG "logout"
+#define ARG_MEM_OUTFILEAPP "fileappout"
+#define ARG_MEM_OUTFILEOVER "fileoverout"
+
+#define ARG_MEM_ERRDISCARD "discarderr"
+#define ARG_MEM_ERRSCEEN "printerr"
+#define ARG_MEM_ERRLOG "logerr"
+#define ARG_MEM_ERRFILEAPP "fileapperr"
+#define ARG_MEM_ERRFILEOVER "fileovererr"
+
+#define ARG_MEM_DONTCREATELOG "dontcreate"
+
 /**
  * Parse all the command line arguments and build a structure with the parameters set, even default, but the Sub-commands
  * @param argc The maximum number of command line arguments
