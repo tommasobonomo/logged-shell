@@ -36,7 +36,7 @@ void daemonize() {
 
   // Termino il padre e scrivo il pid
   if (fid > 0) {
-    int fd = open(PIDPATH, O_WRONLY | O_CREAT, 0777);
+    int fd = open(PIDPATH, O_WRONLY | O_CREAT, 0006);
     if (fd < 0) {
       perror("Error in creating file: ");
     }
