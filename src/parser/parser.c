@@ -292,7 +292,6 @@ void getNextSubCommand(char *str, char **start, char **end)
 
     bool exit = false;
     bool precSpecial = false;
-    bool precNumb = false;
     *start = NULL;
     *end = NULL;
 
@@ -304,22 +303,39 @@ void getNextSubCommand(char *str, char **start, char **end)
         }
         else
         {
-            if (isdigit(str[i]) && str[i + 1] == '>') //2> or 1> or ...
+            if (*start == NULL && str[i] == '&' && isdigit(str[i + 1])) //e.g. &1
             {
-                if (*start == NULL) //first char
+                *start = &str[i];
+                *end = &str[i + 1];
+                exit = true;
+            }
+            else if (isdigit(str[i]) && str[i + 1] == '>') //e.g. 2>
+            {
+                if (*start == NULL) //first char, take the number only
                 {
                     *start = *end = &str[i];
+                    exit = true;
                 }
-                else //it's not the first so terminate current //e.g. abcd 1>
+                else //it's not the first so terminate current
                 {
                     exit = true;
                 }
-
-                precNumb = true;
             }
             else if (isspecial(str[i]))
             {
-                if (precSpecial == true || precNumb == true) //go on, we are between some specials char
+                if (str[i] == '>' && str[i + 1] == '&') //e.g. >&2
+                {
+                    if (*start == NULL) //first char, take the > only
+                    {
+                        *start = *end = &str[i];
+                        exit = true;
+                    }
+                    else
+                    {
+                        exit = true;
+                    }
+                }
+                else if (precSpecial == true) //go on, we are between some specials char
                 {
                     *end = &str[i];
                 }
@@ -329,14 +345,13 @@ void getNextSubCommand(char *str, char **start, char **end)
                     {
                         *start = *end = &str[i];
                     }
-                    else //it's not the first so terminate current //e.g. abcd;
+                    else //it's not the first so terminate current //e.g. abcd; whe are on the ; that should not be included now
                         exit = true;
                 }
 
                 precSpecial = true;
             }
-            else if (precSpecial == true &&
-                     (!isdigit(str[i]) || str[i - 1] != '&')) //special sequence ended e.g. &&aaa or 2>&1 aaa
+            else if (precSpecial == true) //special sequence ended
             {
                 exit = true;
             }
@@ -346,7 +361,7 @@ void getNextSubCommand(char *str, char **start, char **end)
                 {
                     *start = &str[i];
                 }
-                else if (!isspace(str[i]))//another text char found  (save only non-space chars)
+                else if (!isspace(str[i])) //another text char found  (save only non-space chars)
                 {
                     *end = &str[i];
                 }
