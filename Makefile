@@ -1,39 +1,62 @@
+
 PNAME = out
 SRC = ./src
 BIN = ./bin
-LIBRARY = ./src/lib
-PARSER = ./src/parser
+LIBRARY = $(SRC)/lib
+PARSER = $(SRC)/parser
+DEBUGGUARD = $(BIN)/DEBUG
 
+# list of object files, needs to be kept updated
 OBJ = 	$(BIN)/main.o \
 		$(BIN)/parser.o \
 		$(BIN)/errors.o \
 		$(BIN)/utilities.o
 
-#FLAGS = -Wall -Wextra -DDEBUG
 
+.PHONY = build debug checkDebug clean
 
-.PHONY = build clean
-
-build: $(OBJ)
-	@mkdir -p bin
-	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
+# build rule, the standard one
+build: $(BIN) checkDebug $(OBJ)
+	@gcc -o $(BIN)/$(PNAME) $(OBJ)
 	@echo Finished building
 
+# debug rule, use it when debugging. It sets custom flags
+debug: FLAGS = -Wall -Wextra -DDEBUG
+debug: $(BIN) checkNotDebug $(OBJ)
+	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
+	@touch $(DEBUGGUARD)
+	@echo Finished building in debug mode
+
+# if DEBUGGUARD is present, it removes all the content of /bin
+checkDebug:
+	@if [[ -f $(DEBUGGUARD) ]]; then \
+		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
+	fi
+
+# if DEBUGGUARD is not present, it removes all the content of /bin
+checkNotDebug:
+	@if [[ ! -f $(DEBUGGUARD) ]]; then \
+		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
+	fi
+
+# creates /bin folder if it doesn't exist
+$(BIN):
+	@mkdir -p bin
+
+# object files
 $(BIN)/main.o: $(SRC)/main.c $(LIBRARY)/commands.h
-	gcc -c $(SRC)/main.c $(FLAGS)
-	@mv main.o $(BIN)/main.o
+	gcc -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
 
 $(BIN)/parser.o: $(PARSER)/parser.c $(PARSER)/parser.h
-	gcc -c $(PARSER)/parser.c $(FLAGS)
-	@mv parser.o $(BIN)/parser.o
+	gcc -c $(PARSER)/parser.c -o $(BIN)/parser.o $(FLAGS)
 
 $(BIN)/errors.o: $(LIBRARY)/errors.c $(LIBRARY)/errors.h
-	gcc -c $(LIBRARY)/errors.c $(FLAGS)
-	@mv errors.o $(BIN)/errors.o
+	gcc -c $(LIBRARY)/errors.c -o $(BIN)/errors.o $(FLAGS)
 
 $(BIN)/utilities.o: $(LIBRARY)/utilities.c $(LIBRARY)/utilities.h
-	gcc -c $(LIBRARY)/utilities.c $(FLAGS)
-	@mv utilities.o $(BIN)/utilities.o
+	gcc -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
 
+# clean rule, it completely removes /bin folder
 clean:
-	rm $(BIN)/$(PNAME) $(OBJ)
+	@rm -rf $(BIN)
+	@echo Removed /bin folder
