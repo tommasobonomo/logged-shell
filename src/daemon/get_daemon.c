@@ -1,4 +1,6 @@
+#include "../lib/errors.h"
 #include "../lib/wrapper.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdio.h>
@@ -12,6 +14,8 @@
 #define PIDPATH "/tmp/xlog/pidpath"
 #define MAXLEN 80
 
+extern int errno;
+
 /**
  * Cerca di recuperare il pid del demone se esiste
  * @return 0 se non esiste il demone, il pid del demone se esiste
@@ -23,8 +27,11 @@ int recover_pid() {
     char buf[PIDLENGTH];
     read(fd, buf, PIDLENGTH);
     pid = atoi(buf);
-  } else {
+  } else if (errno == EACCES) { // Se l'errore è di tipo di accesso, cioè il
+                                // file non esiste
     pid = 0;
+  } else {
+    error_fatal(ERR_X, "Error in creating daemon files\n");
   }
   close(fd);
   return pid;
@@ -45,8 +52,7 @@ void daemonize() {
 
   // Crea una nuova sessione e un gruppo di processo
   if (setsid() < 0) {
-    perror("New session and new process group failed");
-    exit(EXIT_FAILURE);
+    error_fatal(ERR_X, "New session and new process group failed\n");
   }
 
   // Gestisco o ignoro segnali
@@ -60,7 +66,7 @@ void daemonize() {
   if (fid > 0) {
     int fd = open(PIDPATH, O_WRONLY | O_CREAT, 0666);
     if (fd < 0) {
-      perror("Error in creating file");
+      error_fatal(ERR_X, "Error in writing to or creating file\n");
     }
 
     char str[PIDLENGTH + 1];
@@ -72,8 +78,7 @@ void daemonize() {
 
     // Cambio directory
     if (chdir("/") < 0) {
-      perror("Changing directory failure");
-      exit(EXIT_FAILURE);
+      error_fatal(ERR_X, "Error in changing directory\n");
     }
 
     // Chiudo tutti i fd
