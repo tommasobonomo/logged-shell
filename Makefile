@@ -4,13 +4,15 @@ SRC = ./src
 BIN = ./bin
 LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
+EXECUTER = $(SRC)/executer
 DEBUGGUARD = $(BIN)/DEBUG
 
 # list of object files, needs to be kept updated
 OBJ = 	$(BIN)/main.o \
 		$(BIN)/parser.o \
 		$(BIN)/errors.o \
-		$(BIN)/utilities.o
+		$(BIN)/utilities.o \
+		$(BIN)/executer.o
 
 
 .PHONY = build debug checkDebug clean
@@ -55,6 +57,9 @@ $(BIN)/errors.o: $(LIBRARY)/errors.c $(LIBRARY)/errors.h
 
 $(BIN)/utilities.o: $(LIBRARY)/utilities.c $(LIBRARY)/utilities.h
 	gcc -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
+
+$(BIN)/executer.o: $(EXECUTER)/executer.c $(EXECUTER)/executer.h
+	gcc -c $(EXECUTER)/executer.c -o $(BIN)/executer.o $(FLAGS)
 
 # clean rule, it completely removes /bin folder
 clean:

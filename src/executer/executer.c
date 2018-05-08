@@ -7,4 +7,5 @@
  */
 void executeSubCommand(char subcommand[])
 {
+    system(subcommand);
 }
