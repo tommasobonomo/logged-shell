@@ -3,9 +3,7 @@
 #include "../lib/errors.h"
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
-
-#define ARG_MEM_LOGPATH "logpath"
+#include <ctype.h> //TODO controllare se si può mettere
 
 /**
  * Add all the default parameters
@@ -166,50 +164,49 @@ struct Command *parseCommand(int argc, char *argv[])
             else
             {
                 //MNEMONIC ARG
-                //TODO fare per tutti ARG_NOR_... e ARG_MEM_...
                 if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogfile(result, secondaryArg);
                     DEBUG_PRINT("path logfile: %s\n", result->log_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "format"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGFORMAT))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogformat(result, secondaryArg);
                     DEBUG_PRINT("format: %d\n", result->log_format);
                 }
-                else if (strStartWith(&argv[currArgc][2], "discardout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTDISCARD))
                 {
                     setOutputMode(result, MODE_DISCARD);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "discarderr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRDISCARD))
                 {
                     setErrorMode(result, MODE_DISCARD);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "printout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTSCEEN))
                 {
                     setOutputMode(result, MODE_SCREEN);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "printerr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRSCEEN))
                 {
                     setErrorMode(result, MODE_SCREEN);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "logout")) //TODO not the best name in the world
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTLOG)) //TODO not the best name in the world
                 {
                     setOutputMode(result, MODE_LOG);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "logerr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRLOG))
                 {
                     setErrorMode(result, MODE_LOG);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileappout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEAPP))
                 {
                     setOutputMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -217,7 +214,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileapperr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEAPP))
                 {
                     setErrorMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -225,7 +222,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileoverout"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEOVER))
                 {
                     setOutputMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -233,7 +230,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], "fileovererr"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEOVER))
                 {
                     setErrorMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -242,7 +239,7 @@ struct Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
 
-                else if (strStartWith(&argv[currArgc][2], "dontcreate"))
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_DONTCREATELOG))
                 {
                     setCreate_log_ifNotExist(result, false);
                     DEBUG_PRINT("create_log_ifNotExist: %d\n", result->create_log_ifNotExist);
@@ -291,6 +288,7 @@ void getNextSubCommand(char *str, char **start, char **end)
     }
 
     bool exit = false;
+    bool precSpecial = false;
     *start = NULL;
     *end = NULL;
 
@@ -300,23 +298,70 @@ void getNextSubCommand(char *str, char **start, char **end)
         {
             exit = true;
         }
-        else if (isspecial(str[i]))
-        {
-            if (*start == NULL) //trovato primo carattere
-            {
-                *start = *end = &str[i];
-            }
-            exit = true;
-        }
         else
         {
-            if (*start == NULL && !isspace(str[i])) //trovato primo carattere
+            if (*start == NULL && str[i] == '&' && isdigit(str[i + 1])) //e.g. &1
             {
                 *start = &str[i];
+                *end = &str[i + 1];
+                exit = true;
             }
-            else if (!isspace(str[i]))//trovato ulteriore carattere
+            else if (isdigit(str[i]) && str[i + 1] == '>') //e.g. 2>
             {
-                *end = &str[i];
+                if (*start == NULL) //first char, take the number only
+                {
+                    *start = *end = &str[i];
+                    exit = true;
+                }
+                else //it's not the first so terminate current
+                {
+                    exit = true;
+                }
+            }
+            else if (isspecial(str[i]))
+            {
+                if (str[i] == '>' && str[i + 1] == '&') //e.g. >&2
+                {
+                    if (*start == NULL) //first char, take the > only
+                    {
+                        *start = *end = &str[i];
+                        exit = true;
+                    }
+                    else
+                    {
+                        exit = true;
+                    }
+                }
+                else if (precSpecial == true) //go on, we are between some specials char
+                {
+                    *end = &str[i];
+                }
+                else
+                {
+                    if (*start == NULL) //first special char
+                    {
+                        *start = *end = &str[i];
+                    }
+                    else //it's not the first so terminate current //e.g. abcd;
+                        exit = true;
+                }
+
+                precSpecial = true;
+            }
+            else if (precSpecial == true) //special sequence ended
+            {
+                exit = true;
+            }
+            else
+            {
+                if (*start == NULL && !isspace(str[i])) //first text char found (save only non-space chars)
+                {
+                    *start = &str[i];
+                }
+                else if (!isspace(str[i])) //another text char found  (save only non-space chars)
+                {
+                    *end = &str[i];
+                }
             }
         }
     }
