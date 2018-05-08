@@ -1,10 +1,10 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
-#define ERR_X 0
-#define ERR_BAD_ARGS 1
-#define ERR_BAD_ARG_X 2
-#define ERR_UNKNOWN_ARG_X 3
+#define ERR_X 1
+#define ERR_BAD_ARGS 2
+#define ERR_BAD_ARG_X 3
+#define ERR_UNKNOWN_ARG_X 4
 
 /**
  * Useful function to print a template error and exit the program<br>
