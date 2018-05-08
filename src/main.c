@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include "./lib/commands.h"
 #include "./parser/parser.h"
+#include "./executer/executer.h"
 
+#define MAXLEN 80
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +20,9 @@ int main(int argc, char *argv[])
         if (start != NULL && end != NULL)
         {
             int length = (end - start) * sizeof(*start) + 1;
+            char subcommand[MAXLEN];
+            sprintf(subcommand, "\"%.*s\"", length, start);
+            executeSubCommand(subcommand);
             printf("\"%.*s\"\n", length, start);
         }
 
