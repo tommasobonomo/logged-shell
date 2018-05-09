@@ -1,5 +1,5 @@
-#ifndef SYSCALLS_H
-#define SYSCALLS_H
+#ifndef WRAPPER_H
+#define WRAPPER_H
 
 #include <sys/types.h>
 
