@@ -1,4 +1,5 @@
 #include "../lib/syscalls.h"
+#include "../lib/commands.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -10,12 +11,12 @@
  * @param subcommand the subcommand that will be executed
  * @return the PID of the process executing the subcommand
  */
-pid_t executeSubCommand(char subcommand[])
+pid_t executeSubCommand(struct SubCommandResult *subcommand)
 {
     pid_t fid = frk();
     if (fid == 0)
     { // Child process
-        system(subcommand);
+        system(subcommand->subCommand);
         exit(EXIT_SUCCESS);
     }
     else
