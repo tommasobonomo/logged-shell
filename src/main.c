@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/types.h>
 #include <stdlib.h>
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -23,7 +24,8 @@ int main(int argc, char *argv[])
             char subcommand[MAXLEN];
             sprintf(subcommand, "%.*s", length, start);
             printf("%.*s\n", length, start);
-            executeSubCommand(subcommand);
+            pid_t fid = executeSubCommand(subcommand);
+            printf("PID of process that executed command: %d\n", fid);
         }
 
     } while (start != NULL && end != NULL);
