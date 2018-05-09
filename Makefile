@@ -12,7 +12,10 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/parser.o \
 		$(BIN)/errors.o \
 		$(BIN)/utilities.o \
+<<<<<<< HEAD
 		$(BIN)/syscalls.o \
+=======
+>>>>>>> 6e3e818f51c243171810cd6d136db041275d0061
 		$(BIN)/executer.o
 
 
