@@ -12,6 +12,7 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/parser.o \
 		$(BIN)/errors.o \
 		$(BIN)/utilities.o \
+		$(BIN)/syscalls.o \
 		$(BIN)/executer.o
 
 
@@ -57,6 +58,9 @@ $(BIN)/errors.o: $(LIBRARY)/errors.c $(LIBRARY)/errors.h
 
 $(BIN)/utilities.o: $(LIBRARY)/utilities.c $(LIBRARY)/utilities.h
 	gcc -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
+
+$(BIN)/syscalls.o: $(LIBRARY)/syscalls.c $(LIBRARY)/syscalls.h
+	gcc -c $(LIBRARY)/syscalls.c -o $(BIN)/syscalls.o $(FLAGS)
 
 $(BIN)/executer.o: $(EXECUTER)/executer.c $(EXECUTER)/executer.h
 	gcc -c $(EXECUTER)/executer.c -o $(BIN)/executer.o $(FLAGS)
