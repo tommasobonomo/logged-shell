@@ -1,8 +1,27 @@
 #include "../statistics/statHelper.h"
 #include "../executer/executer.h"
 #include "../lib/syscalls.h"
-#include <stdlib.h>
 #include <sys/wait.h>
+#include<signal.h>
+
+pid_t fid;
+
+void child_sighandle(int signo)
+{
+    if (signo == SIGINT)
+    {
+        exit(EXIT_SUCCESS);
+    }
+}
+
+void parent_sighandle(int signo)
+{
+    if (signo == SIGINT)
+    {
+        getProcessStats(fid);
+        kill(fid, SIGINT);
+    }
+}
 
 /**
  * Executes subcommand received from main file in a child process
@@ -18,19 +37,26 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
     }
     else
     {
-        pid_t fid = frk();
+        fid = frk();
         if (fid == 0)
         {
             // Child process
+            signal(SIGINT, child_sighandle); //TODO wrapper
+
             DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
             system(subcommand->subCommand);
-            getCurrProcessStats();
-            exit(EXIT_SUCCESS);
+
+            kill(getppid(), SIGINT);
+
+            while (1)
+            { sleep(999); } //TODO meke better
         }
         else
         {
             // Parent process
-            wait(NULL);
+            signal(SIGINT, parent_sighandle); //TODO wrapper
+
+            waitpid(fid, NULL, 0);
             return fid;
         }
     }

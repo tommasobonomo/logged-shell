@@ -1,6 +1,8 @@
 #ifndef STATHELPER_H
 #define STATHELPER_H
 
-void getCurrProcessStats();
+#include <stdlib.h>
+
+void getProcessStats(pid_t pid);
 
 #endif
