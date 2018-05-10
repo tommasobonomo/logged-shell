@@ -1,7 +1,6 @@
 #include "parser.h"
 #include "../lib/commands.h"
 #include "../lib/errors.h"
-#include <string.h>
 #include <stdlib.h>
 #include <ctype.h> //TODO controllare se si può mettere
 
@@ -15,6 +14,8 @@ struct Command *addDefault(struct Command *cmd)
     //TODO aggiungi tutti i parametri di default
     cmd->command = NULL;
     cmd->log_path = NULL;
+
+    cmd->n_subCommands = 0;
     return cmd;
 }
 
@@ -150,7 +151,7 @@ struct Command *parseCommand(int argc, char *argv[])
 {
     struct Command *result = malloc(sizeof(struct Command));
     addDefault(result);
-    DEBUG_PRINT("result allocato, default added\n\n");
+    DEBUG_PRINT("Command allocato, default added\n\n");
 
     for (int currArgc = 1; currArgc < argc; currArgc++)
     {

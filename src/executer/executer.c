@@ -1,9 +1,7 @@
 #include "../lib/syscalls.h"
 #include "../lib/commands.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 
 /**
  * Executes subcommand received from main file in a child process
@@ -16,6 +14,7 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
     pid_t fid = frk();
     if (fid == 0)
     { // Child process
+        DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
         system(subcommand->subCommand);
         exit(EXIT_SUCCESS);
     }

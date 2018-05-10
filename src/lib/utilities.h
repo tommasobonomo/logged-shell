@@ -8,6 +8,7 @@ typedef enum
 
 #define CMD_STRING_LENGHT_MAX 500
 #define PATH_MAX 4095
+#define MAX_SUBCOMMANDS 80 //TODO non bello, fai almeno dei controlli nel main
 
 #ifdef DEBUG
 #include <stdio.h> //TODO is it needed?

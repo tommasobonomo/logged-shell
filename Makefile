@@ -24,7 +24,7 @@ build: $(BIN) checkDebug $(OBJ)
 	@echo Finished building
 
 # debug rule, use it when debugging. It sets custom flags
-debug: FLAGS = -Wall -Wextra -DDEBUG
+debug: FLAGS = -Wall -Wextra -DDEBUG -g
 debug: $(BIN) checkNotDebug $(OBJ)
 	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
 	@touch $(DEBUGGUARD)

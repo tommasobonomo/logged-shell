@@ -5,16 +5,17 @@
 #include "./parser/parser.h"
 #include "./executer/executer.h"
 
-#define MAXLEN 80
-
 int main(int argc, char *argv[])
 {
-    struct Command *result = parseCommand(argc, argv);
+    DEBUG_PRINT("  ###########\n");
+    DEBUG_PRINT("  ## DEBUG ##\n");
+    DEBUG_PRINT("  ###########\n\n");
 
-    char *p = result->command;
+    struct Command *cmd = parseCommand(argc, argv);
+
+    char *p = cmd->command;
     char *start = NULL;
     char *end = NULL;
-    int subIndex = 0;
 
     do
     {
@@ -22,25 +23,29 @@ int main(int argc, char *argv[])
         p = end + 1;
         if (start != NULL && end != NULL)
         {
-            struct SubCommandResult *subcommand = malloc(sizeof(struct SubCommandResult));
-            result->subCommands[subIndex] = subcommand;
-            subIndex += 1;
+            struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
+            cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
+            cmd->n_subCommands++;
 
             int length = (end - start) * sizeof(*start) + 1;
-            sprintf(subcommand->subCommand, "%.*s", length, start);
-            printf("%.*s\n", length, start);
-            pid_t fid = executeSubCommand(subcommand);
-            printf("PID of process that executed command: %d\n", fid);
+            subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
+            sprintf(subCmdResult->subCommand, "%.*s", length, start);
+
+            subCmdResult->ID = executeSubCommand(subCmdResult);
+            DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->ID);
         }
 
     } while (start != NULL && end != NULL);
 
-    // Freeing dynamically allocated memory
-    for (int i = 0; i < subIndex; i++)
+
+    // FREEING DYNAMICALLY ALLOCATED MEMORY
+    for (int i = 0; i < cmd->n_subCommands; i++)
     {
-        free(result->subCommands[i]);
+        free(cmd->subCommandResults[i]->subCommand);
+        free(cmd->subCommandResults[i]);
     }
-    free(result);
+    free(cmd);
+    // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
     return 0;
 }

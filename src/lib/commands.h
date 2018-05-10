@@ -2,6 +2,8 @@
 #define COMMANDS_H
 
 #include "utilities.h"
+#include <unistd.h>
+#include <sys/types.h>
 
 #define LOG_FORMAT_TXT 0
 #define LOG_FORMAT_CSV 1
@@ -17,8 +19,9 @@
  */
 struct SubCommandResult
 {
-    char subCommand[CMD_STRING_LENGHT_MAX + 1];
-    char parameters[CMD_STRING_LENGHT_MAX + 1];
+    pid_t ID;
+    char *subCommand;
+    char parameters;
     //TODO aggiungere statistiche
 };
 
@@ -36,7 +39,7 @@ struct Command
     int error_mode;
     char *error_path;
     int n_subCommands;
-    struct SubCommandResult *subCommands[];
+    struct SubCommandResult *subCommandResults[MAX_SUBCOMMANDS];
 };
 
 #endif
