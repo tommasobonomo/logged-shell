@@ -24,15 +24,20 @@ int main(int argc, char *argv[])
         if (start != NULL && end != NULL)
         {
             struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
-            cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
-            cmd->n_subCommands++;
 
             int length = (end - start) * sizeof(*start) + 1;
             subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
             sprintf(subCmdResult->subCommand, "%.*s", length, start);
 
             subCmdResult->ID = executeSubCommand(subCmdResult);
-            DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->ID);
+
+            if (subCmdResult->ID != CTRL_CMD)
+            {
+                //SAVING CURRENT SUBCOMMAND
+                DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->ID);
+                cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
+                cmd->n_subCommands++;
+            }
         }
 
     } while (start != NULL && end != NULL);

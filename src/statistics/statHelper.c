@@ -1,6 +1,8 @@
+#include "./statHelper.h"
 #include <sys/resource.h>
-#include <sys/time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 /*
  * USEFUL:
@@ -10,8 +12,10 @@
  * https://www.softprayog.in/tutorials/linux-process-execution-time
  */
 
-getCurrProcessStats()
+void getCurrProcessStats()
 {
+    printf("### STATISTICS 1 ###\n");
+
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
     printf("user CPU time used: %ld\n", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec);
@@ -30,4 +34,10 @@ getCurrProcessStats()
     printf("signals received: %ld\n", usage.ru_nsignals);
     printf("voluntary context switches: %ld\n", usage.ru_nvcsw);
     printf("involuntary context switches: %ld\n", usage.ru_nivcsw);
+
+    printf("### STATISTICS 2 ###\n");
+
+    char buf[20];
+    sprintf(buf, "cat /proc/%d/status", getpid());
+    system(buf);
 }

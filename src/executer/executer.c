@@ -1,5 +1,6 @@
+#include "../statistics/statHelper.h"
+#include "../executer/executer.h"
 #include "../lib/syscalls.h"
-#include "../lib/commands.h"
 #include <stdlib.h>
 #include <sys/wait.h>
 
@@ -11,17 +12,26 @@
  */
 pid_t executeSubCommand(struct SubCommandResult *subcommand)
 {
-    pid_t fid = frk();
-    if (fid == 0)
-    { // Child process
-        DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
-        system(subcommand->subCommand);
-        exit(EXIT_SUCCESS);
+    if (strcmp(subcommand->subCommand, ";") == 0)
+    {
+        return CTRL_CMD;
     }
     else
     {
-        // Parent process
-        wait(NULL);
-        return fid;
+        pid_t fid = frk();
+        if (fid == 0)
+        {
+            // Child process
+            DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
+            system(subcommand->subCommand);
+            getCurrProcessStats();
+            exit(EXIT_SUCCESS);
+        }
+        else
+        {
+            // Parent process
+            wait(NULL);
+            return fid;
+        }
     }
 }

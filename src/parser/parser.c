@@ -160,7 +160,14 @@ struct Command *parseCommand(int argc, char *argv[])
             if (argv[currArgc][1] != '-')
             {
                 //NORMAL ARG
+                if (false)
+                {
 
+                }
+                else
+                {
+                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
+                }
             }
             else
             {

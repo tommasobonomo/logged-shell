@@ -4,6 +4,8 @@
 #include "../lib/commands.h"
 #include <sys/types.h>
 
+#define CTRL_CMD (-1)
+
 /**
  * Executes subcommand received from main file in a forked process
  * The parent process waits for it's child to finish execution before returning the PID

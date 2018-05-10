@@ -1,11 +1,14 @@
 
 PNAME = out
+DEBUGGUARD = $(BIN)/DEBUG
+
 SRC = ./src
 BIN = ./bin
 LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
 EXECUTER = $(SRC)/executer
-DEBUGGUARD = $(BIN)/DEBUG
+STATISTICS = $(SRC)/statistics
+
 
 # list of object files, needs to be kept updated
 OBJ = 	$(BIN)/main.o \
@@ -13,7 +16,8 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/errors.o \
 		$(BIN)/utilities.o \
 		$(BIN)/syscalls.o \
-		$(BIN)/executer.o
+		$(BIN)/executer.o \
+		$(BIN)/statHelper.o
 
 
 .PHONY = build debug checkDebug clean
@@ -64,6 +68,9 @@ $(BIN)/syscalls.o: $(LIBRARY)/syscalls.c $(LIBRARY)/syscalls.h
 
 $(BIN)/executer.o: $(EXECUTER)/executer.c $(EXECUTER)/executer.h
 	gcc -c $(EXECUTER)/executer.c -o $(BIN)/executer.o $(FLAGS)
+
+$(BIN)/statHelper.o: $(STATISTICS)/statHelper.c $(STATISTICS)/statHelper.h
+	gcc -c $(STATISTICS)/statHelper.c -o $(BIN)/statHelper.o $(FLAGS)
 
 # clean rule, it completely removes /bin folder
 clean:
