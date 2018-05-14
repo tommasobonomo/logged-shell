@@ -5,18 +5,18 @@
 #include <signal.h>
 #include <string.h>
 
-pid_t fid;
+bool parentContinue = false;
+bool childContinue = false;
 
 void sighandler(int signo)
 {
     if (signo == SIGUSR1)
     {
-        getProcessStats(fid); // TODO passare anche struttura subcommand
-        kill(fid, SIGUSR2);
+        parentContinue = true;
     }
     else if (signo == SIGUSR2)
     {
-        exit(EXIT_SUCCESS);
+        childContinue = true;
     }
 }
 
@@ -37,7 +37,7 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
         signal(SIGUSR1, sighandler); //TODO wrapper
         signal(SIGUSR2, sighandler); //TODO wrapper
 
-        fid = frk();
+        pid_t fid = frk();
         if (fid == 0)
         {
             // Child process
@@ -47,12 +47,21 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
 
             kill(getppid(), SIGUSR1);
 
-            while (1)
-            { sleep(999); } //TODO meke better
+            while (!childContinue)
+            {
+                pause();
+            }
+            exit(EXIT_SUCCESS);
         }
         else
         {
             // Parent process
+            while (!parentContinue)
+            {
+                pause();
+            }
+            getProcessStats(fid, subcommand);
+            kill(fid, SIGUSR2);
 
             waitpid(fid, NULL, 0);
             return fid;
