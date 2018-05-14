@@ -1,8 +1,10 @@
 #include "./statHelper.h"
 #include <sys/resource.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include "../lib/errors.h"
+#include "../lib/utilities.h"
 
 /*
  * USEFUL:
@@ -10,34 +12,59 @@
  * /usr/bin/time -v "programName"
  * man proc
  * https://www.softprayog.in/tutorials/linux-process-execution-time
+ * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getCurrProcessStats()
+void getProcessStats(pid_t pid)
 {
-    printf("### STATISTICS 1 ###\n");
+    printf("\n### STATISTICS ###\n\n");
 
-    struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
-    printf("user CPU time used: %ld\n", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec);
-    printf("system CPU time used: %ld\n", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec);
-    printf("maximum resident set size: %ld\n", usage.ru_maxrss);
-    printf("integral shared memory size: %ld\n", usage.ru_ixrss);
-    printf("integral unshared data size: %ld\n", usage.ru_idrss);
-    printf("integral unshared stack size: %ld\n", usage.ru_isrss);
-    printf("page reclaims (soft page faults): %ld\n", usage.ru_minflt);
-    printf("page faults (hard page faults): %ld\n", usage.ru_majflt);
-    printf("swaps: %ld\n", usage.ru_nswap);
-    printf("block input operations: %ld\n", usage.ru_inblock);
-    printf("block output operations: %ld\n", usage.ru_oublock);
-    printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
-    printf("IPC messages received: %ld\n", usage.ru_msgrcv);
-    printf("signals received: %ld\n", usage.ru_nsignals);
-    printf("voluntary context switches: %ld\n", usage.ru_nvcsw);
-    printf("involuntary context switches: %ld\n", usage.ru_nivcsw);
+    char statsPath[20];
+    sprintf(statsPath, "/proc/%d", pid);
 
-    printf("### STATISTICS 2 ###\n");
+    /* PROCESS STATUS */
+    char statusFile[20];
+    sprintf(statusFile, "%s/status", statsPath);
+    FILE *statusfp = fopen(statusFile, "r"); //TODO fare wrapper
+    if (statusfp == NULL) {
+        error_fatal(ERR_X, "Failed to open 'status' file\n");
+    }
+    char status[1000] = "";
+    char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
+    int countStatsFromStatus = sizeof(statsFromStatus) / sizeof(statsFromStatus[0]);
+    for (int i = 0; i < countStatsFromStatus; i++) {
+        char grep[50];
+        sprintf(grep, "grep -m 1 %s: %s/status", statsFromStatus[i], statsPath);
+        FILE *fp = popen(grep, "r"); //TODO <-- destory this shit
+        if (fp == NULL) {
+            error_fatal(ERR_X, "Failed to list opened files\n");
+        }
+        char line[50];
+        fgets(line, sizeof(line), fp);
+        strcat(status, line);
+        pclose(fp);
+    }
+    fclose(statusfp);
+    printf("Process status:\n%s\n", status);
 
-    char buf[20];
-    sprintf(buf, "cat /proc/%d/status", getpid());
-    system(buf);
+
+    /* OPENED FILES */
+    char commandListFD[25];
+    char *commandStatFormatter = "stat -c \"File: %N\tdim: %s bytes, owner: %U, modified: %y\" $f";
+    sprintf(commandListFD, "cd %s/fd; for f in * \ndo\n%s\ndone", statsPath, commandStatFormatter);
+    FILE *fp = popen(commandListFD, "r");
+    if (fp == NULL) {
+        error_fatal(ERR_X, "Failed to list opened files\n");
+    }
+
+    /* Read the output a line at a time */
+    char tmp[4], fds[1000] = "";
+    while (fgets(tmp, sizeof(tmp), fp) != NULL) {
+        strcat(fds, tmp);
+    }
+
+    /* close */
+    pclose(fp);
+
+    printf("Opened files:\n%s\n", fds);
 }
