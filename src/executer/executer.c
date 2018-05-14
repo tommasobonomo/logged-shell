@@ -3,6 +3,7 @@
 #include "../lib/syscalls.h"
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <string.h>
 
 /**
  * Executes subcommand received from main file in a child process
