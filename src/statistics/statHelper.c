@@ -1,7 +1,6 @@
 #include "./statHelper.h"
 #include <sys/resource.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include "../lib/errors.h"
@@ -16,17 +15,17 @@
  * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getCurrProcessStats()
+void getProcessStats(pid_t pid)
 {
     printf("\n### STATISTICS ###\n\n");
 
     char statsPath[20];
-    sprintf(statsPath, "/proc/%d", getpid());
+    sprintf(statsPath, "/proc/%d", pid);
 
     /* PROCESS STATUS */
     char statusFile[20];
     sprintf(statusFile, "%s/status", statsPath);
-    FILE *statusfp = fopen(statusFile, "r");
+    FILE *statusfp = fopen(statusFile, "r"); //TODO fare wrapper
     if (statusfp == NULL) {
         error_fatal(ERR_X, "Failed to open 'status' file\n");
     }
@@ -36,7 +35,7 @@ void getCurrProcessStats()
     for (int i = 0; i < countStatsFromStatus; i++) {
         char grep[50];
         sprintf(grep, "grep -m 1 %s: %s/status", statsFromStatus[i], statsPath);
-        FILE *fp = popen(grep, "r");
+        FILE *fp = popen(grep, "r"); //TODO <-- destory this shit
         if (fp == NULL) {
             error_fatal(ERR_X, "Failed to list opened files\n");
         }
