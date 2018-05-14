@@ -2,6 +2,7 @@
 #include "../lib/commands.h"
 #include "../lib/errors.h"
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h> //TODO controllare se si può mettere
 
 /**
@@ -162,7 +163,6 @@ struct Command *parseCommand(int argc, char *argv[])
                 //NORMAL ARG
                 if (false)
                 {
-
                 }
                 else
                 {
@@ -277,14 +277,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-        case '|':
-        case ';':
-        case '<':
-        case '>':
-        case '&':
-            return true;
-        default:
-            return false;
+    case '|':
+    case ';':
+    case '<':
+    case '>':
+    case '&':
+        return true;
+    default:
+        return false;
     }
 }
 
