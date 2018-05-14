@@ -1,1 +1,5 @@
-/bin
+bin/
+cmake-build-debug/
+\.idea/
+CMakeLists\.txt
+LabProjects\.exe

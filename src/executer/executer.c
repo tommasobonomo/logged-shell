@@ -11,7 +11,7 @@ void sighandler(int signo)
 {
     if (signo == SIGUSR1)
     {
-        getProcessStats(fid);
+        getProcessStats(fid); // TODO passare anche struttura subcommand
         kill(fid, SIGUSR2);
     }
     else if (signo == SIGUSR2)
