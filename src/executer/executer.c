@@ -6,20 +6,16 @@
 
 pid_t fid;
 
-void child_sighandle(int signo)
+void sighandler(int signo)
 {
-    if (signo == SIGINT)
-    {
-        exit(EXIT_SUCCESS);
-    }
-}
-
-void parent_sighandle(int signo)
-{
-    if (signo == SIGINT)
+    if (signo == SIGUSR1)
     {
         getProcessStats(fid);
-        kill(fid, SIGINT);
+        kill(fid, SIGUSR2);
+    }
+    else if (signo == SIGUSR2)
+    {
+        exit(EXIT_SUCCESS);
     }
 }
 
@@ -37,16 +33,18 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
     }
     else
     {
+        signal(SIGUSR1, sighandler); //TODO wrapper
+        signal(SIGUSR2, sighandler); //TODO wrapper
+
         fid = frk();
         if (fid == 0)
         {
             // Child process
-            signal(SIGINT, child_sighandle); //TODO wrapper
 
             DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
             system(subcommand->subCommand);
 
-            kill(getppid(), SIGINT);
+            kill(getppid(), SIGUSR1);
 
             while (1)
             { sleep(999); } //TODO meke better
@@ -54,7 +52,6 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
         else
         {
             // Parent process
-            signal(SIGINT, parent_sighandle); //TODO wrapper
 
             waitpid(fid, NULL, 0);
             return fid;
