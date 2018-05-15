@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
                 cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
                 cmd->n_subCommands++;
             }
+            else
+            {
+                free(subCmdResult);
+            }
         }
 
     } while (start != NULL && end != NULL);
