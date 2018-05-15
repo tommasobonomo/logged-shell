@@ -12,7 +12,6 @@
 
 #define PIDLENGTH 5
 #define PIDPATH "/tmp/xlog/pidpath"
-#define MAXLEN 80
 
 extern int errno;
 
