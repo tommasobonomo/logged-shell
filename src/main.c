@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
             subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
             sprintf(subCmdResult->subCommand, "%.*s", length, start);
 
-            subCmdResult->ID = executeSubCommand(subCmdResult);
+            subCmdResult->pid = executeSubCommand(subCmdResult);
 
-            if (subCmdResult->ID != CTRL_CMD)
+            if (subCmdResult->pid != CTRL_CMD)
             {
                 //SAVING CURRENT SUBCOMMAND
-                DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->ID);
+                DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->pid);
                 cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
                 cmd->n_subCommands++;
             }

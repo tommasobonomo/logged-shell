@@ -8,6 +8,8 @@
 #include "../lib/utilities.h"
 #include "../lib/commands.h"
 
+#define PROC_STAT_VALUES_N 52
+
 /*
  * USEFUL:
  * getrusage
@@ -25,32 +27,41 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     sprintf(statsPath, "/proc/%d", pid);
 
     /* PROCESS STATUS */
-    char statusFile[20];
-    sprintf(statusFile, "%s/status", statsPath);
-    FILE *statusfp = fopen(statusFile, "r"); //TODO fare wrapper
-    if (statusfp == NULL)
-    {
-        error_fatal(ERR_X, "Failed to open 'status' file\n");
+    char statFile[20];
+    sprintf(statFile, "%s/stat", statsPath);
+    FILE *statFileStream = fopen(statFile, "r"); //TODO fare wrapper
+    if (statFileStream == NULL) {
+        error_fatal(ERR_X, "Failed to open 'stat' file\n");
     }
     char status[1000] = "";
-    char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads",
-                               "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
-    int countStatsFromStatus = sizeof(statsFromStatus) / sizeof(statsFromStatus[0]);
-    for (int i = 0; i < countStatsFromStatus; i++)
-    {
-        char grep[50];
-        sprintf(grep, "grep -m 1 %s: %s/status", statsFromStatus[i], statsPath);
-        FILE *fp = popen(grep, "r"); //TODO <-- destory this shit
-        if (fp == NULL)
-        {
-            error_fatal(ERR_X, "Failed to list opened files\n");
+//    char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
+
+
+    char delimiter = ' ';
+    char buf[80];
+
+    for (int i = 1; ! feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++) {
+        fscanf(statFileStream, "%s", buf);
+        switch (i) {
+            case 1:     // pid
+                break;
+            case 3:     // state
+                break;
+            case 4:     // ppid
+                break;
+            case 20:    // threads
+                break;
+            case 23:    // vmsize
+                break;
+            case 24:    // vmressize
+                break;
+            default:
+                break;
         }
-        char line[50];
-        fgets(line, sizeof(line), fp);
-        strcat(status, line);
-        pclose(fp);
+        //printf("%d: %s\n", i, buf);
     }
-    fclose(statusfp);
+
+    fclose(statFileStream);
     printf("Process status:\n%s\n", status);
 
 
@@ -59,15 +70,13 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     char *commandStatFormatter = "stat -c \"File: %N\tdim: %s bytes, owner: %U, modified: %y\" $f";
     sprintf(commandListFD, "cd %s/fd; for f in * \ndo\n%s\ndone", statsPath, commandStatFormatter);
     FILE *fp = popen(commandListFD, "r");
-    if (fp == NULL)
-    {
+    if (fp == NULL) {
         error_fatal(ERR_X, "Failed to list opened files\n");
     }
 
     /* Read the output a line at a time */
     char tmp[4], fds[1000] = "";
-    while (fgets(tmp, sizeof(tmp), fp) != NULL)
-    {
+    while (fgets(tmp, sizeof(tmp), fp) != NULL) {
         strcat(fds, tmp);
     }
 

@@ -19,10 +19,18 @@
  */
 struct SubCommandResult
 {
-    pid_t ID;
     char *subCommand;
     char parameters;
-    //TODO aggiungere statistiche
+    // STATS
+    pid_t pid;
+    pid_t ppid;
+    char state;
+    int vmsize;
+    int vmressize;
+    int vmswap;
+    int threads;
+    int voluntary_ctxt_switches;
+    int nonvoluntary_ctxt_switches;
 };
 
 /**
