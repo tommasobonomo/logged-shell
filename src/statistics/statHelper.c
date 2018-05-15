@@ -62,26 +62,26 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     }
 
     fclose(statFileStream);
-    printf("Process status:\n%s\n", status);
+    //printf("Process status:\n%s\n", status);
 
 
     /* OPENED FILES */
-    char commandListFD[25];
+    /*char commandListFD[25];
     char *commandStatFormatter = "stat -c \"File: %N\tdim: %s bytes, owner: %U, modified: %y\" $f";
     sprintf(commandListFD, "cd %s/fd; for f in * \ndo\n%s\ndone", statsPath, commandStatFormatter);
     FILE *fp = popen(commandListFD, "r");
     if (fp == NULL) {
         error_fatal(ERR_X, "Failed to list opened files\n");
-    }
+    }*/
 
     /* Read the output a line at a time */
-    char tmp[4], fds[1000] = "";
+    /*char tmp[100], fds[1000] = "";
     while (fgets(tmp, sizeof(tmp), fp) != NULL) {
         strcat(fds, tmp);
     }
 
-    /* close */
+    // close
     pclose(fp);
 
-    printf("Opened files:\n%s\n", fds);
+    printf("Opened files:\n%s\n", fds);*/
 }

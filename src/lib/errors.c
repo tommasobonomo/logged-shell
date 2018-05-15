@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void error_fatal(int id, char *msg)
+void error_fatal(int id, char const *msg)
 {
     switch (id)
     {
@@ -20,6 +20,9 @@ void error_fatal(int id, char *msg)
     case ERR_UNKNOWN_ARG_X:
         fprintf(stderr, "ERROR, unknown argument: %s\n", msg);
         break;
+        case ERR_IO_FILE:
+            fprintf(stderr, "ERROR, can't open file: %s\n", msg);
+            break;
     default:
         fprintf(stderr, "ERROR not specified: %s\n", msg);
         break;

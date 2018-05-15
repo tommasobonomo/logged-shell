@@ -3,7 +3,7 @@
 #include "../lib/errors.h"
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h> //TODO controllare se si può mettere
+#include <ctype.h>
 
 /**
  * Add all the default parameters

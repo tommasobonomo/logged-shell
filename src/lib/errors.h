@@ -5,6 +5,7 @@
 #define ERR_BAD_ARGS 2
 #define ERR_BAD_ARG_X 3
 #define ERR_UNKNOWN_ARG_X 4
+#define ERR_IO_FILE 5
 
 /**
  * Useful function to print a template error and exit the program<br>
@@ -13,6 +14,6 @@
  *           Can be one of the ERR_...
  * @param msg Custom message that will be insert in the template
  */
-void error_fatal(int id, char *msg);
+void error_fatal(int id, char const *msg);
 
 #endif

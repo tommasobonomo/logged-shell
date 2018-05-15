@@ -34,8 +34,8 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand)
     }
     else
     {
-        signal(SIGUSR1, sighandler); //TODO wrapper
-        signal(SIGUSR2, sighandler); //TODO wrapper
+        wSignal(SIGUSR1, sighandler);
+        wSignal(SIGUSR2, sighandler);
 
         pid_t fid = frk();
         if (fid == 0)
