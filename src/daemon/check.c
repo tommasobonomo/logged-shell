@@ -7,18 +7,22 @@
 #include <string.h>
 
 int main(int argc, char const *argv[]) {
-	key_t key = ftok(".", 1);
+	key_t key = ftok(".", 1); //scegliere percorso univovo
 	printf("key: %d\n", key);
 
-	int msqid = msgget(key, PERMS | IPC_CREAT);
+	int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
+	if (msqid >= 0) {
+		// call core
+	} else {
+		msqid = msgget(key, PERMS | IPC_CREAT);
+	}
 	printf("msqid: %d\n", msqid);
-	perror("Queue creation");
 
-	msg msg1;
-	msg1.type = 1;
-	strcpy(msg1.text, "Hello world\0");
-    printf("msg: %s\n", msg1.text);
+	message msg;
+	msg.type = 1;
+	strcpy(msg.text, "Hello world\0");
 
-	msgsnd(msqid, &msg1, msgsz, 0);
+	msgsnd(msqid, &msg, msgsz, 0);
+
 	return 0;
 }

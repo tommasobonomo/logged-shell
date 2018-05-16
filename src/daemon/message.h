@@ -3,10 +3,10 @@
 
 #define maxstr 80
 
-typedef struct msg {
+typedef struct message {
 	long type; // > 0
 	char text[maxstr]; //payload
-} msg;
+} message;
 
 #define msgsz maxstr*sizeof(char)
 
