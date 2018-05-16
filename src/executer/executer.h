@@ -14,4 +14,6 @@
  */
 pid_t executeSubCommand(struct SubCommandResult *subcommand);
 
+int countPipes(char *wholeCmd);
+
 #endif

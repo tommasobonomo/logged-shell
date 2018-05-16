@@ -21,7 +21,7 @@
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
 {
-    printf("\n### STATISTICS ###\n\n");
+    DEBUG_PRINT("\n### STATISTICS ###\n");
 
     char statsPath[20];
     sprintf(statsPath, "/proc/%d", pid);
@@ -84,4 +84,6 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     pclose(fp);
 
     printf("Opened files:\n%s\n", fds);*/
+
+    DEBUG_PRINT("\n");
 }

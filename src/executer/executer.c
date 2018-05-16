@@ -4,9 +4,33 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <string.h>
+#include "../parser/parser.h"
 
 bool parentContinue = false;
 bool childContinue = false;
+
+int countPipes(char *wholeCmd)
+{
+    char *start = NULL;
+    char *end = NULL;
+
+    int pipes = 0;
+
+    //SCANSIONE PER PIPE
+    getNextSubCommand(wholeCmd, &start, &end);
+    wholeCmd = end + 1;
+    while (start != NULL && end != NULL)
+    {
+        int length = (end - start) * sizeof(*start) + 1;
+        if (strncmp(start, "|", (size_t) length) == 0)
+            pipes++;
+
+        getNextSubCommand(wholeCmd, &start, &end);
+        wholeCmd = end + 1;
+    }
+
+    return pipes;
+}
 
 void sighandler(int signo)
 {
@@ -28,43 +52,38 @@ void sighandler(int signo)
  */
 pid_t executeSubCommand(struct SubCommandResult *subcommand)
 {
-    if (strcmp(subcommand->subCommand, ";") == 0)
+    wSignal(SIGUSR1, sighandler);
+    wSignal(SIGUSR2, sighandler);
+
+    pid_t fid = frk();
+    if (fid == 0)
     {
-        return CTRL_CMD;
+        // Child process
+
+        DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
+        system(subcommand->subCommand); //TODO use execlp
+
+        kill(getppid(), SIGUSR1);
+
+        while (!childContinue)
+        {
+            pause();
+        }
+        childContinue = false;
+        exit(EXIT_SUCCESS);
     }
     else
     {
-        wSignal(SIGUSR1, sighandler);
-        wSignal(SIGUSR2, sighandler);
-
-        pid_t fid = frk();
-        if (fid == 0)
+        // Parent process
+        while (!parentContinue)
         {
-            // Child process
-
-            DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
-            system(subcommand->subCommand);
-
-            kill(getppid(), SIGUSR1);
-
-            while (!childContinue)
-            {
-                pause();
-            }
-            exit(EXIT_SUCCESS);
+            pause();
         }
-        else
-        {
-            // Parent process
-            while (!parentContinue)
-            {
-                pause();
-            }
-            getProcessStats(fid, subcommand);
-            kill(fid, SIGUSR2);
+        parentContinue = false;
+        getProcessStats(fid, subcommand);
+        kill(fid, SIGUSR2);
 
-            waitpid(fid, NULL, 0);
-            return fid;
-        }
+        waitpid(fid, NULL, 0);
+        return fid;
     }
 }
