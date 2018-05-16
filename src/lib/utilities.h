@@ -12,7 +12,7 @@ typedef enum
 
 #ifdef DEBUG
 #include <stdio.h> //TODO is it needed?
-#define DEBUG_PRINT( ... ) printf ( __VA_ARGS__ )
+#define DEBUG_PRINT( ... ) fprintf (stderr, __VA_ARGS__ )
 #else
 #define DEBUG_PRINT( ... )
 #endif

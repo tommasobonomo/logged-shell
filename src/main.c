@@ -29,6 +29,7 @@ int main(int argc, char *argv[])
     char *start = NULL;
     char *end = NULL;
     bool prevPipe = false;
+    bool nextPipe = false;
     int pipeIndex = 0;
 
     getNextSubCommand(p, &start, &end);
@@ -42,11 +43,6 @@ int main(int argc, char *argv[])
         subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
         sprintf(subCmdResult->subCommand, "%.*s", length, start);
 
-        if (prevPipe == true)
-        {
-            //TODO redir input da fd corrente
-        }
-
         //READ OPERATOR
         getNextSubCommand(p, &start, &end);
         p = end + 1;
@@ -56,7 +52,7 @@ int main(int argc, char *argv[])
             int lengthOperator = (end - start) * sizeof(*start) + 1;
             if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
-                prevPipe = true;
+                nextPipe = true;
                 //TODO redir output su fd corrente
             }
             else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
@@ -66,7 +62,7 @@ int main(int argc, char *argv[])
         }//else there is no operator
         //END - READ OPERATOR
 
-        subCmdResult->pid = executeSubCommand(subCmdResult);
+        subCmdResult->pid = executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe);
 
 
         //SAVING CURRENT SUBCOMMAND
@@ -79,6 +75,16 @@ int main(int argc, char *argv[])
             getNextSubCommand(p, &start, &end);
             p = end + 1;
         }
+
+        if (nextPipe == true)
+            pipeIndex++;
+        prevPipe = nextPipe;
+        nextPipe = false;
+    }
+
+    for (int i = 0; i < (pipes) * 2; i++)
+    {
+        close(pipefds[i]);
     }
 
 

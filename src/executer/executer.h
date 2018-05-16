@@ -12,7 +12,8 @@
  * @param subcommand the subcommand that will be executed, as a struct SubCommandResult defined in src/lib/commands.h
  * @return the PID of the process that executed the subcommand
  */
-pid_t executeSubCommand(struct SubCommandResult *subcommand);
+pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
+                        bool nextPipe);
 
 int countPipes(char *wholeCmd);
 

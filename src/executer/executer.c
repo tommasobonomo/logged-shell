@@ -44,45 +44,72 @@ void sighandler(int signo)
     }
 }
 
-/**
- * Executes subcommand received from main file in a child process
- * Waits for the process to finish before returning PID
- * @param subcommand the subcommand that will be executed
- * @return the PID of the process executing the subcommand
- */
-pid_t executeSubCommand(struct SubCommandResult *subcommand)
+pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
+                        bool nextPipe)
 {
     wSignal(SIGUSR1, sighandler);
     wSignal(SIGUSR2, sighandler);
+
+    DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
 
     pid_t fid = frk();
     if (fid == 0)
     {
         // Child process
-
-        DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
-        system(subcommand->subCommand); //TODO use execlp
-
-        kill(getppid(), SIGUSR1);
-
-        while (!childContinue)
+        if (prevPipe == true)
         {
-            pause();
+            DEBUG_PRINT("sono %s LEGGO DA id:%d\n", subcommand->subCommand, (pipeIndex - 1) * 2);
+            //TODO wrapper
+            if (dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO) < 0)
+            {
+                perror("a");
+                exit(EXIT_FAILURE);
+            }
+            DEBUG_PRINT("sono %s LEGGO DA addr:%d\n", subcommand->subCommand, pipefds[(pipeIndex - 1) * 2]);
         }
-        childContinue = false;
-        exit(EXIT_SUCCESS);
+        if (nextPipe == true)
+        {
+            DEBUG_PRINT("sono %s SCRIVO SU id:%d\n", subcommand->subCommand, pipeIndex * 2 + 1);
+            //TODO wrapper
+            if (dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO) < 0)
+            {
+                perror("b");
+                exit(EXIT_FAILURE);
+            }
+            DEBUG_PRINT("sono %s SCRIVO SU addr:%d\n", subcommand->subCommand, pipefds[pipeIndex * 2 + 1]);
+
+        }
+
+        for (int i = 0; i < (pipes) * 2; i++)
+        {
+            DEBUG_PRINT("sono %s CHIUDO addr:%d\n", subcommand->subCommand, pipefds[i]);
+            close(pipefds[i]);
+        }
+
+
+        char *args[20]; //TODO DIO
+        int npar = 0;
+
+        char *p = strtok(subcommand->subCommand, " ");
+        while (p != NULL)
+        {
+            args[npar] = p;
+
+            p = strtok(NULL, " ");
+            npar++;
+        }
+        args[npar] = NULL;
+
+        if (execvp(args[0], args) < 0)
+        {//TODO remove me
+            printf("*** ERROR: exec failed\n");
+            exit(1);
+        }
+
     }
     else
     {
         // Parent process
-        while (!parentContinue)
-        {
-            pause();
-        }
-        parentContinue = false;
-        getProcessStats(fid, subcommand);
-        kill(fid, SIGUSR2);
-
         waitpid(fid, NULL, 0);
         return fid;
     }

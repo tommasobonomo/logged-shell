@@ -21,7 +21,7 @@
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
 {
-    DEBUG_PRINT("\n### STATISTICS ###\n");
+    DEBUG_PRINT("### STATISTICS ###\n");
 
     char statsPath[20];
     sprintf(statsPath, "/proc/%d", pid);
