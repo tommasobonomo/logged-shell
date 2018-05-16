@@ -5,6 +5,7 @@
 #include <string.h>
 #include "./lib/commands.h"
 #include "./parser/parser.h"
+#include "./statistics/statHelper.h"
 #include "./executer/executer.h"
 
 int main(int argc, char *argv[])
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
 
         subCmdResult->pid = executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe);
 
+        getChildrenProcessStats();
 
         //SAVING CURRENT SUBCOMMAND
         DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->pid);
@@ -82,10 +84,7 @@ int main(int argc, char *argv[])
         nextPipe = false;
     }
 
-    for (int i = 0; i < (pipes) * 2; i++)
-    {
-        close(pipefds[i]);
-    }
+
 
 
     // FREEING DYNAMICALLY ALLOCATED MEMORY

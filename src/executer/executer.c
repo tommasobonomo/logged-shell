@@ -100,17 +100,22 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int p
         }
         args[npar] = NULL;
 
-        if (execvp(args[0], args) < 0)
-        {//TODO remove me
+        if (execvp(args[0], args) < 0) //TODO WRAPPER
+        {
             printf("*** ERROR: exec failed\n");
             exit(1);
         }
-
+        //NON REACHABLE CODE
     }
     else
     {
         // Parent process
         waitpid(fid, NULL, 0);
+        if (prevPipe)
+            close(pipefds[(pipeIndex - 1) * 2]);
+        if (nextPipe)
+            close(pipefds[pipeIndex * 2 + 1]);
+
         return fid;
     }
 }
