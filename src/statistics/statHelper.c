@@ -19,32 +19,42 @@
  * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getChildrenProcessStats()
+void getChildrenProcessStats(struct SubCommandResult *subcommand)
 {
-    DEBUG_PRINT("### STATISTICS ###\n");
     struct rusage usage;
     getrusage(RUSAGE_CHILDREN, &usage);
-//    printf("user CPU time used: %ld\n", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec);
-    printf("system CPU time used: %ld\n", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec);
-    printf("maximum resident set size: %ld\n", usage.ru_maxrss);
-//    printf("integral shared memory size: %ld\n", usage.ru_ixrss);
-//    printf("integral unshared data size: %ld\n", usage.ru_idrss);
-//    printf("integral unshared stack size: %ld\n", usage.ru_isrss);
-//    printf("page reclaims (soft page faults): %ld\n", usage.ru_minflt);
-//    printf("page faults (hard page faults): %ld\n", usage.ru_majflt);
-//    printf("swaps: %ld\n", usage.ru_nswap);
-//    printf("block input operations: %ld\n", usage.ru_inblock);
-//    printf("block output operations: %ld\n", usage.ru_oublock);
-//    printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
-//    printf("IPC messages received: %ld\n", usage.ru_msgrcv);
-//    printf("signals received: %ld\n", usage.ru_nsignals);
-//    printf("voluntary context switches: %ld\n", usage.ru_nvcsw);
-//    printf("involuntary context switches: %ld\n", usage.ru_nivcsw);
+    DEBUG_PRINT("###### STATS (getrusage) ######\n");
+
+    subcommand->cputime = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec;
+    DEBUG_PRINT("  system CPU time used: %ld μs\n", subcommand->cputime);
+
+    subcommand->vmressize = usage.ru_maxrss;
+    DEBUG_PRINT("  maximum resident set size: %ld kB\n", subcommand->vmressize);
+
+    subcommand->softPageFaults = usage.ru_minflt;
+    DEBUG_PRINT("  page reclaims (soft page faults): %ld\n", subcommand->softPageFaults);
+
+    subcommand->hardPageFaults = usage.ru_majflt;
+    DEBUG_PRINT("  page faults (hard page faults): %ld\n", subcommand->hardPageFaults);
+
+    subcommand->swaps = usage.ru_nswap;
+    DEBUG_PRINT("  swaps: %ld\n", subcommand->swaps);
+
+    subcommand->signals = usage.ru_nsignals;
+    DEBUG_PRINT("  signals received: %ld\n", subcommand->signals);
+
+    subcommand->voluntary_ctxt_switches = usage.ru_nvcsw;
+    DEBUG_PRINT("  voluntary context switches: %ld\n", subcommand->voluntary_ctxt_switches);
+
+    subcommand->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
+    DEBUG_PRINT("  involuntary context switches: %ld\n", subcommand->nonvoluntary_ctxt_switches);
+
+    DEBUG_PRINT("###############################\n");
 }
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
 {
-    DEBUG_PRINT("### STATISTICS ###\n");
+    DEBUG_PRINT("###### STATS (proc) ######\n");
 
     char statsPath[20];
     sprintf(statsPath, "/proc/%d", pid);
@@ -57,35 +67,34 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     {
         error_fatal(ERR_X, "Failed to open 'stat' file\n");
     }
-    char status[1000] = "";
 //    char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
 
-
-    char delimiter = ' ';
     char buf[80];
 
     int i;
     for (i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
     {
         fscanf(statFileStream, "%s", buf);
-        switch (i)
-        {
-            case 1:     // pid
+        switch (i) {
+            case 3: {     // state
                 break;
-            case 3:     // state
+            }
+            case 4: {     // ppid
                 break;
-            case 4:     // ppid
+            }
+            case 20: {    // threads
                 break;
-            case 20:    // threads
+            }
+            case 23: {    // vmsize
                 break;
-            case 23:    // vmsize
+            }
+            case 24: {    // vmressize
+                printf("  ressize: %s kB\n", buf);
                 break;
-            case 24:    // vmressize
-                break;
+            }
             default:
                 break;
         }
-        //printf("%d: %s\n", i, buf);
     }
 
     fclose(statFileStream);
@@ -112,5 +121,5 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
 
     printf("Opened files:\n%s\n", fds);*/
 
-    DEBUG_PRINT("\n");
+    DEBUG_PRINT("##########################\n");
 }

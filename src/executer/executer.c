@@ -7,6 +7,7 @@
 #include <string.h>
 #include "../parser/parser.h"
 #include <sys/types.h>
+#include <sys/time.h>
 
 int countPipes(char *wholeCmd)
 {
@@ -108,9 +109,10 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, 
             useconds = end.tv_usec - start.tv_usec;
             mtime = seconds + useconds / 1000000;
 
-            getChildrenProcessStats();
+            getChildrenProcessStats(subCommandResult);
             subCommandResult->pid = fid;
-            DEBUG_PRINT("Elapsed time: %f seconds \n", mtime);
+            subCommandResult->totTime = mtime;
+            DEBUG_PRINT("Elapsed time: %f seconds \n", subCommandResult->totTime);
             DEBUG_PRINT("PID of process that executed command: %d\n", subCommandResult->pid);
 
             returnExecuter = WEXITSTATUS(statusExecuter);
