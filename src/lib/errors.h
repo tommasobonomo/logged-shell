@@ -18,4 +18,6 @@
  */
 void error_fatal(int id, char const *msg);
 
+void error_warning(int id, char const *msg);
+
 #endif

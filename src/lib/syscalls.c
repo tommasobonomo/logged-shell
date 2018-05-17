@@ -40,32 +40,40 @@ FILE *w_fopen(const char *restrict pathname, const char *restrict mode)
 
 int w_dup2(int oldfd, int newfd)
 {
-    if (dup2(oldfd, newfd) < 0)
+    int result = dup2(oldfd, newfd);
+    if (result < 0)
     {
         error_fatal(ERR_SYSCALL, "dup2 failed");
     }
+    return result;
 }
 
 int w_close(int fd)
 {
-    if (close(fd) < 0)
+    int result = close(fd);
+    if (result < 0)
     {
-        error_fatal(ERR_SYSCALL, "close failed");
+        error_warning(ERR_SYSCALL, "close failed");
     }
+    return result;
 }
 
 int w_pipe(int pipefd[2])
 {
-    if (pipe(pipefd) < 0)
+    int result = pipe(pipefd);
+    if (result < 0)
     {
         error_fatal(ERR_SYSCALL, "pipe failed");
     }
+    return result;
 }
 
 int w_execvp(const char *file, char *const argv[])
 {
-    if (execvp(file, argv) < 0)
+    int result = execvp(file, argv);
+    if (result < 0)
     {
         error_fatal(ERR_SYSCALL, "exec failed");
     }
+    return result;
 }
