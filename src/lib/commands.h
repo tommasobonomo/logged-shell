@@ -23,14 +23,17 @@ struct SubCommandResult
     char parameters;
     // STATS
     pid_t pid;
-    pid_t ppid;
-    char state;
-    int vmsize;
-    int vmressize;
-    int vmswap;
-    int threads;
-    int voluntary_ctxt_switches;
-    int nonvoluntary_ctxt_switches;
+    pid_t ppid;     // TODO find it
+    double totTime;
+    time_t cputime;
+    long vmressize;
+    long swaps;
+    long softPageFaults;
+    long hardPageFaults;
+    int threads;    // TODO thread number
+    long signals;
+    long voluntary_ctxt_switches;
+    long nonvoluntary_ctxt_switches;
 };
 
 /**
