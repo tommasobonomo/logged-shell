@@ -24,13 +24,13 @@ OBJ = 	$(BIN)/main.o \
 
 # build rule, the standard one
 build: $(BIN) checkDebug $(OBJ)
-	@gcc -o $(BIN)/$(PNAME) $(OBJ)
+	@gcc -std=gnu90 -o $(BIN)/$(PNAME) $(OBJ)
 	@echo Finished building
 
 # debug rule, use it when debugging. It sets custom flags
 debug: FLAGS = -Wall -Wextra -DDEBUG -g
 debug: $(BIN) checkNotDebug $(OBJ)
-	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
+	@gcc -std=gnu90 -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
 	@touch $(DEBUGGUARD)
 	@echo Finished building in debug mode
 
@@ -52,25 +52,25 @@ $(BIN):
 
 # object files
 $(BIN)/main.o: $(SRC)/main.c $(LIBRARY)/commands.h
-	gcc -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
+	gcc -std=gnu90 -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
 
 $(BIN)/parser.o: $(PARSER)/parser.c $(PARSER)/parser.h
-	gcc -c $(PARSER)/parser.c -o $(BIN)/parser.o $(FLAGS)
+	gcc -std=gnu90 -c $(PARSER)/parser.c -o $(BIN)/parser.o $(FLAGS)
 
 $(BIN)/errors.o: $(LIBRARY)/errors.c $(LIBRARY)/errors.h
-	gcc -c $(LIBRARY)/errors.c -o $(BIN)/errors.o $(FLAGS)
+	gcc -std=gnu90 -c $(LIBRARY)/errors.c -o $(BIN)/errors.o $(FLAGS)
 
 $(BIN)/utilities.o: $(LIBRARY)/utilities.c $(LIBRARY)/utilities.h
-	gcc -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
+	gcc -std=gnu90 -c $(LIBRARY)/utilities.c -o $(BIN)/utilities.o $(FLAGS)
 
 $(BIN)/syscalls.o: $(LIBRARY)/syscalls.c $(LIBRARY)/syscalls.h
-	gcc -c $(LIBRARY)/syscalls.c -o $(BIN)/syscalls.o $(FLAGS)
+	gcc -std=gnu90 -c $(LIBRARY)/syscalls.c -o $(BIN)/syscalls.o $(FLAGS)
 
 $(BIN)/executer.o: $(EXECUTER)/executer.c $(EXECUTER)/executer.h
-	gcc -c $(EXECUTER)/executer.c -o $(BIN)/executer.o $(FLAGS)
+	gcc -std=gnu90 -c $(EXECUTER)/executer.c -o $(BIN)/executer.o $(FLAGS)
 
 $(BIN)/statHelper.o: $(STATISTICS)/statHelper.c $(STATISTICS)/statHelper.h
-	gcc -c $(STATISTICS)/statHelper.c -o $(BIN)/statHelper.o $(FLAGS)
+	gcc -std=gnu90 -c $(STATISTICS)/statHelper.c -o $(BIN)/statHelper.o $(FLAGS)
 
 # clean rule, it completely removes /bin folder
 clean:

@@ -64,7 +64,8 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     char delimiter = ' ';
     char buf[80];
 
-    for (int i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
+    int i;
+    for (i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
     {
         fscanf(statFileStream, "%s", buf);
         switch (i)

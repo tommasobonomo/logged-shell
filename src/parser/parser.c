@@ -154,7 +154,8 @@ struct Command *parseCommand(int argc, char *argv[])
     addDefault(result);
     DEBUG_PRINT("Command allocato, default added\n\n");
 
-    for (int currArgc = 1; currArgc < argc; currArgc++)
+    int currArgc;
+    for (currArgc = 1; currArgc < argc; currArgc++)
     {
         if (argv[currArgc][0] == '-')
         {
@@ -300,7 +301,8 @@ void getNextSubCommand(char *str, char **start, char **end)
     *start = NULL;
     *end = NULL;
 
-    for (int i = 0; !exit; i++)
+    int i;
+    for (i = 0; !exit; i++)
     {
         if (str[i] == '\0')
         {

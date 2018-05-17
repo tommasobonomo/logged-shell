@@ -15,12 +15,15 @@ int main(int argc, char *argv[])
     DEBUG_PRINT("  ## DEBUG ##\n");
     DEBUG_PRINT("  ###########\n\n");
 
+    DEBUG_PRINT("Sono il padre di tutti: %d\n\n", getpid());
+
     struct Command *cmd = parseCommand(argc, argv);
 
     //CREAZIONE PIPES
     int pipes = countPipes(cmd->command);
-    int pipefds[pipes * 2]; //TODO non si fa così
-    for (int i = 0; i < (pipes) * 2; i += 2)
+    int *pipefds = malloc(2 * pipes * sizeof(int));
+    int i;
+    for (i = 0; i < pipes * 2; i += 2)
     {
         w_pipe(pipefds + i);
     }
@@ -63,12 +66,9 @@ int main(int argc, char *argv[])
         }//else there is no operator
         //END - READ OPERATOR
 
-        subCmdResult->pid = executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe);
-
-        getChildrenProcessStats();
+        executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe);
 
         //SAVING CURRENT SUBCOMMAND
-        DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->pid); //TODO togli da qua
         cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
         cmd->n_subCommands++;
 
@@ -85,11 +85,15 @@ int main(int argc, char *argv[])
         }
     }
 
-
-
+    //ATTENDO TUTTI I FIGLI
+    pid_t pidFigli;
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+    {
+        DEBUG_PRINT("Process %d terminated\n", pidFigli);
+    }
 
     // FREEING DYNAMICALLY ALLOCATED MEMORY
-    for (int i = 0; i < cmd->n_subCommands; i++)
+    for (i = 0; i < cmd->n_subCommands; i++)
     {
         free(cmd->subCommandResults[i]->subCommand);
         free(cmd->subCommandResults[i]);
@@ -97,5 +101,6 @@ int main(int argc, char *argv[])
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
+    DEBUG_PRINT("Controlla che io sia padre di tutti: %d\n\n", getpid());
     return 0;
 }

@@ -27,7 +27,7 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     return oldSighandler;
 }
 
-FILE *w_fopen(const char *restrict pathname, const char *restrict mode)
+FILE *w_fopen(const char *pathname, const char *mode)
 {
     FILE *fp = fopen(pathname, mode);
     if (fp == NULL)
