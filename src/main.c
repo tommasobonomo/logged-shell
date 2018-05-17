@@ -113,6 +113,5 @@ int main(int argc, char *argv[])
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
-    DEBUG_PRINT("Controlla che io sia padre di tutti: %d\n\n", getpid());
     return 0;
 }

@@ -19,37 +19,47 @@
  * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getChildrenProcessStats(struct SubCommandResult *subcommand)
+void getChildrenProcessStats(struct SubCommandResult *subCommandResult)
 {
     struct rusage usage;
     getrusage(RUSAGE_CHILDREN, &usage);
-    DEBUG_PRINT("###### STATS (getrusage) ######\n");
 
-    subcommand->cputime = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec;
-    DEBUG_PRINT("  system CPU time used: %ld μs\n", subcommand->cputime);
+    subCommandResult->cputime = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec;
+    subCommandResult->vmressize = usage.ru_maxrss;
+    subCommandResult->softPageFaults = usage.ru_minflt;
+    subCommandResult->hardPageFaults = usage.ru_majflt;
+    subCommandResult->swaps = usage.ru_nswap;
+    subCommandResult->signals = usage.ru_nsignals;
+    subCommandResult->voluntary_ctxt_switches = usage.ru_nvcsw;
+    subCommandResult->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
 
-    subcommand->vmressize = usage.ru_maxrss;
-    DEBUG_PRINT("  maximum resident set size: %ld kB\n", subcommand->vmressize);
 
-    subcommand->softPageFaults = usage.ru_minflt;
-    DEBUG_PRINT("  page reclaims (soft page faults): %ld\n", subcommand->softPageFaults);
+}
 
-    subcommand->hardPageFaults = usage.ru_majflt;
-    DEBUG_PRINT("  page faults (hard page faults): %ld\n", subcommand->hardPageFaults);
+void printStatsC(struct Command *cmd)
+{
+    DEBUG_PRINT("\n######### STATS #########\n");
+    DEBUG_PRINT("Command: %s\n", cmd->command);
+    int i;
+    for (i = 0; i < cmd->n_subCommands; i++)
+    {
+        printStatsS(cmd->subCommandResults[i]);
+    }
+}
 
-    subcommand->swaps = usage.ru_nswap;
-    DEBUG_PRINT("  swaps: %ld\n", subcommand->swaps);
-
-    subcommand->signals = usage.ru_nsignals;
-    DEBUG_PRINT("  signals received: %ld\n", subcommand->signals);
-
-    subcommand->voluntary_ctxt_switches = usage.ru_nvcsw;
-    DEBUG_PRINT("  voluntary context switches: %ld\n", subcommand->voluntary_ctxt_switches);
-
-    subcommand->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
-    DEBUG_PRINT("  involuntary context switches: %ld\n", subcommand->nonvoluntary_ctxt_switches);
-
-    DEBUG_PRINT("###############################\n");
+void printStatsS(struct SubCommandResult *subCommandResult)
+{
+    DEBUG_PRINT("\nSubcommand: %s\n", subCommandResult->subCommand);
+    DEBUG_PRINT("  Real elapsed time: %f seconds \n", subCommandResult->totTime);
+    DEBUG_PRINT("  PID: %d\n", subCommandResult->pid);
+    DEBUG_PRINT("  system CPU time used: %ld μs\n", subCommandResult->cputime);
+    DEBUG_PRINT("  maximum resident set size: %ld kB\n", subCommandResult->vmressize);
+    DEBUG_PRINT("  page reclaims (soft page faults): %ld\n", subCommandResult->softPageFaults);
+    DEBUG_PRINT("  page faults (hard page faults): %ld\n", subCommandResult->hardPageFaults);
+    DEBUG_PRINT("  swaps: %ld\n", subCommandResult->swaps);
+    DEBUG_PRINT("  signals received: %ld\n", subCommandResult->signals);
+    DEBUG_PRINT("  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
+    DEBUG_PRINT("  involuntary context switches: %ld\n", subCommandResult->nonvoluntary_ctxt_switches);
 }
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
@@ -75,20 +85,26 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     for (i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
     {
         fscanf(statFileStream, "%s", buf);
-        switch (i) {
-            case 3: {     // state
+        switch (i)
+        {
+            case 3:
+            {     // state
                 break;
             }
-            case 4: {     // ppid
+            case 4:
+            {     // ppid
                 break;
             }
-            case 20: {    // threads
+            case 20:
+            {    // threads
                 break;
             }
-            case 23: {    // vmsize
+            case 23:
+            {    // vmsize
                 break;
             }
-            case 24: {    // vmressize
+            case 24:
+            {    // vmressize
                 printf("  ressize: %s kB\n", buf);
                 break;
             }

@@ -112,8 +112,8 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, 
             getChildrenProcessStats(subCommandResult);
             subCommandResult->pid = fid;
             subCommandResult->totTime = mtime;
-            DEBUG_PRINT("Elapsed time: %f seconds \n", subCommandResult->totTime);
-            DEBUG_PRINT("PID of process that executed command: %d\n", subCommandResult->pid);
+
+            printStatsS(subCommandResult);
 
             returnExecuter = WEXITSTATUS(statusExecuter);
             if (returnExecuter != 0)
