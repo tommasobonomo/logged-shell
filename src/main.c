@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         getChildrenProcessStats();
 
         //SAVING CURRENT SUBCOMMAND
-        DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->pid);
+        DEBUG_PRINT("PID of process that executed command: %d\n", subCmdResult->pid); //TODO togli da qua
         cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
         cmd->n_subCommands++;
 

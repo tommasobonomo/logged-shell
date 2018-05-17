@@ -21,24 +21,25 @@
 
 void getChildrenProcessStats()
 {
+    DEBUG_PRINT("### STATISTICS ###\n");
     struct rusage usage;
     getrusage(RUSAGE_CHILDREN, &usage);
-    printf("user CPU time used: %ld\n", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec);
+//    printf("user CPU time used: %ld\n", usage.ru_utime.tv_sec + usage.ru_utime.tv_usec);
     printf("system CPU time used: %ld\n", usage.ru_stime.tv_sec + usage.ru_stime.tv_usec);
     printf("maximum resident set size: %ld\n", usage.ru_maxrss);
-    printf("integral shared memory size: %ld\n", usage.ru_ixrss);
-    printf("integral unshared data size: %ld\n", usage.ru_idrss);
-    printf("integral unshared stack size: %ld\n", usage.ru_isrss);
-    printf("page reclaims (soft page faults): %ld\n", usage.ru_minflt);
-    printf("page faults (hard page faults): %ld\n", usage.ru_majflt);
-    printf("swaps: %ld\n", usage.ru_nswap);
-    printf("block input operations: %ld\n", usage.ru_inblock);
-    printf("block output operations: %ld\n", usage.ru_oublock);
-    printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
-    printf("IPC messages received: %ld\n", usage.ru_msgrcv);
-    printf("signals received: %ld\n", usage.ru_nsignals);
-    printf("voluntary context switches: %ld\n", usage.ru_nvcsw);
-    printf("involuntary context switches: %ld\n", usage.ru_nivcsw);
+//    printf("integral shared memory size: %ld\n", usage.ru_ixrss);
+//    printf("integral unshared data size: %ld\n", usage.ru_idrss);
+//    printf("integral unshared stack size: %ld\n", usage.ru_isrss);
+//    printf("page reclaims (soft page faults): %ld\n", usage.ru_minflt);
+//    printf("page faults (hard page faults): %ld\n", usage.ru_majflt);
+//    printf("swaps: %ld\n", usage.ru_nswap);
+//    printf("block input operations: %ld\n", usage.ru_inblock);
+//    printf("block output operations: %ld\n", usage.ru_oublock);
+//    printf("IPC messages sent: %ld\n", usage.ru_msgsnd);
+//    printf("IPC messages received: %ld\n", usage.ru_msgrcv);
+//    printf("signals received: %ld\n", usage.ru_nsignals);
+//    printf("voluntary context switches: %ld\n", usage.ru_nvcsw);
+//    printf("involuntary context switches: %ld\n", usage.ru_nivcsw);
 }
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
@@ -52,7 +53,8 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     char statFile[20];
     sprintf(statFile, "%s/stat", statsPath);
     FILE *statFileStream = fopen(statFile, "r"); //TODO fare wrapper
-    if (statFileStream == NULL) {
+    if (statFileStream == NULL)
+    {
         error_fatal(ERR_X, "Failed to open 'stat' file\n");
     }
     char status[1000] = "";
@@ -62,9 +64,11 @@ void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
     char delimiter = ' ';
     char buf[80];
 
-    for (int i = 1; ! feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++) {
+    for (int i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
+    {
         fscanf(statFileStream, "%s", buf);
-        switch (i) {
+        switch (i)
+        {
             case 1:     // pid
                 break;
             case 3:     // state

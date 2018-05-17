@@ -34,7 +34,7 @@ int countPipes(char *wholeCmd)
 pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
                         bool nextPipe)
 {
-    DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
+    DEBUG_PRINT("\nEXECUTING \"%s\"\n", subcommand->subCommand);
 
     pid_t fid = w_fork();
     if (fid == 0)
@@ -49,7 +49,7 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int p
             w_dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO);
         }
 
-        for (int i = 0; i < (pipes) * 2; i++)
+        for (int i = pipeIndex * 2; i < (pipes) * 2; i++)
         {
             w_close(pipefds[i]);
         }
@@ -83,9 +83,9 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int p
         }
 
         if (prevPipe)
-            close(pipefds[(pipeIndex - 1) * 2]);
+            w_close(pipefds[(pipeIndex - 1) * 2]);
         if (nextPipe)
-            close(pipefds[pipeIndex * 2 + 1]);
+            w_close(pipefds[pipeIndex * 2 + 1]);
 
         return fid;
     }
