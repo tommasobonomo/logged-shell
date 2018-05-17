@@ -7,6 +7,8 @@
 #include <sys/msg.h>
 #include <errno.h>
 #include <string.h>
+#include "../lib/errors.h"
+#include "../lib/syscalls.h"
 
 int check()
 {
@@ -18,15 +20,19 @@ int check()
 	{
 		proc_msg init;
 		init.type = PROC_INIT;
-		msgsnd(msqid, &init, PROCSZ, 0);
+        w_msgsnd(msqid, &init, PROCSZ, 0);
 		daemonize(msqid);
 	}
 	else
 	{
 		msqid = msgget(key, PERMS | IPC_CREAT);
+        if (msqid < 0)
+        {
+            error_fatal(ERR_SYSCALL, "msgget failed");
+        }
 		proc_msg init;
 		init.type = PROC_INIT;
-		msgsnd(msqid, &init, PROCSZ, 0);
+        w_msgsnd(msqid, &init, PROCSZ, 0);
 	}
 	DEBUG_PRINT("msqid: %d\n", msqid);
 
@@ -39,12 +45,12 @@ void send_msg(int msqid, struct SubCommandResult *subres)
 	msg.type = STAT;
 	msg.sub = *subres;
 
-	msgsnd(msqid, &msg, STATSZ, 0);
+    w_msgsnd(msqid, &msg, STATSZ, 0);
 }
 
 void send_close(int msqid)
 {
 	proc_msg close;
 	close.type = PROC_CLOSE;
-	msgsnd(msqid, &close, PROCSZ, 0);
+    w_msgsnd(msqid, &close, PROCSZ, 0);
 }

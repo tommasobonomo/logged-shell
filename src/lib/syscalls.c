@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/msg.h>
 
 pid_t w_fork()
 {
@@ -74,6 +75,16 @@ int w_execvp(const char *file, char *const argv[])
     if (result < 0)
     {
         error_fatal(ERR_SYSCALL, "exec failed");
+    }
+    return result;
+}
+
+int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
+{
+    int result = msgsnd(msqid, msgp, msgsz, msgflg);
+    if (result < 0)
+    {
+        error_fatal(ERR_SYSCALL, "msgsnd failed");
     }
     return result;
 }

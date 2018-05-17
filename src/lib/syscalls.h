@@ -21,4 +21,6 @@ int w_close(int fd);
 int w_pipe(int pipefd[2]);
 
 int w_execvp(const char *file, char *const argv[]);
+
+int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 #endif
