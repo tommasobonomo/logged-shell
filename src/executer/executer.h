@@ -5,7 +5,7 @@
 #include <sys/types.h>
 
 void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
-                       bool nextPipe);
+                       bool nextPipe, bool nextAnd, bool nextOr);
 
 int countPipes(char *wholeCmd);
 

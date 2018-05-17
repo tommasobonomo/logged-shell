@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
     char *end = NULL;
     bool prevPipe = false;
     bool nextPipe = false;
+    bool nextAnd = false;
+    bool nextOr = false;
     int pipeIndex = 0;
 
     getNextSubCommand(p, &start, &end);
@@ -59,6 +61,14 @@ int main(int argc, char *argv[])
                 nextPipe = true;
                 //TODO redir output su fd corrente
             }
+            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            {
+                nextAnd = true;
+            }
+            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            {
+                nextOr = true;
+            }
             else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
                 //fare niente
@@ -66,7 +76,7 @@ int main(int argc, char *argv[])
         }//else there is no operator
         //END - READ OPERATOR
 
-        executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe);
+        executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
 
         //SAVING CURRENT SUBCOMMAND
         cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
@@ -77,6 +87,8 @@ int main(int argc, char *argv[])
             pipeIndex++;
         prevPipe = nextPipe;
         nextPipe = false;
+        nextAnd = false;
+        nextOr = false;
 
         if (start != NULL && end != NULL)
         {

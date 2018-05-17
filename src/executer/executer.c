@@ -31,14 +31,48 @@ int countPipes(char *wholeCmd)
     return pipes;
 }
 
+void vectorizeStringArguments(char *argsString, char *argsVect[])
+{
+    int npar = 0;
+
+    char *p = strtok(argsString, " ");
+    while (p != NULL)
+    {
+        argsVect[npar] = p;
+
+        p = strtok(NULL, " ");
+        npar++;
+    }
+    argsVect[npar] = NULL;
+}
+
+void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nextPipe)
+{
+    if (prevPipe == true)
+    {
+        w_dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO);
+    }
+    if (nextPipe == true)
+    {
+        w_dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO);
+    }
+
+    int i;
+    for (i = pipeIndex * 2; i < (pipes) * 2; i++)
+    {
+        w_close(pipefds[i]);
+    }
+}
+
 void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
-                       bool nextPipe)
+                       bool nextPipe, bool nextAnd, bool nextOr)
 {
     DEBUG_PRINT("\nEXECUTING \"%s\"\n", subCommandResult->subCommand);
 
+    int returnExecuter;
+
     struct timeval start, end;
     double mtime, seconds, useconds;
-
     gettimeofday(&start, NULL);
 
     pid_t fidGestore = w_fork();
@@ -48,60 +82,44 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, 
         if (fid == 0)
         {
             // Child process
-            if (prevPipe == true)
-            {
-                w_dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO);
-            }
-            if (nextPipe == true)
-            {
-                w_dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO);
-            }
 
-            int i;
-            for (i = pipeIndex * 2; i < (pipes) * 2; i++)
-            {
-                w_close(pipefds[i]);
-            }
+            //PREPARE PIPES IF NEEDED
+            managePipes(pipefds, pipes, pipeIndex, prevPipe, nextPipe);
 
-            char *args[STRING_LENGHT_MAX];
-            int npar = 0;
+            //PREPARE ARGS
+            char *args[MAX_ARGUMENTS];
+            vectorizeStringArguments(subCommandResult->subCommand, args);
 
-            char *p = strtok(subCommandResult->subCommand, " ");
-            while (p != NULL)
-            {
-                args[npar] = p;
-
-                p = strtok(NULL, " ");
-                npar++;
-            }
-            args[npar] = NULL;
-
+            //EXECUTE SUBCOMMAND
             w_execvp(args[0], args);
+
             //NON REACHABLE CODE
             exit(1);
         }
         else
         {
-            // Parent process
-            int status;
-            waitpid(fid, &status, 0);
+            // Gestore process
+            int statusExecuter;
+            waitpid(fid, &statusExecuter, 0);
 
             gettimeofday(&end, NULL);
 
-            if (WEXITSTATUS(status) != 0)
-            {
-                error_fatal(ERR_CHILD, subCommandResult->subCommand);
-            }
-
             seconds = end.tv_sec - start.tv_sec;
             useconds = end.tv_usec - start.tv_usec;
-            mtime = seconds + (double) useconds / 1000000;
+            mtime = seconds + useconds / 1000000;
 
-            //getChildrenProcessStats();
+            getChildrenProcessStats();
             subCommandResult->pid = fid;
             DEBUG_PRINT("Elapsed time: %f seconds \n", mtime);
             DEBUG_PRINT("PID of process that executed command: %d\n", subCommandResult->pid);
+
+            returnExecuter = WEXITSTATUS(statusExecuter);
+            if (returnExecuter != 0)
+            {
+                error_fatal(ERR_CHILD, subCommandResult->subCommand);
+            }
         }
+        //END GESTORE
     }
 
     if (prevPipe)
@@ -111,7 +129,34 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, 
 
     if (fidGestore == 0)
     {
-        exit(0);
+        //Gestore
+        exit(returnExecuter);
+    }
+    else
+    {
+        //Parent
+        if (nextAnd || nextOr)
+        {
+            int statusGestore;
+            int returnGestore;
+            waitpid(fidGestore, &statusGestore, 0);
+
+            returnGestore = WEXITSTATUS(statusGestore);
+            if (nextAnd)
+            {
+                if (returnGestore != 0)
+                {
+                    exit(returnGestore);
+                }
+            }
+            else if (nextOr)
+            {
+                if (returnGestore == 0)
+                {
+                    exit(returnGestore);
+                }
+            }
+        }
     }
 }
 
