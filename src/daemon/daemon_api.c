@@ -16,11 +16,17 @@ int check()
 	int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
 	if (msqid >= 0)
 	{
+		proc_msg init;
+		init.type = PROC_INIT;
+		msgsnd(msqid, &init, PROCSZ, 0);
 		daemonize(msqid);
 	}
 	else
 	{
 		msqid = msgget(key, PERMS | IPC_CREAT);
+		proc_msg init;
+		init.type = PROC_INIT;
+		msgsnd(msqid, &init, PROCSZ, 0);
 	}
 	DEBUG_PRINT("msqid: %d\n", msqid);
 
@@ -29,9 +35,16 @@ int check()
 
 void send_msg(int msqid, struct SubCommandResult *subres)
 {
-	message msg;
-	msg.type = 1;
+	stat_msg msg;
+	msg.type = STAT;
 	strcpy(msg.text, "Hello world\0");
 
-	msgsnd(msqid, &msg, msgsz, 0);
+	msgsnd(msqid, &msg, STATSZ, 0);
+}
+
+void send_close(int msqid)
+{
+	proc_msg close;
+	close.type = PROC_CLOSE;
+	msgsnd(msqid, &close, PROCSZ, 0);
 }

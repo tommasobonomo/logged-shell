@@ -10,8 +10,30 @@
 #include "./executer/executer.h"
 #include "./daemon/daemon.h"
 
+int msqid;
+
+void interrupt_sighandler(int signum)
+{
+    switch (signum)
+    {
+    case SIGINT:
+    case SIGTERM:
+    case SIGQUIT:
+        send_close(msqid);
+        exit(EXIT_SUCCESS);
+        break;
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    // Comunicazione iniziale con demone
+    msqid = check();
+
+    signal(SIGTERM, interrupt_sighandler);
+    signal(SIGINT, interrupt_sighandler);
+    signal(SIGQUIT, interrupt_sighandler);
+
     DEBUG_PRINT("  ###########\n");
     DEBUG_PRINT("  ## DEBUG ##\n");
     DEBUG_PRINT("  ###########\n\n");
@@ -95,9 +117,11 @@ int main(int argc, char *argv[])
     // free(cmd);
     // // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
-    int msqid = check();
     send_msg(msqid, NULL);
-    // msgctl(msqid, 0, NULL);
+
+    sleep(60);
+
+    send_close(msqid);
 
     return 0;
 }

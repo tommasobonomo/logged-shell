@@ -10,8 +10,9 @@
 #include "../lib/utilities.h"
 #include "daemon.h"
 
+extern int errno;
+
 int msqid;
-FILE *fp;
 
 // Riguardare bene comportamento
 void sighandler(int signum)
@@ -20,16 +21,14 @@ void sighandler(int signum)
 	{
 	case SIGINT:
 	case SIGTERM:
-		// DEBUG
-		fp = fopen(LOGFILE, "w");
-		fprintf(fp, "msqid: %d\nsignum: %d\n", msqid, signum);
-		fclose(fp);
-		// END DEBUG
+		// // DEBUG
+		// fp = fopen(LOGFILE, "w");
+		// fprintf(fp, "msqid: %d\nsignum: %d\n", msqid, signum);
+		// fclose(fp);
+		// // END DEBUG
 
 		msgctl(msqid, IPC_RMID, NULL);
 		exit(EXIT_SUCCESS);
-		break;
-	case SIGQUIT:
 		break;
 	}
 }
@@ -40,20 +39,48 @@ void core(int msqid_param)
 
 	signal(SIGINT, sighandler);
 	signal(SIGTERM, sighandler);
-	signal(SIGQUIT, sighandler);
 
-	message msg;
-	while (1)
+	stat_msg s_msg;
+	proc_msg p_msg;
+	int proc_count = 0;
+
+	do
 	{
-		msgrcv(msqid, &msg, msgsz, 1, 0);
 
-		// FILE *fp;
-		fp = fopen(LOGFILE, "w");
-		fprintf(fp, "%s\n", msg.text);
-		fclose(fp);
+		msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			FILE *fp;
+			fp = fopen(LOGFILE, "w");
+			fprintf(fp, "%s\n", s_msg.text);
+			fclose(fp);
+		}
 
-		// DEBUG_PRINT("msg: %s\n", msg.text);
+		msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			proc_count++;
+		}
 
-		// Da implementare kill demone e coda
-	}
+		msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			proc_count--;
+		}
+
+	} while (proc_count > 0);
+
+	kill(getpid(), SIGTERM);
 }
