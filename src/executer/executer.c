@@ -1,13 +1,12 @@
 #include "../statistics/statHelper.h"
 #include "../executer/executer.h"
 #include "../lib/syscalls.h"
+#include "../lib/errors.h"
 #include <sys/wait.h>
 #include <signal.h>
 #include <string.h>
 #include "../parser/parser.h"
-
-bool parentContinue = false;
-bool childContinue = false;
+#include <sys/types.h>
 
 int countPipes(char *wholeCmd)
 {
@@ -32,62 +31,31 @@ int countPipes(char *wholeCmd)
     return pipes;
 }
 
-void sighandler(int signo)
-{
-    if (signo == SIGUSR1)
-    {
-        parentContinue = true;
-    }
-    else if (signo == SIGUSR2)
-    {
-        childContinue = true;
-    }
-}
-
 pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
                         bool nextPipe)
 {
-    wSignal(SIGUSR1, sighandler);
-    wSignal(SIGUSR2, sighandler);
-
     DEBUG_PRINT("EXECUTING \"%s\"\n", subcommand->subCommand);
 
-    pid_t fid = frk();
+    pid_t fid = w_fork();
     if (fid == 0)
     {
         // Child process
         if (prevPipe == true)
         {
-            DEBUG_PRINT("sono %s LEGGO DA id:%d\n", subcommand->subCommand, (pipeIndex - 1) * 2);
-            //TODO wrapper
-            if (dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO) < 0)
-            {
-                perror("a");
-                exit(EXIT_FAILURE);
-            }
-            DEBUG_PRINT("sono %s LEGGO DA addr:%d\n", subcommand->subCommand, pipefds[(pipeIndex - 1) * 2]);
+            w_dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO);
         }
         if (nextPipe == true)
         {
-            DEBUG_PRINT("sono %s SCRIVO SU id:%d\n", subcommand->subCommand, pipeIndex * 2 + 1);
-            //TODO wrapper
-            if (dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO) < 0)
-            {
-                perror("b");
-                exit(EXIT_FAILURE);
-            }
-            DEBUG_PRINT("sono %s SCRIVO SU addr:%d\n", subcommand->subCommand, pipefds[pipeIndex * 2 + 1]);
-
+            w_dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO);
         }
 
         for (int i = 0; i < (pipes) * 2; i++)
         {
-            DEBUG_PRINT("sono %s CHIUDO addr:%d\n", subcommand->subCommand, pipefds[i]);
-            close(pipefds[i]);
+            w_close(pipefds[i]);
         }
 
 
-        char *args[20]; //TODO DIO
+        char *args[STRING_LENGHT_MAX];
         int npar = 0;
 
         char *p = strtok(subcommand->subCommand, " ");
@@ -100,17 +68,20 @@ pid_t executeSubCommand(struct SubCommandResult *subcommand, int *pipefds, int p
         }
         args[npar] = NULL;
 
-        if (execvp(args[0], args) < 0) //TODO WRAPPER
-        {
-            printf("*** ERROR: exec failed\n");
-            exit(1);
-        }
+        w_execvp(args[0], args);
         //NON REACHABLE CODE
     }
     else
     {
         // Parent process
-        waitpid(fid, NULL, 0);
+        int status;
+        waitpid(fid, &status, 0);
+
+        if (WEXITSTATUS(status) != 0)
+        {
+            error_fatal(ERR_CHILD, subcommand->subCommand);
+        }
+
         if (prevPipe)
             close(pipefds[(pipeIndex - 1) * 2]);
         if (nextPipe)

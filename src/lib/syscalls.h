@@ -8,10 +8,17 @@
 
 typedef void (*sighandler_t)(int);
 
-pid_t frk();
+pid_t w_fork();
 
 sighandler_t wSignal(int signum, sighandler_t handler);
 
-FILE *wFopen(const char *restrict pathname, const char *restrict mode);
+FILE *w_fopen(const char *restrict pathname, const char *restrict mode);
 
+int w_dup2(int oldfd, int newfd);
+
+int w_close(int fd);
+
+int w_pipe(int pipefd[2]);
+
+int w_execvp(const char *file, char *const argv[]);
 #endif

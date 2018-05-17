@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
 #include "./statistics/statHelper.h"
@@ -16,16 +17,15 @@ int main(int argc, char *argv[])
 
     struct Command *cmd = parseCommand(argc, argv);
 
-    int pipes = countPipes(cmd->command);
-    DEBUG_PRINT("PIPES: %d\n", pipes);
-
     //CREAZIONE PIPES
-    int pipefds[pipes * 2];
+    int pipes = countPipes(cmd->command);
+    int pipefds[pipes * 2]; //TODO non si fa così
     for (int i = 0; i < (pipes) * 2; i += 2)
     {
-        pipe(pipefds + i);
+        w_pipe(pipefds + i);
     }
 
+    //ESECUZIONE SUBCOMANDI
     char *p = cmd->command;
     char *start = NULL;
     char *end = NULL;
@@ -72,16 +72,17 @@ int main(int argc, char *argv[])
         cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
         cmd->n_subCommands++;
 
+        //PREPARE TO NEXT CYCLE
+        if (nextPipe == true)
+            pipeIndex++;
+        prevPipe = nextPipe;
+        nextPipe = false;
+
         if (start != NULL && end != NULL)
         {
             getNextSubCommand(p, &start, &end);
             p = end + 1;
         }
-
-        if (nextPipe == true)
-            pipeIndex++;
-        prevPipe = nextPipe;
-        nextPipe = false;
     }
 
 
