@@ -1,4 +1,3 @@
-#include "message.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -8,37 +7,39 @@
 #include <string.h>
 #include <signal.h>
 
+#include "../lib/utilities.h"
+#include "daemon.h"
+
 int msqid;
 
-void sighandler(int signum) {
-	switch (signum) {
-		case SIGINT:
-		case SIGTERM:
-			printf("Caught signal %d, coming out...\n", signum);
-			msgctl(msqid, IPC_RMID, NULL);
-			perror("?");
-			exit(1);
-			break;
-		case SIGQUIT:
-			break;
+// Riguardare bene comportamento
+void daemon_sighandler(int signum)
+{
+	switch (signum)
+	{
+	case SIGINT:
+	case SIGTERM:
+		DEBUG_PRINT("Caught signal %d, coming out...\n", signum);
+		msgctl(msqid, IPC_RMID, NULL);
+		exit(EXIT_SUCCESS);
+		break;
+	case SIGQUIT:
+		break;
 	}
 }
 
-int main(int argc, char const *argv[]) {
-	if (argc == 2) {
-		signal(SIGINT, sighandler);
-		msqid = atoi(argv[1]);
-		printf("msqid: %d\n", msqid);
+void core(int msqid_param)
+{
+	msqid = msqid_param;
 
-		message msg;
-		while (1) {
-		    msgrcv(msqid, &msg, msgsz, 1, 0);
-			printf("msg: %s\n", msg.text);
-		}
+	signal(SIGINT, daemon_sighandler);
 
-		msgctl(msqid, IPC_RMID, NULL);
-		return 0;
-	} else {
-		return 1;
+	message msg;
+	while (1)
+	{
+		msgrcv(msqid, &msg, msgsz, 1, 0);
+		DEBUG_PRINT("msg: %s\n", msg.text);
+
+		// Da implementare kill demone e coda
 	}
 }

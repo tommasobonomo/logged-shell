@@ -8,6 +8,7 @@ LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
 EXECUTER = $(SRC)/executer
 STATISTICS = $(SRC)/statistics
+DAEMON = $(SRC)/daemon
 
 
 # list of object files, needs to be kept updated
@@ -17,7 +18,10 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/utilities.o \
 		$(BIN)/syscalls.o \
 		$(BIN)/executer.o \
-		$(BIN)/statHelper.o
+		$(BIN)/statHelper.o \
+		$(BIN)/daemon_api.o \
+		$(BIN)/core.o \
+		$(BIN)/get_daemon.o 
 
 
 .PHONY = build debug checkDebug clean
@@ -71,6 +75,15 @@ $(BIN)/executer.o: $(EXECUTER)/executer.c $(EXECUTER)/executer.h
 
 $(BIN)/statHelper.o: $(STATISTICS)/statHelper.c $(STATISTICS)/statHelper.h
 	gcc -c $(STATISTICS)/statHelper.c -o $(BIN)/statHelper.o $(FLAGS)
+
+$(BIN)/daemon_api.o: $(DAEMON)/daemon_api.c $(DAEMON)/daemon.h
+	gcc -c $(DAEMON)/daemon_api.c -o $(BIN)/daemon_api.o $(FLAGS)
+
+$(BIN)/get_daemon.o: $(DAEMON)/get_daemon.c $(DAEMON)/daemon.h
+	gcc -c $(DAEMON)/get_daemon.c -o $(BIN)/get_daemon.o $(FLAGS)
+
+$(BIN)/core.o: $(DAEMON)/core.c $(DAEMON)/daemon.h
+	gcc -c $(DAEMON)/core.c -o $(BIN)/core.o $(FLAGS)
 
 # clean rule, it completely removes /bin folder
 clean:
