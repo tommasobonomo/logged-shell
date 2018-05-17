@@ -7,7 +7,7 @@
 #include <string.h>
 
 int main(int argc, char const *argv[]) {
-	key_t key = ftok(".", 1); //scegliere percorso univovo
+	key_t key = ftok(".", 1);
 	printf("key: %d\n", key);
 
 	int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
