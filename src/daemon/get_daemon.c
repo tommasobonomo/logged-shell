@@ -12,10 +12,6 @@
 
 extern int errno;
 
-/**
- * Crea un demone continuando l'esecuzione fuori dalla funzione del processo padre (doppio fork)
- * @param msqid ID della coda di messaggi utilizzata dal demone nella funzione core
- */
 void daemonize(int msqid)
 {
 

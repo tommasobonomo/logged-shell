@@ -37,7 +37,7 @@ void send_msg(int msqid, struct SubCommandResult *subres)
 {
 	stat_msg msg;
 	msg.type = STAT;
-	strcpy(msg.text, "Hello world\0");
+	msg.sub = *subres;
 
 	msgsnd(msqid, &msg, STATSZ, 0);
 }

@@ -10,23 +10,18 @@
 #include "../lib/utilities.h"
 #include "daemon.h"
 
+#define APPEND "a"
+
 extern int errno;
 
 int msqid;
 
-// Riguardare bene comportamento
 void sighandler(int signum)
 {
 	switch (signum)
 	{
 	case SIGINT:
 	case SIGTERM:
-		// // DEBUG
-		// fp = fopen(LOGFILE, "w");
-		// fprintf(fp, "msqid: %d\nsignum: %d\n", msqid, signum);
-		// fclose(fp);
-		// // END DEBUG
-
 		msgctl(msqid, IPC_RMID, NULL);
 		exit(EXIT_SUCCESS);
 		break;
@@ -35,52 +30,63 @@ void sighandler(int signum)
 
 void core(int msqid_param)
 {
+	// Setto la variabile globale msqid per la gestione tramite sighandler
 	msqid = msqid_param;
 
 	signal(SIGINT, sighandler);
 	signal(SIGTERM, sighandler);
 
+	// Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
 	stat_msg s_msg;
 	proc_msg p_msg;
 	int proc_count = 0;
 
 	do
 	{
-
+		// Prova a ricevere un stat_msg
 		msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
 		if (errno == ENOMSG)
 		{
+			// Se fallisce, risetta errno a 0 per non condizionare gli altri
 			errno = 0;
 		}
 		else
 		{
+			// Scrivi il contenuto dello stat_msg nel file fp
 			FILE *fp;
-			fp = fopen(LOGFILE, "w");
-			fprintf(fp, "%s\n", s_msg.text);
+			fp = fopen(LOGFILE, APPEND);
+			// Qua tramite una fprintf() si stampano le statistiche sul file di log fp
 			fclose(fp);
 		}
 
+		// Prova a ricevere un proc_msg di tipo PROC_INIT
 		msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
 		if (errno == ENOMSG)
 		{
+			// Se fallisce, come prima
 			errno = 0;
 		}
 		else
 		{
+			// Aumenta il contatore di processi
 			proc_count++;
 		}
 
 		msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
 		if (errno == ENOMSG)
 		{
+			// Se fallisce, come prima
 			errno = 0;
 		}
 		else
 		{
+			// Diminuisci il contatore di processi
 			proc_count--;
 		}
 
 	} while (proc_count > 0);
+	// TODO: implementare un timeout per l'uscita dal ciclo?
 
+	// Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
 	kill(getpid(), SIGTERM);
 }

@@ -3,28 +3,35 @@
 
 #include "../lib/commands.h"
 
-#define MSGQUE_PATH "."
-#define MSGQUE_NUM 1
-#define LOGFILE "/tmp/xlogfile.txt"
+#define MSGQUE_PATH "."				// Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_NUM 1				// ID numerico della msg_queue, impostato di default a 1
+#define LOGFILE "/tmp/xlogfile.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 
 // Core.c
-void daemon_sighandler(int signum);
+/**
+ * Esegue la logica del demone sulla msg_queue msqid_param: legge messaggi passati, decidendo anche quando terminare
+ * @param msqid_param la msg_queue sulla dalla quale il demone legge i messaggi
+ */
 void core(int msqid_param);
 
 // Message
-#define MAXSTR 80
-#define STATSZ MAXSTR * sizeof(char)
+// Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
+#define STATSZ sizeof(struct SubCommandResult) // Messaggio stat_msg
+#define PROCSZ 0							   // Messaggio proc_msg
+
+// Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
 #define PERMS 0600
 
-#define PROCSZ 0
+// Tipologie di messaggio
+#define STAT 1		 // Messaggio di statistiche
+#define PROC_INIT 2  // Messaggio di inizio processo
+#define PROC_CLOSE 3 // Messaggio di fine processo
 
-#define STAT 1
-#define PROC_INIT 2
-#define PROC_CLOSE 3
+// Strutture dei messaggi
 typedef struct stat_msg
 {
-	long type;		   // > 0
-	char text[MAXSTR]; //payload, sara' struttura del subcommandresult
+	long type;					 // > 0
+	struct SubCommandResult sub; //payload, sara' struttura del subcommandresult
 } stat_msg;
 typedef struct proc_msg
 {
@@ -49,9 +56,18 @@ int check();
  */
 void send_msg(int msqid, struct SubCommandResult *subres);
 
+/**
+ * Manda un messaggio proc_msg di tipo PROC_CLOSE per segnalare la chiusura di un processo. Da mandare sempre, anche in caso di terminazione forzata!
+ * TODO: Implementare un timeout per evitare demoni infiniti?
+ * @param msqid la msg_queue di riferimento per il processo e il demone
+ */
 void send_close(int msqid);
 
-// GetDaemon
+/**
+ * Crea un demone continuando l'esecuzione fuori dalla funzione del processo padre (doppio fork). 
+ * Praticamente, se un processo chiama questa funzione, verra' creato un demone e il processo continuera' la sua esecuzione
+ * @param msqid ID della coda di messaggi utilizzata dal demone nella funzione core
+ */
 void daemonize(int msqid);
 
 #endif
