@@ -5,6 +5,7 @@
 
 #define MSGQUE_PATH "."
 #define MSGQUE_NUM 1
+#define LOGFILE "/tmp/xlogfile.txt"
 
 // Core.c
 void daemon_sighandler(int signum);
