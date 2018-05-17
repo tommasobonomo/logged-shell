@@ -36,30 +36,30 @@ void getChildrenProcessStats(struct SubCommandResult *subCommandResult)
 
 }
 
-void printStatsC(struct Command *cmd)
+void printStatsC(FILE *fp, struct Command *cmd)
 {
     DEBUG_PRINT("\n######### STATS #########\n");
     DEBUG_PRINT("Command: %s\n", cmd->command);
     int i;
     for (i = 0; i < cmd->n_subCommands; i++)
     {
-        printStatsS(cmd->subCommandResults[i]);
+        printStatsS(fp, cmd->subCommandResults[i]);
     }
 }
 
-void printStatsS(struct SubCommandResult *subCommandResult)
+void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult)
 {
-    DEBUG_PRINT("\nSubcommand: %s\n", subCommandResult->subCommand);
-    DEBUG_PRINT("  Real elapsed time: %f seconds \n", subCommandResult->totTime);
-    DEBUG_PRINT("  PID: %d\n", subCommandResult->pid);
-    DEBUG_PRINT("  system CPU time used: %ld μs\n", subCommandResult->cputime);
-    DEBUG_PRINT("  maximum resident set size: %ld kB\n", subCommandResult->vmressize);
-    DEBUG_PRINT("  page reclaims (soft page faults): %ld\n", subCommandResult->softPageFaults);
-    DEBUG_PRINT("  page faults (hard page faults): %ld\n", subCommandResult->hardPageFaults);
-    DEBUG_PRINT("  swaps: %ld\n", subCommandResult->swaps);
-    DEBUG_PRINT("  signals received: %ld\n", subCommandResult->signals);
-    DEBUG_PRINT("  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
-    DEBUG_PRINT("  involuntary context switches: %ld\n", subCommandResult->nonvoluntary_ctxt_switches);
+    fprintf(fp, "\nSubcommand: %s\n", subCommandResult->subCommand);
+    fprintf(fp, "  Real elapsed time: %f seconds \n", subCommandResult->totTime);
+    fprintf(fp, "  PID: %d\n", subCommandResult->pid);
+    fprintf(fp, "  system CPU time used: %ld μs\n", subCommandResult->cputime);
+    fprintf(fp, "  maximum resident set size: %ld kB\n", subCommandResult->vmressize);
+    fprintf(fp, "  page reclaims (soft page faults): %ld\n", subCommandResult->softPageFaults);
+    fprintf(fp, "  page faults (hard page faults): %ld\n", subCommandResult->hardPageFaults);
+    fprintf(fp, "  swaps: %ld\n", subCommandResult->swaps);
+    fprintf(fp, "  signals received: %ld\n", subCommandResult->signals);
+    fprintf(fp, "  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
+    fprintf(fp, "  involuntary context switches: %ld\n", subCommandResult->nonvoluntary_ctxt_switches);
 }
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)

@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <string.h>
 #include "../parser/parser.h"
+#include "../daemon/daemon.h"
 #include <sys/types.h>
 #include <sys/time.h>
 
@@ -65,10 +66,11 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 }
 
-void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, int pipes, int pipeIndex, bool prevPipe,
+void executeSubCommand(struct SubCommandResult *subCommandResult, int msqid, int *pipefds, int pipes, int pipeIndex,
+                       bool prevPipe,
                        bool nextPipe, bool nextAnd, bool nextOr)
 {
-    DEBUG_PRINT("\nEXECUTING \"%s\"\n", subCommandResult->subCommand);
+    DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
     int returnExecuter;
 
@@ -113,7 +115,8 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int *pipefds, 
             subCommandResult->pid = fid;
             subCommandResult->totTime = mtime;
 
-            printStatsS(subCommandResult);
+            send_msg(msqid, subCommandResult);
+            //printStatsS(stderr,subCommandResult);
 
             returnExecuter = WEXITSTATUS(statusExecuter);
             if (returnExecuter != 0)

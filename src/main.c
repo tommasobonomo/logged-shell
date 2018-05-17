@@ -3,14 +3,39 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
 #include "./statistics/statHelper.h"
 #include "./executer/executer.h"
+#include "./daemon/daemon.h"
+
+int msqid;
+
+// Handler di segnali per mandare un segnale di chiusura al demone comunque
+void interrupt_sighandler(int signum)
+{
+    switch (signum)
+    {
+        case SIGINT:
+        case SIGTERM:
+        case SIGQUIT:
+            send_close(msqid);
+            exit(EXIT_SUCCESS);
+            break;
+    }
+}
 
 int main(int argc, char *argv[])
 {
+    // Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
+    msqid = check();
+
+    signal(SIGTERM, interrupt_sighandler);
+    signal(SIGINT, interrupt_sighandler);
+    signal(SIGQUIT, interrupt_sighandler);
+
     DEBUG_PRINT("  ###########\n");
     DEBUG_PRINT("  ## DEBUG ##\n");
     DEBUG_PRINT("  ###########\n\n");
@@ -73,10 +98,10 @@ int main(int argc, char *argv[])
             {
                 //fare niente
             }
-        }//else there is no operator
+        } //else there is no operator
         //END - READ OPERATOR
 
-        executeSubCommand(subCmdResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
+        executeSubCommand(subCmdResult, msqid, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
 
         //SAVING CURRENT SUBCOMMAND
         cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
@@ -112,6 +137,9 @@ int main(int argc, char *argv[])
     }
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
+
+    // Segnala che il processo ha terminato
+    send_close(msqid);
 
     return 0;
 }
