@@ -19,13 +19,13 @@ extern int errno;
 void daemonize(int msqid)
 {
 
-    pid_t fid = frk();
+    pid_t fid = w_fork();
 
     if (fid == 0)
     {
         // Primo figlio
 
-        fid = frk();
+        fid = w_fork();
 
         // Termino il padre
         if (fid > 0)

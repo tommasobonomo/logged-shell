@@ -13,7 +13,7 @@
 int msqid;
 
 // Riguardare bene comportamento
-void daemon_sighandler(int signum)
+void sighandler(int signum)
 {
 	switch (signum)
 	{
@@ -32,7 +32,7 @@ void core(int msqid_param)
 {
 	msqid = msqid_param;
 
-	signal(SIGINT, daemon_sighandler);
+	signal(SIGINT, sighandler);
 
 	message msg;
 	while (1)
