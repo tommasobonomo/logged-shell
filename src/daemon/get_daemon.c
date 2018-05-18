@@ -46,7 +46,8 @@ void daemonize(int msqid)
         }
 
         // Chiudo tutti i fd
-        for (int x = 0; x < sysconf(_SC_OPEN_MAX); x++)
+        int x;
+        for (x = 0; x < sysconf(_SC_OPEN_MAX); x++)
         {
             close(x);
         }
