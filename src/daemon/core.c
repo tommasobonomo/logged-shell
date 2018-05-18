@@ -22,11 +22,12 @@ void sighandler(int signum)
 {
     switch (signum)
     {
-        case SIGINT:
-        case SIGTERM:
-            msgctl(msqid, IPC_RMID, NULL);
-            exit(EXIT_SUCCESS);
-            break;
+    case SIGINT:
+    case SIGTERM:
+    case SIGQUIT:
+        msgctl(msqid, IPC_RMID, NULL);
+        exit(EXIT_SUCCESS);
+        break;
     }
 }
 
@@ -37,6 +38,7 @@ void core(int msqid_param)
 
     signal(SIGINT, sighandler);
     signal(SIGTERM, sighandler);
+    signal(SIGQUIT, sighandler);
 
     // Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
     stat_msg s_msg;
@@ -49,12 +51,10 @@ void core(int msqid_param)
         msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
         if (errno == ENOMSG)
         {
-            // Se fallisce, risetta errno a 0 per non condizionare gli altri
             errno = 0;
         }
         else
         {
-            // Scrivi il contenuto dello stat_msg nel file fp
             FILE *fp;
             fp = w_fopen(LOGFILE, APPEND);
             printStatsS(fp, &s_msg.sub);
@@ -65,24 +65,21 @@ void core(int msqid_param)
         msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
         if (errno == ENOMSG)
         {
-            // Se fallisce, come prima
             errno = 0;
         }
         else
         {
-            // Aumenta il contatore di processi
             proc_count++;
         }
 
+        // Prova  a ricevere un PROC_CLOSE
         msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
         if (errno == ENOMSG)
         {
-            // Se fallisce, come prima
             errno = 0;
         }
         else
         {
-            // Diminuisci il contatore di processi
             proc_count--;
         }
 

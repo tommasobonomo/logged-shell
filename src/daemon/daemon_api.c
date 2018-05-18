@@ -18,23 +18,21 @@ int check()
 	int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
 	if (msqid >= 0)
 	{
-		proc_msg init;
-		init.type = PROC_INIT;
-        w_msgsnd(msqid, &init, PROCSZ, 0);
 		daemonize(msqid);
 	}
 	else
 	{
 		msqid = msgget(key, PERMS | IPC_CREAT);
-        if (msqid < 0)
-        {
-            error_fatal(ERR_SYSCALL, "msgget failed");
-        }
-		proc_msg init;
-		init.type = PROC_INIT;
-        w_msgsnd(msqid, &init, PROCSZ, 0);
+		if (msqid < 0)
+		{
+			error_fatal(ERR_SYSCALL, "msgget failed");
+		}
 	}
 	DEBUG_PRINT("msqid: %d\n", msqid);
+
+	proc_msg init;
+	init.type = PROC_INIT;
+	w_msgsnd(msqid, &init, PROCSZ, 0);
 
 	return msqid;
 }
@@ -45,12 +43,12 @@ void send_msg(int msqid, struct SubCommandResult *subres)
 	msg.type = STAT;
 	msg.sub = *subres;
 
-    w_msgsnd(msqid, &msg, STATSZ, 0);
+	w_msgsnd(msqid, &msg, STATSZ, 0);
 }
 
 void send_close(int msqid)
 {
 	proc_msg close;
 	close.type = PROC_CLOSE;
-    w_msgsnd(msqid, &close, PROCSZ, 0);
+	w_msgsnd(msqid, &close, PROCSZ, 0);
 }
