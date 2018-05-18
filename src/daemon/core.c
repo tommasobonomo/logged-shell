@@ -23,8 +23,8 @@ void sighandler(int signum)
     switch (signum)
     {
     case SIGINT:
+    case SIGSEGV:
     case SIGTERM:
-    case SIGQUIT:
         msgctl(msqid, IPC_RMID, NULL);
         exit(EXIT_SUCCESS);
         break;
@@ -37,8 +37,8 @@ void core(int msqid_param)
     msqid = msqid_param;
 
     signal(SIGINT, sighandler);
+    signal(SIGSEGV, sighandler);
     signal(SIGTERM, sighandler);
-    signal(SIGQUIT, sighandler);
 
     // Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
     stat_msg s_msg;
