@@ -6,17 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-
 #include "../lib/utilities.h"
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
 #include "./daemon.h"
 
 #define APPEND "a"
-
-extern int errno;
-
-int msqid;
 
 void sighandler(int signum)
 {

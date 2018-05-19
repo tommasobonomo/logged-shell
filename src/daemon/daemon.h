@@ -5,7 +5,9 @@
 
 #define MSGQUE_PATH "."				// Path per la msg_queue, impostato di default alla directory corrente
 #define MSGQUE_NUM 1				// ID numerico della msg_queue, impostato di default a 1
-#define LOGFILE "/tmp/xlogfile.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define LOGFILE "/tmp/ass2_logs/default.log"		// Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+
+extern int msqid; // ID msg_queue creata ed attiva
 
 // Core.c
 /**
@@ -33,6 +35,7 @@ typedef struct stat_msg
 	long type;					 // > 0
 	struct SubCommandResult sub; //payload, sara' struttura del subcommandresult
 } stat_msg;
+
 typedef struct proc_msg
 {
 	long type;
@@ -40,8 +43,8 @@ typedef struct proc_msg
 
 // API
 /**
- * Controlla se è presente una coda di messaggi, se si restituisce il suo 
- * identificativo (sapendo che il demone è in esevuzione), altrimenti 
+ * Controlla se è presente una coda di messaggi, se si restituisce il suo
+ * identificativo (sapendo che il demone è in esevuzione), altrimenti
  * crea una nuova coda di messaggi e inizializza il demone.
  * Comunica al demone che vi è una nuova istanza del tool in esecuzione.
  * @return l'identificativo della coda di messaggi, nuova o già presente.
@@ -64,7 +67,7 @@ void send_msg(int msqid, struct SubCommandResult *subres);
 void send_close(int msqid);
 
 /**
- * Crea un demone continuando l'esecuzione fuori dalla funzione del processo padre (doppio fork). 
+ * Crea un demone continuando l'esecuzione fuori dalla funzione del processo padre (doppio fork).
  * Praticamente, se un processo chiama questa funzione, verra' creato un demone e il processo continuera' la sua esecuzione
  * @param msqid ID della coda di messaggi utilizzata dal demone nella funzione core
  */

@@ -4,6 +4,7 @@ DEBUGGUARD = $(BIN)/DEBUG
 
 SRC = ./src
 BIN = ./bin
+LOGS = /tmp/ass2_logs
 LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
 EXECUTER = $(SRC)/executer
@@ -21,38 +22,44 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/statHelper.o \
 		$(BIN)/daemon_api.o \
 		$(BIN)/core.o \
-		$(BIN)/get_daemon.o 
+		$(BIN)/get_daemon.o
 
 
 .PHONY = build debug checkDebug clean
 
 # build rule, the standard one
-build: $(BIN) checkDebug $(OBJ)
+build: $(BIN) checkDebug $(OBJ) $(LOGS)
 	@gcc -std=gnu90 -o $(BIN)/$(PNAME) $(OBJ)
 	@echo Finished building
 
 # debug rule, use it when debugging. It sets custom flags
 debug: FLAGS = -Wall -Wextra -DDEBUG -g
-debug: $(BIN) checkNotDebug $(OBJ)
+debug: $(BIN) checkNotDebug $(OBJ) $(LOGS)
 	@gcc -std=gnu90 -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
 	@touch $(DEBUGGUARD)
 	@echo Finished building in debug mode
 
-# if DEBUGGUARD is present, it removes all the content of /bin
+# if DEBUGGUARD is present, it removes all the content of ./bin
 checkDebug:
 	@if [ -f $(DEBUGGUARD) ]; then \
 		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
 	fi
 
-# if DEBUGGUARD is not present, it removes all the content of /bin
+# if DEBUGGUARD is not present, it removes all the content of ./bin
 checkNotDebug:
 	@if [ ! -f $(DEBUGGUARD) ]; then \
 		rm -f $(BIN)/$(PNAME) $(OBJ) $(DEBUGGUARD); \
 	fi
 
-# creates /bin folder if it doesn't exist
+# creates ./bin folder if it doesn't exist
 $(BIN):
-	@mkdir -p bin
+	@mkdir -p $(BIN)
+	@echo Created $(BIN) folder
+
+# creates /tmp/logs folder if it doesn't exist
+$(LOGS):
+	@mkdir -p $(LOGS)
+	@echo Created $(LOGS) folder
 
 # object files
 $(BIN)/main.o: $(SRC)/main.c $(LIBRARY)/commands.h
@@ -85,7 +92,9 @@ $(BIN)/get_daemon.o: $(DAEMON)/get_daemon.c $(DAEMON)/daemon.h
 $(BIN)/core.o: $(DAEMON)/core.c $(DAEMON)/daemon.h
 	gcc -std=gnu90 -c $(DAEMON)/core.c -o $(BIN)/core.o $(FLAGS)
 
-# clean rule, it completely removes /bin folder
+# clean rule, it completely removes ./bin folder
 clean:
 	@rm -rf $(BIN)
-	@echo Removed /bin folder
+	@echo Removed $(BIN) folder
+	@rm -rf $(LOGS)
+	@echo Removed $(LOGS) folder

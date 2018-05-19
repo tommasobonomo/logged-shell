@@ -1,14 +1,14 @@
-#include "../lib/commands.h"
-#include "daemon.h"
-#include "../lib/utilities.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <errno.h>
 #include <string.h>
+#include "../lib/commands.h"
+#include "../lib/utilities.h"
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
+#include "./daemon.h"
 
 int check()
 {
