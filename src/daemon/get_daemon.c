@@ -1,30 +1,23 @@
-#include "../lib/errors.h"
-#include "../lib/syscalls.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
-#include "daemon.h"
-
-#define PIDLENGTH 5
-#define PIDPATH "/tmp/xlog/pidpath"
-
-extern int errno;
+#include "../lib/errors.h"
+#include "../lib/syscalls.h"
+#include "./daemon.h"
 
 void daemonize(int msqid)
 {
 
-    pid_t fid = w_fork();
+    pid_t cid = w_fork();
 
-    if (fid == 0)
+    if (cid == 0)
     {
         // Primo figlio
-
-        fid = w_fork();
+        cid = w_fork();
 
         // Termino il padre
-        if (fid > 0)
+        if (cid > 0)
         {
             exit(EXIT_SUCCESS);
         }
@@ -36,8 +29,7 @@ void daemonize(int msqid)
         }
 
         // Gestisco o ignoro segnali
-        signal(SIGHUP, SIG_IGN);
-        signal(SIGCHLD, SIG_IGN);
+        //signal(SIGHUP, SIG_IGN);  //TODO verificare necessità
 
         // Cambio directory
         if (chdir("/") < 0)
