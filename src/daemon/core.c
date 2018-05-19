@@ -46,47 +46,43 @@ void core(int msqid_param)
     proc_msg p_msg;
 	int proc_count = 0;
 
-	do
-	{
-		// Prova a ricevere un stat_msg
-		msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
-		if (errno == ENOMSG)
-		{
-			errno = 0;
-		}
-		else
-		{
-			FILE *fp;
-			fp = w_fopen(LOGFILE, APPEND);
-			printStatsS(fp, &s_msg.sub);
-			fclose(fp);
-		}
+    do
+    {
+        msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
 
-		// Prova a ricevere un proc_msg di tipo PROC_INIT
-		msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
-		if (errno == ENOMSG)
-		{
-			errno = 0;
-		}
-		else
-		{
-			proc_count++;
-		}
+        if (errno == E2BIG)
+        {
+            // C'è almeno una statistica da leggere
+            msgrcv(msqid, &s_msg, STATSZ, STAT, 0);
+            FILE *fp;
+            fp = w_fopen(LOGFILE, APPEND);
+            struct SubCommandResult *subres = &s_msg.sub;
+            // fprintf(fp, "Passing stats of %s\n", s_msg.sub.subCommand);
+            printStatsS(fp, subres);
+            fclose(fp);
+            errno = 0;
+        }
+        else
+        {
+            if (p_msg.type == PROC_INIT)
+            {
+                proc_count++;
+            }
+            else if (p_msg.type == PROC_CLOSE)
+            {
+                proc_count--;
+            }
+        }
 
-		// Prova  a ricevere un PROC_CLOSE
-		msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
-		if (errno == ENOMSG)
-		{
-			errno = 0;
-		}
-		else
-		{
-			proc_count--;
-		}
+        // // DEBUG
+        // FILE *fp;
+        // fp = w_fopen(LOGFILE, APPEND);
+        // fprintf(fp, "proc_count = %d\n", proc_count);
+        // fclose(fp);
 
-	} while (proc_count > 0);
-	// TODO: implementare un timeout per l'uscita dal ciclo?
+    } while (proc_count > 0);
 
-	// Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
-	kill(getpid(), SIGTERM);
+    // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
+    msgctl(msqid, IPC_RMID, NULL);
+    exit(EXIT_SUCCESS);
 }
