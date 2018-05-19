@@ -49,7 +49,7 @@ void printStatsC(FILE *fp, struct Command *cmd)
 
 void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult)
 {
-    fprintf(fp, "\nSubcommand: %s\n", subCommandResult->subCommand);
+    fprintf(fp, "Subcommand: %s\n", subCommandResult->subCommand);
     fprintf(fp, "  Real elapsed time: %f seconds \n", subCommandResult->totTime);
     fprintf(fp, "  PID: %d\n", subCommandResult->pid);
     fprintf(fp, "  system CPU time used: %ld μs\n", subCommandResult->cputime);
@@ -59,7 +59,8 @@ void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult)
     fprintf(fp, "  swaps: %ld\n", subCommandResult->swaps);
     fprintf(fp, "  signals received: %ld\n", subCommandResult->signals);
     fprintf(fp, "  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
-    fprintf(fp, "  involuntary context switches: %ld\n", subCommandResult->nonvoluntary_ctxt_switches);
+    fprintf(fp, "  involuntary context switches: %ld\n\n", subCommandResult->nonvoluntary_ctxt_switches);
+
 }
 
 void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)

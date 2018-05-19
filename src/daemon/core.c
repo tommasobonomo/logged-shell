@@ -20,72 +20,73 @@ int msqid;
 
 void sighandler(int signum)
 {
-    switch (signum)
-    {
-    case SIGINT:
-    case SIGSEGV:
-    case SIGTERM:
-        msgctl(msqid, IPC_RMID, NULL);
-        exit(EXIT_SUCCESS);
-        break;
-    }
+	FILE *fp;
+	fp = w_fopen(LOGFILE, APPEND);
+	fprintf(fp, "Signal: %d\n", signum);
+	msgctl(msqid, IPC_RMID, NULL);
+	exit(EXIT_SUCCESS);
 }
 
 void core(int msqid_param)
 {
-    // Setto la variabile globale msqid per la gestione tramite sighandler
-    msqid = msqid_param;
+	// Setto la variabile globale msqid per la gestione tramite sighandler
+	msqid = msqid_param;
 
-    signal(SIGINT, sighandler);
-    signal(SIGSEGV, sighandler);
-    signal(SIGTERM, sighandler);
+    int i = 1;
+	for (; i <= 64; i++)
+	{
+		if (i != SIGCONT && i != SIGCHLD)
+        {
+            signal(i, sighandler);
+        }
+	}
 
-    // Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
+	// Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
     stat_msg s_msg;
     proc_msg p_msg;
-    int proc_count = 0;
+	int proc_count = 0;
 
-    do
-    {
-        // Prova a ricevere un stat_msg
-        msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
-        if (errno == ENOMSG)
-        {
-            errno = 0;
-        }
-        else
-        {
-            FILE *fp;
-            fp = w_fopen(LOGFILE, APPEND);
-            printStatsS(fp, &s_msg.sub);
-            fclose(fp);
-        }
+	do
+	{
+		// Prova a ricevere un stat_msg
+		msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			FILE *fp;
+			fp = w_fopen(LOGFILE, APPEND);
+			printStatsS(fp, &s_msg.sub);
+			fclose(fp);
+		}
 
-        // Prova a ricevere un proc_msg di tipo PROC_INIT
-        msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
-        if (errno == ENOMSG)
-        {
-            errno = 0;
-        }
-        else
-        {
-            proc_count++;
-        }
+		// Prova a ricevere un proc_msg di tipo PROC_INIT
+		msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			proc_count++;
+		}
 
-        // Prova  a ricevere un PROC_CLOSE
-        msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
-        if (errno == ENOMSG)
-        {
-            errno = 0;
-        }
-        else
-        {
-            proc_count--;
-        }
+		// Prova  a ricevere un PROC_CLOSE
+		msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
+		if (errno == ENOMSG)
+		{
+			errno = 0;
+		}
+		else
+		{
+			proc_count--;
+		}
 
-    } while (proc_count > 0);
-    // TODO: implementare un timeout per l'uscita dal ciclo?
+	} while (proc_count > 0);
+	// TODO: implementare un timeout per l'uscita dal ciclo?
 
-    // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
-    kill(getpid(), SIGTERM);
+	// Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
+	kill(getpid(), SIGTERM);
 }
