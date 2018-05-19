@@ -36,6 +36,11 @@ void core(int msqid_param)
     // Setto la variabile globale msqid per la gestione tramite sighandler
     msqid = msqid_param;
 
+    // FILE *fp;
+    // fp = w_fopen(LOGFILE, APPEND);
+    // fprintf(fp, "daemon pid = %d\n", getpid());
+    // fclose(fp);
+
     signal(SIGINT, sighandler);
     signal(SIGSEGV, sighandler);
     signal(SIGTERM, sighandler);
@@ -47,45 +52,41 @@ void core(int msqid_param)
 
     do
     {
-        // Prova a ricevere un stat_msg
-        msgrcv(msqid, &s_msg, STATSZ, STAT, IPC_NOWAIT);
-        if (errno == ENOMSG)
+        msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
+
+        if (errno == E2BIG)
         {
-            errno = 0;
-        }
-        else
-        {
+            // C'è almeno una statistica da leggere
+            msgrcv(msqid, &s_msg, STATSZ, STAT, 0);
             FILE *fp;
             fp = w_fopen(LOGFILE, APPEND);
-            printStatsS(fp, &s_msg.sub);
+            struct SubCommandResult *subres = &s_msg.sub;
+            // fprintf(fp, "Passing stats of %s\n", s_msg.sub.subCommand);
+            printStatsS(fp, subres);
             fclose(fp);
-        }
-
-        // Prova a ricevere un proc_msg di tipo PROC_INIT
-        msgrcv(msqid, &p_msg, PROCSZ, PROC_INIT, IPC_NOWAIT);
-        if (errno == ENOMSG)
-        {
             errno = 0;
         }
         else
         {
-            proc_count++;
+            if (p_msg.type == PROC_INIT)
+            {
+                proc_count++;
+            }
+            else if (p_msg.type == PROC_CLOSE)
+            {
+                proc_count--;
+            }
         }
 
-        // Prova  a ricevere un PROC_CLOSE
-        msgrcv(msqid, &p_msg, PROCSZ, PROC_CLOSE, IPC_NOWAIT);
-        if (errno == ENOMSG)
-        {
-            errno = 0;
-        }
-        else
-        {
-            proc_count--;
-        }
+        // // DEBUG
+        // FILE *fp;
+        // fp = w_fopen(LOGFILE, APPEND);
+        // fprintf(fp, "proc_count = %d\n", proc_count);
+        // fclose(fp);
 
     } while (proc_count > 0);
-    // TODO: implementare un timeout per l'uscita dal ciclo?
 
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
-    kill(getpid(), SIGTERM);
+    msgctl(msqid, IPC_RMID, NULL);
+    exit(EXIT_SUCCESS);
 }
