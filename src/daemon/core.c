@@ -20,35 +20,31 @@ int msqid;
 
 void sighandler(int signum)
 {
-    switch (signum)
-    {
-    case SIGINT:
-    case SIGSEGV:
-    case SIGTERM:
-        msgctl(msqid, IPC_RMID, NULL);
-        exit(EXIT_SUCCESS);
-        break;
-    }
+	FILE *fp;
+	fp = w_fopen(LOGFILE, APPEND);
+	fprintf(fp, "Signal: %d\n", signum);
+	msgctl(msqid, IPC_RMID, NULL);
+	exit(EXIT_SUCCESS);
 }
 
 void core(int msqid_param)
 {
-    // Setto la variabile globale msqid per la gestione tramite sighandler
-    msqid = msqid_param;
+	// Setto la variabile globale msqid per la gestione tramite sighandler
+	msqid = msqid_param;
 
-    // FILE *fp;
-    // fp = w_fopen(LOGFILE, APPEND);
-    // fprintf(fp, "daemon pid = %d\n", getpid());
-    // fclose(fp);
+    int i = 1;
+	for (; i <= 64; i++)
+	{
+		if (i != SIGCONT && i != SIGCHLD)
+        {
+            signal(i, sighandler);
+        }
+	}
 
-    signal(SIGINT, sighandler);
-    signal(SIGSEGV, sighandler);
-    signal(SIGTERM, sighandler);
-
-    // Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
+	// Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
     stat_msg s_msg;
     proc_msg p_msg;
-    int proc_count = 0;
+	int proc_count = 0;
 
     do
     {

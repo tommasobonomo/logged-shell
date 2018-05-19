@@ -16,130 +16,138 @@ int msqid;
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
-    switch (signum)
-    {
-        case SIGINT:
-        case SIGTERM:
-        case SIGQUIT:
-            send_close(msqid);
-            exit(EXIT_SUCCESS);
-            break;
-    }
+	switch (signum)
+	{
+	case SIGINT:
+	case SIGTERM:
+	case SIGQUIT:
+		send_close(msqid);
+		exit(EXIT_SUCCESS);
+		break;
+	default:
+		DEBUG_PRINT("Signal: %d\n", signum);
+		exit(EXIT_FAILURE);
+	}
 }
 
 int main(int argc, char *argv[])
 {
-    // Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
-    msqid = check();
+	// Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
+	msqid = check();
 
-    signal(SIGTERM, interrupt_sighandler);
-    signal(SIGINT, interrupt_sighandler);
-    signal(SIGQUIT, interrupt_sighandler);
+	int i=1;
+	for (; i <= 64; i++)
+	{
+		if (i != SIGCONT && i != SIGCHLD)
+		{
+			signal(i, interrupt_sighandler);
+		}
+	}
 
-    DEBUG_PRINT("  ###########\n");
-    DEBUG_PRINT("  ## DEBUG ##\n");
-    DEBUG_PRINT("  ###########\n\n");
 
-    DEBUG_PRINT("Sono il padre di tutti: %d\n\n", getpid());
+	DEBUG_PRINT("  ###########\n");
+	DEBUG_PRINT("  ## DEBUG ##\n");
+	DEBUG_PRINT("  ###########\n\n");
 
-    struct Command *cmd = parseCommand(argc, argv);
+	DEBUG_PRINT("Sono il padre di tutti: %d\n\n", getpid());
 
-    //CREAZIONE PIPES
-    int pipes = countPipes(cmd->command);
-    int *pipefds = malloc(2 * pipes * sizeof(int));
-    int i;
-    for (i = 0; i < pipes * 2; i += 2)
-    {
-        w_pipe(pipefds + i);
-    }
+	struct Command *cmd = parseCommand(argc, argv);
 
-    //ESECUZIONE SUBCOMANDI
-    char *p = cmd->command;
-    char *start = NULL;
-    char *end = NULL;
-    bool prevPipe = false;
-    bool nextPipe = false;
-    bool nextAnd = false;
-    bool nextOr = false;
-    int pipeIndex = 0;
+	//CREAZIONE PIPES
+	int pipes = countPipes(cmd->command);
+	int *pipefds = malloc(2 * pipes * sizeof(int));
+	for (i = 0; i < pipes * 2; i += 2)
+	{
+		w_pipe(pipefds + i);
+	}
 
-    getNextSubCommand(p, &start, &end);
-    p = end + 1;
+	//ESECUZIONE SUBCOMANDI
+	char *p = cmd->command;
+	char *start = NULL;
+	char *end = NULL;
+	bool prevPipe = false;
+	bool nextPipe = false;
+	bool nextAnd = false;
+	bool nextOr = false;
+	int pipeIndex = 0;
 
-    while (start != NULL && end != NULL)
-    {
-        struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
+	getNextSubCommand(p, &start, &end);
+	p = end + 1;
 
-        int length = (end - start) * sizeof(*start) + 1;
-        subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
-        sprintf(subCmdResult->subCommand, "%.*s", length, start);
+	while (start != NULL && end != NULL)
+	{
+		struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
 
-        //READ OPERATOR
-        getNextSubCommand(p, &start, &end);
-        p = end + 1;
+		int length = (end - start) * sizeof(*start) + 1;
+		subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
+		sprintf(subCmdResult->subCommand, "%.*s", length, start);
 
-        if (start != NULL && end != NULL)
-        {
-            int lengthOperator = (end - start) * sizeof(*start) + 1;
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
-            {
-                nextPipe = true;
-                //TODO redir output su fd corrente
-            }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
-            {
-                nextAnd = true;
-            }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
-            {
-                nextOr = true;
-            }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
-            {
-                //fare niente
-            }
-        } //else there is no operator
-        //END - READ OPERATOR
+		//READ OPERATOR
+		getNextSubCommand(p, &start, &end);
+		p = end + 1;
 
-        executeSubCommand(subCmdResult, msqid, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
+		if (start != NULL && end != NULL)
+		{
+			int lengthOperator = (end - start) * sizeof(*start) + 1;
+			if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+			{
+				nextPipe = true;
+				//TODO redir output su fd corrente
+			}
+			else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+			{
+				nextAnd = true;
+			}
+			else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+			{
+				nextOr = true;
+			}
+			else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+			{
+				//fare niente
+			}
+		} //else there is no operator
+		  //END - READ OPERATOR
 
-        //SAVING CURRENT SUBCOMMAND
-        cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
-        cmd->n_subCommands++;
+		executeSubCommand(subCmdResult, msqid, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
 
-        //PREPARE TO NEXT CYCLE
-        if (nextPipe == true)
-            pipeIndex++;
-        prevPipe = nextPipe;
-        nextPipe = false;
-        nextAnd = false;
-        nextOr = false;
+		//SAVING CURRENT SUBCOMMAND
+		cmd->subCommandResults[cmd->n_subCommands] = subCmdResult;
+		cmd->n_subCommands++;
 
-        if (start != NULL && end != NULL)
-        {
-            getNextSubCommand(p, &start, &end);
-            p = end + 1;
-        }
-    }
+		//PREPARE TO NEXT CYCLE
+		if (nextPipe == true)
+			pipeIndex++;
+		prevPipe = nextPipe;
+		nextPipe = false;
+		nextAnd = false;
+		nextOr = false;
 
-    //ATTENDO TUTTI I FIGLI
-    pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-    {
-        DEBUG_PRINT("Process %d terminated\n", pidFigli);
-    }
+		if (start != NULL && end != NULL)
+		{
+			getNextSubCommand(p, &start, &end);
+			p = end + 1;
+		}
+	}
 
-    // FREEING DYNAMICALLY ALLOCATED MEMORY
-    for (i = 0; i < cmd->n_subCommands; i++)
-    {
-        free(cmd->subCommandResults[i]->subCommand);
-        free(cmd->subCommandResults[i]);
-    }
-    free(cmd);
-    // END FREEING DYNAMICALLY ALLOCATED MEMORY
+	//ATTENDO TUTTI I FIGLI
+	pid_t pidFigli;
+	while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+	{
+		DEBUG_PRINT("Process %d terminated\n", pidFigli);
+	}
 
-    // Segnala che il processo ha terminato
-    send_close(msqid);
+	// FREEING DYNAMICALLY ALLOCATED MEMORY
+	for (i = 0; i < cmd->n_subCommands; i++)
+	{
+		free(cmd->subCommandResults[i]->subCommand);
+		free(cmd->subCommandResults[i]);
+	}
+	free(cmd);
+	// END FREEING DYNAMICALLY ALLOCATED MEMORY
 
-    return 0;
+	// Segnala che il processo ha terminato
+	send_close(msqid);
+
+	return 0;
 }
