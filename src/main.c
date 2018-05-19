@@ -16,12 +16,13 @@ int msqid;
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
+	send_close(msqid);
+	
 	switch (signum)
 	{
 	case SIGINT:
 	case SIGTERM:
 	case SIGQUIT:
-		send_close(msqid);
 		exit(EXIT_SUCCESS);
 		break;
 	default:

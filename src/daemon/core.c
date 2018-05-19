@@ -17,6 +17,7 @@ void sighandler(int signum)
 {
     FILE *fp;
     fp = w_fopen(LOGFILE, APPEND);
+    fprintf(fp, "Signal: %d\n", signum);
     msgctl(msqid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
 }

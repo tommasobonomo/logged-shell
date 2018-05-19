@@ -1,10 +1,9 @@
-
-PNAME = out
+PNAME = logged_shell
 DEBUGGUARD = $(BIN)/DEBUG
 
 SRC = ./src
 BIN = ./bin
-LOGS = /tmp/ass2_logs
+LOGS = /tmp/logged_shell
 LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
 EXECUTER = $(SRC)/executer

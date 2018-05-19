@@ -5,7 +5,7 @@
 
 #define MSGQUE_PATH "."				// Path per la msg_queue, impostato di default alla directory corrente
 #define MSGQUE_NUM 1				// ID numerico della msg_queue, impostato di default a 1
-#define LOGFILE "/tmp/ass2_logs/default.log"		// Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define LOGFILE "/tmp/logged_shell/default.log"		// Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 
 extern int msqid; // ID msg_queue creata ed attiva
 
