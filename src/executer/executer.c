@@ -23,7 +23,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t) length) == 0)
+        if (strncmp(start, "|", (size_t)length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -33,7 +33,7 @@ int countPipes(char *wholeCmd)
     return pipes;
 }
 
-void vectorizeStringArguments(char *argsString, char *argsVect[])
+void vectorizeStringArguments(char argsString[], char *argsVect[])
 {
     int npar = 0;
 
@@ -60,7 +60,7 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < (pipes)*2; i++)
     {
         w_close(pipefds[i]);
     }
@@ -116,7 +116,6 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int msqid, int
             subCommandResult->totTime = mtime;
 
             send_msg(msqid, subCommandResult);
-            //printStatsS(stderr,subCommandResult);
 
             returnExecuter = WEXITSTATUS(statusExecuter);
             if (returnExecuter != 0)
@@ -164,4 +163,3 @@ void executeSubCommand(struct SubCommandResult *subCommandResult, int msqid, int
         }
     }
 }
-

@@ -20,31 +20,30 @@ int msqid;
 
 void sighandler(int signum)
 {
-	FILE *fp;
-	fp = w_fopen(LOGFILE, APPEND);
-	fprintf(fp, "Signal: %d\n", signum);
-	msgctl(msqid, IPC_RMID, NULL);
-	exit(EXIT_SUCCESS);
+    FILE *fp;
+    fp = w_fopen(LOGFILE, APPEND);
+    msgctl(msqid, IPC_RMID, NULL);
+    exit(EXIT_SUCCESS);
 }
 
 void core(int msqid_param)
 {
-	// Setto la variabile globale msqid per la gestione tramite sighandler
-	msqid = msqid_param;
+    // Setto la variabile globale msqid per la gestione tramite sighandler
+    msqid = msqid_param;
 
     int i = 1;
-	for (; i <= 64; i++)
-	{
-		if (i != SIGCONT && i != SIGCHLD)
+    for (; i <= 64; i++)
+    {
+        if (i != SIGCONT && i != SIGCHLD)
         {
             signal(i, sighandler);
         }
-	}
+    }
 
-	// Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
+    // Variabili della logica: strutture dei due tipi di messaggi ricevibili, numero di processi in esecuzione
     stat_msg s_msg;
     proc_msg p_msg;
-	int proc_count = 0;
+    int proc_count = 0;
 
     do
     {
@@ -57,7 +56,6 @@ void core(int msqid_param)
             FILE *fp;
             fp = w_fopen(LOGFILE, APPEND);
             struct SubCommandResult *subres = &s_msg.sub;
-            // fprintf(fp, "Passing stats of %s\n", s_msg.sub.subCommand);
             printStatsS(fp, subres);
             fclose(fp);
             errno = 0;
@@ -73,12 +71,6 @@ void core(int msqid_param)
                 proc_count--;
             }
         }
-
-        // // DEBUG
-        // FILE *fp;
-        // fp = w_fopen(LOGFILE, APPEND);
-        // fprintf(fp, "proc_count = %d\n", proc_count);
-        // fclose(fp);
 
     } while (proc_count > 0);
 

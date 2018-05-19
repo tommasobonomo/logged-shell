@@ -41,7 +41,20 @@ void send_msg(int msqid, struct SubCommandResult *subres)
 {
 	stat_msg msg;
 	msg.type = STAT;
-	msg.sub = *subres;
+	strcpy(msg.sub.subCommand, subres->subCommand);
+	msg.sub.parameters = subres->parameters;
+	msg.sub.pid = subres->pid;
+	msg.sub.ppid = subres->ppid;
+	msg.sub.totTime = subres->totTime;
+	msg.sub.cputime = subres->cputime;
+	msg.sub.vmressize = subres->vmressize;
+	msg.sub.swaps = subres->swaps;
+	msg.sub.softPageFaults = subres->softPageFaults;
+	msg.sub.hardPageFaults = subres->hardPageFaults;
+	msg.sub.threads = subres->threads;
+	msg.sub.signals = subres->signals;
+	msg.sub.voluntary_ctxt_switches = subres->voluntary_ctxt_switches;
+	msg.sub.nonvoluntary_ctxt_switches = subres->nonvoluntary_ctxt_switches;
 
 	w_msgsnd(msqid, &msg, STATSZ, 0);
 }

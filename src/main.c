@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	// Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
 	msqid = check();
 
-	int i=1;
+	int i = 1;
 	for (; i <= 64; i++)
 	{
 		if (i != SIGCONT && i != SIGCHLD)
@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 			signal(i, interrupt_sighandler);
 		}
 	}
-
 
 	DEBUG_PRINT("  ###########\n");
 	DEBUG_PRINT("  ## DEBUG ##\n");
@@ -79,7 +78,6 @@ int main(int argc, char *argv[])
 		struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
 
 		int length = (end - start) * sizeof(*start) + 1;
-		subCmdResult->subCommand = malloc(sizeof(char) * (length + 1));
 		sprintf(subCmdResult->subCommand, "%.*s", length, start);
 
 		//READ OPERATOR
@@ -89,20 +87,20 @@ int main(int argc, char *argv[])
 		if (start != NULL && end != NULL)
 		{
 			int lengthOperator = (end - start) * sizeof(*start) + 1;
-			if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+			if (strncmp(start, "|", (size_t)lengthOperator) == 0)
 			{
 				nextPipe = true;
 				//TODO redir output su fd corrente
 			}
-			else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+			else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
 			{
 				nextAnd = true;
 			}
-			else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+			else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
 			{
 				nextOr = true;
 			}
-			else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+			else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
 			{
 				//fare niente
 			}

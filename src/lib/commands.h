@@ -8,29 +8,31 @@
 #define LOG_FORMAT_TXT 0
 #define LOG_FORMAT_CSV 1
 
-#define MODE_DISCARD  0
-#define MODE_SCREEN   1
-#define MODE_LOG      2
-#define MODE_FILEAPP  3
+#define MODE_DISCARD 0
+#define MODE_SCREEN 1
+#define MODE_LOG 2
+#define MODE_FILEAPP 3
 #define MODE_FILEOVER 4
+
+#define STRING_SIZE 80
 
 /**
  * Struct where a single sub-command is stored
  */
 struct SubCommandResult
 {
-    char *subCommand;
+    char subCommand[STRING_SIZE];
     char parameters;
     // STATS
     pid_t pid;
-    pid_t ppid;     // TODO find it
+    pid_t ppid; // TODO find it
     double totTime;
     time_t cputime;
     long vmressize;
     long swaps;
     long softPageFaults;
     long hardPageFaults;
-    int threads;    // TODO thread number
+    int threads; // TODO thread number
     long signals;
     long voluntary_ctxt_switches;
     long nonvoluntary_ctxt_switches;
