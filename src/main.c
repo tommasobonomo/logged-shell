@@ -138,14 +138,14 @@ int main(int argc, char *argv[])
 		DEBUG_PRINT("Process %d terminated\n", pidFigli);
 	}
 
-	// // FREEING DYNAMICALLY ALLOCATED MEMORY
-	// for (i = 0; i < cmd->n_subCommands; i++)
-	// {
-	// 	free(cmd->subCommandResults[i]->subCommand);
-	// 	free(cmd->subCommandResults[i]);
-	// }
-	// free(cmd);
-	// // END FREEING DYNAMICALLY ALLOCATED MEMORY
+	// FREEING DYNAMICALLY ALLOCATED MEMORY
+	free(pipefds);
+	for (i = 0; i < cmd->n_subCommands; i++)
+	{
+		free(cmd->subCommandResults[i]);
+	}
+	free(cmd);
+	// END FREEING DYNAMICALLY ALLOCATED MEMORY
 
 	// Segnala che il processo ha terminato
 	send_close(msqid);
