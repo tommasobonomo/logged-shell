@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
-#include "./daemon.h"
+#include "daemon.h"
 
 void daemonize(int msqid)
 {

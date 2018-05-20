@@ -9,7 +9,7 @@
 #include "../lib/utilities.h"
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
-#include "./daemon.h"
+#include "daemon.h"
 
 #define APPEND "a"
 
@@ -51,7 +51,7 @@ void core(int msqid_param)
             msgrcv(msqid, &s_msg, STATSZ, STAT, 0);
             FILE *fp;
             fp = w_fopen(LOGFILE, APPEND);
-            struct SubCommandResult *subres = &s_msg.sub;
+            SubCommandResult *subres = &s_msg.sub;
             printStatsS(fp, subres);
             fclose(fp);
             errno = 0;

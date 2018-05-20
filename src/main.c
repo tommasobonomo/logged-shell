@@ -17,7 +17,7 @@ int msqid;
 void interrupt_sighandler(int signum)
 {
 	send_close(msqid);
-	
+
 	switch (signum)
 	{
 	case SIGINT:
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
 	DEBUG_PRINT("  ## DEBUG ##\n");
 	DEBUG_PRINT("  ###########\n\n");
 
-	DEBUG_PRINT("Sono il padre di tutti: %d\n\n", getpid());
+	DEBUG_PRINT("pid: %d\n\n", getpid());
 
-	struct Command *cmd = parseCommand(argc, argv);
+	Command *cmd = parseCommand(argc, argv);
 
 	//CREAZIONE PIPES
 	int pipes = countPipes(cmd->command);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
 	while (start != NULL && end != NULL)
 	{
-		struct SubCommandResult *subCmdResult = malloc(sizeof(struct SubCommandResult));
+		SubCommandResult *subCmdResult = malloc(sizeof(SubCommandResult));
 
 		int length = (end - start) * sizeof(*start) + 1;
 		sprintf(subCmdResult->subCommand, "%.*s", length, start);
@@ -116,7 +116,9 @@ int main(int argc, char *argv[])
 
 		//PREPARE TO NEXT CYCLE
 		if (nextPipe == true)
+		{
 			pipeIndex++;
+		}
 		prevPipe = nextPipe;
 		nextPipe = false;
 		nextAnd = false;
@@ -136,14 +138,14 @@ int main(int argc, char *argv[])
 		DEBUG_PRINT("Process %d terminated\n", pidFigli);
 	}
 
-	// FREEING DYNAMICALLY ALLOCATED MEMORY
-	for (i = 0; i < cmd->n_subCommands; i++)
-	{
-		free(cmd->subCommandResults[i]->subCommand);
-		free(cmd->subCommandResults[i]);
-	}
-	free(cmd);
-	// END FREEING DYNAMICALLY ALLOCATED MEMORY
+	// // FREEING DYNAMICALLY ALLOCATED MEMORY
+	// for (i = 0; i < cmd->n_subCommands; i++)
+	// {
+	// 	free(cmd->subCommandResults[i]->subCommand);
+	// 	free(cmd->subCommandResults[i]);
+	// }
+	// free(cmd);
+	// // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
 	// Segnala che il processo ha terminato
 	send_close(msqid);

@@ -8,7 +8,7 @@
 #include "../lib/utilities.h"
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
-#include "./daemon.h"
+#include "daemon.h"
 
 int check()
 {
@@ -37,7 +37,7 @@ int check()
 	return msqid;
 }
 
-void send_msg(int msqid, struct SubCommandResult *subres)
+void send_msg(int msqid, SubCommandResult *subres)
 {
 	stat_msg msg;
 	msg.type = STAT;

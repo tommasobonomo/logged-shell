@@ -6,12 +6,12 @@
 #include <stdio.h>
 #include "../lib/commands.h"
 
-void getChildrenProcessStats(struct SubCommandResult *subCommandResult);
+void getChildrenProcessStats(SubCommandResult *subCommandResult);
 
-void getProcessStats(pid_t pid, struct SubCommandResult *subcommand);
+void getProcessStats(pid_t pid, SubCommandResult *subcommand);
 
-void printStatsC(FILE *fp, struct Command *cmd);
+void printStatsC(FILE *fp, Command *cmd);
 
-void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult);
+void printStatsS(FILE *fp, SubCommandResult *subCommandResult);
 
 #endif

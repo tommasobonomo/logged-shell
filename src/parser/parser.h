@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "../lib/commands.h"
+
 // NORMAL ARGUMENTS
 //TODO normal args
 
@@ -28,7 +30,7 @@
  * @param argv The array of arguments
  * @return Structure filled with parameters
  */
-struct Command *parseCommand(int argc, char *argv[]);
+Command *parseCommand(int argc, char *argv[]);
 
 /**
  * Parse the command starting in <b>str</b> and set two pointers that point the start and the end of the sub-command in <b>str</b>

@@ -19,7 +19,7 @@
  * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getChildrenProcessStats(struct SubCommandResult *subCommandResult)
+void getChildrenProcessStats(SubCommandResult *subCommandResult)
 {
     struct rusage usage;
     getrusage(RUSAGE_CHILDREN, &usage);
@@ -36,7 +36,7 @@ void getChildrenProcessStats(struct SubCommandResult *subCommandResult)
 
 }
 
-void printStatsC(FILE *fp, struct Command *cmd)
+void printStatsC(FILE *fp, Command *cmd)
 {
     DEBUG_PRINT("\n######### STATS #########\n");
     DEBUG_PRINT("Command: %s\n", cmd->command);
@@ -47,7 +47,7 @@ void printStatsC(FILE *fp, struct Command *cmd)
     }
 }
 
-void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult)
+void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
 {
     fprintf(fp, "Subcommand: %s\n", subCommandResult->subCommand);
     fprintf(fp, "  Real elapsed time: %f seconds \n", subCommandResult->totTime);
@@ -63,7 +63,7 @@ void printStatsS(FILE *fp, struct SubCommandResult *subCommandResult)
 
 }
 
-void getProcessStats(pid_t pid, struct SubCommandResult *subcommand)
+void getProcessStats(pid_t pid, SubCommandResult *subcommand)
 {
     DEBUG_PRINT("###### STATS (proc) ######\n");
 

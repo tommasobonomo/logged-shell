@@ -1,16 +1,15 @@
-#include "parser.h"
-#include "../lib/commands.h"
-#include "../lib/errors.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "../lib/errors.h"
+#include "parser.h"
 
 /**
  * Add all the default parameters
  * @param cmd the struct in which add the parameters
  * @return the struct with all defaults set
  */
-struct Command *addDefault(struct Command *cmd)
+Command *addDefault(Command *cmd)
 {
     //TODO aggiungi tutti i parametri di default
     cmd->command = NULL;
@@ -20,7 +19,7 @@ struct Command *addDefault(struct Command *cmd)
     return cmd;
 }
 
-void setCommand(struct Command *cmd, char *str_cmd)
+void setCommand(Command *cmd, char *str_cmd)
 {
     if (cmd->command != NULL)
     {
@@ -32,7 +31,7 @@ void setCommand(struct Command *cmd, char *str_cmd)
     }
 }
 
-void setLogformat(struct Command *cmd, char *format)
+void setLogformat(Command *cmd, char *format)
 {
     if (strcmp(format, "txt") == 0)
     {
@@ -48,7 +47,7 @@ void setLogformat(struct Command *cmd, char *format)
     }
 }
 
-void setLogfile(struct Command *cmd, char *path)
+void setLogfile(Command *cmd, char *path)
 {
     if (cmd->log_path != NULL)
     {
@@ -60,17 +59,17 @@ void setLogfile(struct Command *cmd, char *path)
     }
 }
 
-void setOutputMode(struct Command *cmd, int mode)
+void setOutputMode(Command *cmd, int mode)
 {
     cmd->output_mode = mode;
 }
 
-void setErrorMode(struct Command *cmd, int mode)
+void setErrorMode(Command *cmd, int mode)
 {
     cmd->error_mode = mode;
 }
 
-void setOutputPath(struct Command *cmd, char *path)
+void setOutputPath(Command *cmd, char *path)
 {
     if (cmd->output_path != NULL)
     {
@@ -82,7 +81,7 @@ void setOutputPath(struct Command *cmd, char *path)
     }
 }
 
-void setErrorPath(struct Command *cmd, char *path)
+void setErrorPath(Command *cmd, char *path)
 {
     if (cmd->error_path != NULL)
     {
@@ -94,7 +93,7 @@ void setErrorPath(struct Command *cmd, char *path)
     }
 }
 
-void setCreate_log_ifNotExist(struct Command *cmd, bool create)
+void setCreate_log_ifNotExist(Command *cmd, bool create)
 {
     cmd->create_log_ifNotExist = create;
 }
@@ -148,9 +147,9 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
     return getFromHere;
 }
 
-struct Command *parseCommand(int argc, char *argv[])
+Command *parseCommand(int argc, char *argv[])
 {
-    struct Command *result = malloc(sizeof(struct Command));
+    Command *result = malloc(sizeof(Command));
     addDefault(result);
     DEBUG_PRINT("Command allocato, default added\n\n");
 

@@ -18,7 +18,7 @@ void core(int msqid_param);
 
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
-#define STATSZ sizeof(struct SubCommandResult) // Messaggio stat_msg
+#define STATSZ sizeof(SubCommandResult) // Messaggio stat_msg
 #define PROCSZ 0							   // Messaggio proc_msg
 
 // Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
@@ -33,7 +33,7 @@ void core(int msqid_param);
 typedef struct stat_msg
 {
 	long type;					 // > 0
-	struct SubCommandResult sub; //payload, sara' struttura del subcommandresult
+	SubCommandResult sub; //payload, sara' struttura del subcommandresult
 } stat_msg;
 
 typedef struct proc_msg
@@ -57,7 +57,7 @@ int check();
  * @param msqid l'identificativo della coda di messaggi
  * @param subres il puntatore alla struttura del sottocomando
  */
-void send_msg(int msqid, struct SubCommandResult *subres);
+void send_msg(int msqid, SubCommandResult *subres);
 
 /**
  * Manda un messaggio proc_msg di tipo PROC_CLOSE per segnalare la chiusura di un processo. Da mandare sempre, anche in caso di terminazione forzata!
