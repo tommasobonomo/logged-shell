@@ -41,13 +41,30 @@ int main(int argc, char *argv[])
     if (PIPE_BUF < sizeof(SubCommandResult))
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
-        fprintf(stderr, "Theoretical max size: %d\n", PIPE_BUF);
-        fprintf(stderr, "Struct size: %d\n", (int) sizeof(SubCommandResult));
+        fprintf(stderr, "PIPE_BUF max size: %d\n", PIPE_BUF);
+        fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
         exit(EXIT_FAILURE);
     }
 
-    DEBUG_PRINT("Theoretical max size: %d\n", PIPE_BUF);
-    DEBUG_PRINT("Struct size: %d\n", (int) sizeof(SubCommandResult));
+    DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
+    DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
+
+    FILE *msgmaxFd = fopen("/proc/sys/kernel/msgmax", "r");
+    unsigned int msgmax;
+    fscanf(msgmaxFd, "%d", &msgmax);
+    fclose(msgmaxFd);
+
+    if (msgmax < sizeof(Command))
+    {
+        fprintf(stderr, "FATAL ERROR!!!\n");
+        fprintf(stderr, "MSGMAX max size: %d\n", msgmax);
+        fprintf(stderr, "Struct Command size: %d\n", (int) sizeof(Command));
+        exit(EXIT_FAILURE);
+    }
+
+    DEBUG_PRINT("Theoretical MSGMAX max size: %d\n", msgmax);
+    DEBUG_PRINT("Struct Command size: %d\n", (int) sizeof(Command));
+
 
     // Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
     msqid = check();

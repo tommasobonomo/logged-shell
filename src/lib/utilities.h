@@ -6,7 +6,7 @@ typedef enum
     false, true
 } bool;
 
-#define MAX_STRING_LENGHT 50
+#define MAX_STRING_LENGHT 500
 #define MAX_SUBCOMMANDS 80 //TODO fai almeno dei controlli nel main
 #define MAX_ARGUMENTS 50 //TODO fai almeno dei controlli
 
