@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 				//fare niente
 			}
 		} //else there is no operator
-		  //END - READ OPERATOR
+		//END - READ OPERATOR
 
 		executeSubCommand(subCmdResult, msqid, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
 
@@ -140,6 +140,7 @@ int main(int argc, char *argv[])
 
 	// FREEING DYNAMICALLY ALLOCATED MEMORY
 	free(pipefds);
+
 	for (i = 0; i < cmd->n_subCommands; i++)
 	{
 		free(cmd->subCommandResults[i]);

@@ -32,8 +32,6 @@ void getChildrenProcessStats(SubCommandResult *subCommandResult)
     subCommandResult->signals = usage.ru_nsignals;
     subCommandResult->voluntary_ctxt_switches = usage.ru_nvcsw;
     subCommandResult->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
-
-
 }
 
 void printStatsC(FILE *fp, Command *cmd)
@@ -60,7 +58,6 @@ void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
     fprintf(fp, "  signals received: %ld\n", subCommandResult->signals);
     fprintf(fp, "  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
     fprintf(fp, "  involuntary context switches: %ld\n\n", subCommandResult->nonvoluntary_ctxt_switches);
-
 }
 
 void getProcessStats(pid_t pid, SubCommandResult *subcommand)
@@ -78,7 +75,7 @@ void getProcessStats(pid_t pid, SubCommandResult *subcommand)
     {
         error_fatal(ERR_X, "Failed to open 'stat' file\n");
     }
-//    char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
+    //char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
 
     char buf[80];
 
@@ -116,7 +113,6 @@ void getProcessStats(pid_t pid, SubCommandResult *subcommand)
 
     fclose(statFileStream);
     //printf("Process status:\n%s\n", status);
-
 
     /* OPENED FILES */
     /*char commandListFD[25];

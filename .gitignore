@@ -1,6 +1,7 @@
 bin/
-cmake-build-debug/
+
 .idea/
+cmake-build-debug/
 CMakeLists.txt
 LabProjects.exe
 copyPrj.sh
