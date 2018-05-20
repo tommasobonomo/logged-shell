@@ -8,44 +8,41 @@
 
 void daemonize(int msqid)
 {
+	pid_t cid = w_fork();
 
-    pid_t cid = w_fork();
+	if (cid == 0)
+	{
+		// Crea una nuova sessione e un gruppo di processo
+		if (setsid() < 0)
+		{
+			error_fatal(ERR_X, "New session and new process group failed\n");
+		}
 
-    if (cid == 0)
-    {
-        // Primo figlio
-        cid = w_fork();
+		// Cambio directory
+		if (chdir("/") < 0)
+		{
+			error_fatal(ERR_X, "Error in changing directory\n");
+		}
 
-        // Termino il padre
-        if (cid > 0)
-        {
-            exit(EXIT_SUCCESS);
-        }
+		// Primo figlio
+		cid = w_fork();
 
-        // Crea una nuova sessione e un gruppo di processo
-        if (setsid() < 0)
-        {
-            error_fatal(ERR_X, "New session and new process group failed\n");
-        }
+		// Termino il padre
+		if (cid > 0)
+		{
+			exit(EXIT_SUCCESS);
+		}
 
-        // Gestisco o ignoro segnali
-        //signal(SIGHUP, SIG_IGN);  //TODO verificare necessità
+		// Chiudo tutti i fd
+		int x;
+		for (x = 0; x < sysconf(_SC_OPEN_MAX); x++)
+		{
+			close(x);
+		}
 
-        // Cambio directory
-        if (chdir("/") < 0)
-        {
-            error_fatal(ERR_X, "Error in changing directory\n");
-        }
+		/*resettign File Creation Mask */
+		umask(027);
 
-        // Chiudo tutti i fd
-        int x;
-        for (x = 0; x < sysconf(_SC_OPEN_MAX); x++)
-        {
-            close(x);
-        }
-
-        core(msqid);
-    }
-
-    // Parent esce normalmente
+		core(msqid);
+	} // Parent esce normalmente
 }
