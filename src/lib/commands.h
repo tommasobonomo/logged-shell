@@ -19,6 +19,7 @@
  */
 typedef struct SubCommandResult
 {
+    int ID;
     char subCommand[MAX_STRING_LENGHT];
 	char parameters;
 	// STATS
@@ -41,16 +42,20 @@ typedef struct SubCommandResult
  */
 typedef struct Command
 {
-	char *command;
-	char *log_path;
+    char command[MAX_STRING_LENGHT];
+    char log_path[MAX_STRING_LENGHT];
 	int log_format;
-	bool create_log_ifNotExist; //default=true
+    bool create_log_ifNotExist;
 	int output_mode;
-	char *output_path;
+    char output_path[MAX_STRING_LENGHT];
 	int error_mode;
-	char *error_path;
+    char error_path[MAX_STRING_LENGHT];
 	int n_subCommands;
-	SubCommandResult *subCommandResults[MAX_SUBCOMMANDS];
+    SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
+
+void commandCopy(Command *dst, Command *src);
+
+void subCommandCopy(SubCommandResult *dst, SubCommandResult *src);
 
 #endif

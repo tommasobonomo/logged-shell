@@ -12,47 +12,46 @@
 
 int check()
 {
-	key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //scegliere percorso univovo
-	DEBUG_PRINT("key: %d\n", key);
+    key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //scegliere percorso univovo
+    DEBUG_PRINT("key: %d\n", key);
 
-	int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
-	if (msqid >= 0)
-	{
-		daemonize(msqid);
-	}
-	else
-	{
-		msqid = msgget(key, PERMS | IPC_CREAT);
-		if (msqid < 0)
-		{
-			error_fatal(ERR_SYSCALL, "msgget failed");
-		}
-	}
-	DEBUG_PRINT("msqid: %d\n", msqid);
+    int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
+    if (msqid >= 0)
+    {
+        daemonize(msqid);
+    }
+    else
+    {
+        msqid = msgget(key, PERMS | IPC_CREAT);
+        if (msqid < 0)
+        {
+            error_fatal(ERR_SYSCALL, "msgget failed");
+        }
+    }
+    DEBUG_PRINT("msqid: %d\n", msqid);
 
-	proc_msg init;
-	init.type = PROC_INIT;
-	w_msgsnd(msqid, &init, PROCSZ, 0);
+    proc_msg init;
+    init.type = PROC_INIT;
+    w_msgsnd(msqid, &init, PROCSZ, 0);
 
-	return msqid;
+    return msqid;
 }
 
-void send_msg(int msqid, SubCommandResult *subres)
+void send_msg(int msqid, Command *cmd)
 {
-	stat_msg msg;
+    stat_msg msg;
 
     memset(&msg, 0, sizeof(stat_msg)); //initialize padding
 
-	msg.type = STAT;
-	msg.sub = *subres;
-	strcpy(msg.sub.subCommand, subres->subCommand);
+    msg.type = STAT;
+    commandCopy(&msg.cmd, cmd);
 
-	w_msgsnd(msqid, &msg, STATSZ, 0);
+    w_msgsnd(msqid, &msg, COMMAND_SIZE, 0);
 }
 
 void send_close(int msqid)
 {
-	proc_msg close;
-	close.type = PROC_CLOSE;
-	w_msgsnd(msqid, &close, PROCSZ, 0);
+    proc_msg close;
+    close.type = PROC_CLOSE;
+    w_msgsnd(msqid, &close, PROCSZ, 0);
 }

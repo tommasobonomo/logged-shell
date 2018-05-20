@@ -11,23 +11,28 @@
  */
 Command *addDefault(Command *cmd)
 {
-    //TODO aggiungi tutti i parametri di default
-    cmd->command = NULL;
-    cmd->log_path = NULL;
-
+    cmd->command[0] = '\0';
+    cmd->log_path[0] = '\0';
+    cmd->log_format = LOG_FORMAT_TXT;
+    cmd->create_log_ifNotExist = true;
+    cmd->output_mode = MODE_SCREEN;
+    cmd->output_path[0] = '\0';
+    cmd->error_mode = MODE_SCREEN;
+    cmd->error_path[0] = '\0';
     cmd->n_subCommands = 0;
+
     return cmd;
 }
 
 void setCommand(Command *cmd, char *str_cmd)
 {
-    if (cmd->command != NULL)
+    if (cmd->command[0] != '\0')
     {
         error_fatal(ERR_X, "command alredy specified");
     }
     else
     {
-        cmd->command = str_cmd;
+        strcpy(cmd->command, str_cmd);
     }
 }
 
@@ -49,13 +54,13 @@ void setLogformat(Command *cmd, char *format)
 
 void setLogfile(Command *cmd, char *path)
 {
-    if (cmd->log_path != NULL)
+    if (cmd->log_path[0] != '\0')
     {
         error_fatal(ERR_X, "log path alredy specified");
     }
     else
     {
-        cmd->log_path = path;
+        strcpy(cmd->log_path, path);
     }
 }
 
@@ -71,25 +76,25 @@ void setErrorMode(Command *cmd, int mode)
 
 void setOutputPath(Command *cmd, char *path)
 {
-    if (cmd->output_path != NULL)
+    if (cmd->output_path[0] != '\0')
     {
         error_fatal(ERR_X, "output path alredy specified");
     }
     else
     {
-        cmd->output_path = path;
+        strcpy(cmd->output_path, path);
     }
 }
 
 void setErrorPath(Command *cmd, char *path)
 {
-    if (cmd->error_path != NULL)
+    if (cmd->error_path[0] != '\0')
     {
         error_fatal(ERR_X, "error path alredy specified");
     }
     else
     {
-        cmd->error_path = path;
+        strcpy(cmd->error_path, path);
     }
 }
 
@@ -277,14 +282,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-    case '|':
-    case ';':
-    case '<':
-    case '>':
-    case '&':
-        return true;
-    default:
-        return false;
+        case '|':
+        case ';':
+        case '<':
+        case '>':
+        case '&':
+            return true;
+        default:
+            return false;
     }
 }
 

@@ -10,6 +10,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 
+#define READ 0
+#define WRITE 1
+
 int countPipes(char *wholeCmd)
 {
     char *start = NULL;
@@ -23,7 +26,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t)length) == 0)
+        if (strncmp(start, "|", (size_t) length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -60,13 +63,13 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (pipes)*2; i++)
+    for (i = pipeIndex * 2; i < (pipes) * 2; i++)
     {
         w_close(pipefds[i]);
     }
 }
 
-void executeSubCommand(SubCommandResult *subCommandResult, int msqid, int *pipefds, int pipes, int pipeIndex,
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int pipes, int pipeIndex,
                        bool prevPipe,
                        bool nextPipe, bool nextAnd, bool nextOr)
 {
@@ -94,7 +97,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int msqid, int *pipef
             vectorizeStringArguments(subCommandResult->subCommand, args);
 
             //EXECUTE SUBCOMMAND
-            w_execvp(args[0], args);
+            w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
 
             //NON REACHABLE CODE
             exit(1);
@@ -115,7 +118,10 @@ void executeSubCommand(SubCommandResult *subCommandResult, int msqid, int *pipef
             subCommandResult->pid = fid;
             subCommandResult->totTime = mtime;
 
-            send_msg(msqid, subCommandResult);
+            //SEND RES TO PARENT
+            close(pipeResult[READ]);
+            write(pipeResult[WRITE], subCommandResult, sizeof(SubCommandResult));
+            close(pipeResult[WRITE]);
 
             returnExecuter = WEXITSTATUS(statusExecuter);
             if (returnExecuter != 0)

@@ -48,11 +48,14 @@ void core(int msqid_param)
         if (errno == E2BIG)
         {
             // C'è almeno una statistica da leggere
-            msgrcv(msqid, &s_msg, STATSZ, STAT, 0);
+            msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             FILE *fp;
             fp = w_fopen(LOGFILE, APPEND);
-            SubCommandResult *subres = &s_msg.sub;
-            printStatsS(fp, subres);
+
+            Command cmd;
+            commandCopy(&cmd, &s_msg.cmd);
+            printStatsC(fp, &cmd);
+
             fclose(fp);
             errno = 0;
         }

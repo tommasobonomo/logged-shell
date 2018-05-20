@@ -4,3 +4,5 @@ cmake-build-debug/
 CMakeLists.txt
 LabProjects.exe
 copyPrj.sh
+rmqueue.so
+rmqueue.c

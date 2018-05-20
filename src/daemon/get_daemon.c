@@ -8,7 +8,6 @@
 
 void daemonize(int msqid)
 {
-
     pid_t cid = w_fork();
 
     if (cid == 0)

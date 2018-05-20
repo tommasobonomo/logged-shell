@@ -21,7 +21,8 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/statHelper.o \
 		$(BIN)/daemon_api.o \
 		$(BIN)/core.o \
-		$(BIN)/get_daemon.o
+		$(BIN)/get_daemon.o \
+		$(BIN)/commands.o
 
 
 .PHONY = build debug checkDebug clean
@@ -61,8 +62,11 @@ $(LOGS):
 	@echo Created $(LOGS) folder
 
 # object files
-$(BIN)/main.o: $(SRC)/main.c $(LIBRARY)/commands.h
+$(BIN)/main.o: $(SRC)/main.c
 	gcc -std=gnu90 -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
+
+$(BIN)/commands.o: $(LIBRARY)/commands.c $(LIBRARY)/commands.h
+	gcc -std=gnu90 -c $(LIBRARY)/commands.c -o $(BIN)/commands.o $(FLAGS)
 
 $(BIN)/parser.o: $(PARSER)/parser.c $(PARSER)/parser.h
 	gcc -std=gnu90 -c $(PARSER)/parser.c -o $(BIN)/parser.o $(FLAGS)

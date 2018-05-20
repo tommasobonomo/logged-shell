@@ -88,3 +88,14 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     }
     return result;
 }
+
+ssize_t w_read(int fd, void *buf, size_t count)
+{
+    ssize_t result = read(fd, buf, count);
+
+    if (result < 0)
+    {
+        error_fatal(ERR_SYSCALL, "read failed");
+    }
+    return result;
+}
