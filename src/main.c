@@ -138,7 +138,6 @@ int main(int argc, char *argv[])
 	// FREEING DYNAMICALLY ALLOCATED MEMORY
 	for (i = 0; i < cmd->n_subCommands; i++)
 	{
-		free(cmd->subCommandResults[i]->subCommand);
 		free(cmd->subCommandResults[i]);
 	}
 	free(cmd);
