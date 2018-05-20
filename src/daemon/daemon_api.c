@@ -40,6 +40,9 @@ int check()
 void send_msg(int msqid, SubCommandResult *subres)
 {
 	stat_msg msg;
+
+    memset(&msg, 0, sizeof(stat_msg)); //initialize padding
+
 	msg.type = STAT;
 	strcpy(msg.sub.subCommand, subres->subCommand);
 	msg.sub.parameters = subres->parameters;

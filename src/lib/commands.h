@@ -14,14 +14,12 @@
 #define MODE_FILEAPP 3
 #define MODE_FILEOVER 4
 
-#define STRING_SIZE 80
-
 /**
  * Struct where a single sub-command is stored
  */
 typedef struct SubCommandResult
 {
-	char subCommand[STRING_SIZE];
+    char subCommand[MAX_STRING_LENGHT];
 	char parameters;
 	// STATS
 	pid_t pid;
