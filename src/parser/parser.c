@@ -179,7 +179,7 @@ Command *parseCommand(int argc, char *argv[])
                 if (strStartWith(&argv[currArgc][2], ARG_MEM_HELP))
                 {
                     printHelp();
-                    exit(EXIT_SUCCESS);
+                    exit(EXIT_SUCCESS); // TODO find another way to exit
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {

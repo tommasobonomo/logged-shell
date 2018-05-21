@@ -25,7 +25,7 @@ void printHelp()
     printf("\n");
     printf("  -h, --%s\t\t\tshows this help and exits\n", ARG_MEM_HELP);
     printf("  -v, --%s\t\t\tprints the current version of this tool and exits\n", ARG_MEM_VERSION);
-    printf("\nCreated in Trento with <3 from:\n");
+    printf("\nCreated in Trento with <3 by:\n");
     printf(" - Tommaso Bonomo\n");
     printf(" - Francesco Cadei\n");
     printf(" - Federico Favotto\n");
