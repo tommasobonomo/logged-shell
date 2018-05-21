@@ -1,11 +1,15 @@
 #include "syscalls.h"
 #include "errors.h"
+#include "../daemon/daemon.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/msg.h>
+
+extern int msqid;
+extern pid_t pid_main;
 
 pid_t w_fork()
 {
@@ -98,4 +102,13 @@ ssize_t w_read(int fd, void *buf, size_t count)
         error_fatal(ERR_SYSCALL, "read failed");
     }
     return result;
+}
+
+void exitAndNotifyDaemon(int status)
+{
+    if (pid_main == getpid())
+    {
+        send_close(msqid);
+    }
+    exit(status);
 }

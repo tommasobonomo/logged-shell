@@ -19,7 +19,7 @@ void sighandler(int signum)
     fp = w_fopen(LOGFILE, APPEND);
     fprintf(fp, "Signal: %d\n", signum);
     msgctl(msqid, IPC_RMID, NULL);
-    exit(EXIT_SUCCESS);
+    exitAndNotifyDaemon(EXIT_SUCCESS);
 }
 
 void core(int msqid_param)
@@ -75,5 +75,5 @@ void core(int msqid_param)
 
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
     msgctl(msqid, IPC_RMID, NULL);
-    exit(EXIT_SUCCESS);
+    exitAndNotifyDaemon(EXIT_SUCCESS);
 }

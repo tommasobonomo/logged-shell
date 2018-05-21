@@ -19,8 +19,6 @@ void addDefault(Command *cmd)
     cmd->error_mode = MODE_SCREEN;
     cmd->error_path[0] = '\0';
     cmd->n_subCommands = 0;
-
-    return cmd;
 }
 
 void setCommand(Command *cmd, char *str_cmd)

@@ -98,7 +98,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             //EXECUTE SUBCOMMAND
             w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
 
-            //NON REACHABLE CODE
+            //UNREACHABLE CODE
         }
         else
         {
@@ -140,7 +140,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
         }
         else
         {
-            exit(EXIT_SUCCESS);
+            exitAndNotifyDaemon(EXIT_SUCCESS);
         }
     }
     else
@@ -157,14 +157,14 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             {
                 if (returnGestore != 0)
                 {
-                    exit(returnGestore); //TODO non va bene
+                    exitAndNotifyDaemon(returnGestore); //TODO non va bene
                 }
             }
             else if (nextOr)
             {
                 if (returnGestore == 0)
                 {
-                    exit(returnGestore); //TODO non va bene
+                    exitAndNotifyDaemon(returnGestore); //TODO non va bene
                 }
             }
         }

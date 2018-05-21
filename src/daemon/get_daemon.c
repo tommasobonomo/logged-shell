@@ -2,6 +2,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
 #include "daemon.h"
@@ -30,7 +31,7 @@ void daemonize(int msqid)
 		// Termino il padre
 		if (cid > 0)
 		{
-			exit(EXIT_SUCCESS);
+            exitAndNotifyDaemon(EXIT_SUCCESS);
 		}
 
 		// Chiudo tutti i fd

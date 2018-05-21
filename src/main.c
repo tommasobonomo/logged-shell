@@ -16,6 +16,7 @@
 #define WRITE 1
 
 int msqid;
+pid_t pid_main;
 
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
@@ -27,23 +28,30 @@ void interrupt_sighandler(int signum)
         case SIGINT:
         case SIGTERM:
         case SIGQUIT:
-            exit(EXIT_SUCCESS);
+            exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
-            exit(EXIT_FAILURE);
+            exitAndNotifyDaemon(EXIT_FAILURE);
     }
 }
 
 int main(int argc, char *argv[])
 {
+    DEBUG_PRINT("  ###########\n");
+    DEBUG_PRINT("  ## DEBUG ##\n");
+    DEBUG_PRINT("  ###########\n\n");
+
+    pid_main = getpid();
+    DEBUG_PRINT("pid: %d\n\n", pid_main);
+
     //SANITY CHECKS
     if (PIPE_BUF < sizeof(SubCommandResult))
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
         fprintf(stderr, "PIPE_BUF max size: %d\n", PIPE_BUF);
         fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
-        exit(EXIT_FAILURE);
+        exitAndNotifyDaemon(EXIT_FAILURE);
     }
 
     DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
@@ -59,7 +67,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "FATAL ERROR!!!\n");
         fprintf(stderr, "MSGMAX max size: %d\n", msgmax);
         fprintf(stderr, "Struct Command size: %d\n", (int) sizeof(Command));
-        exit(EXIT_FAILURE);
+        exitAndNotifyDaemon(EXIT_FAILURE);
     }
 
     DEBUG_PRINT("MSGMAX max size: %d\n", msgmax);
@@ -78,12 +86,6 @@ int main(int argc, char *argv[])
             signal(i, interrupt_sighandler);
         }
     }
-
-    DEBUG_PRINT("  ###########\n");
-    DEBUG_PRINT("  ## DEBUG ##\n");
-    DEBUG_PRINT("  ###########\n\n");
-
-    DEBUG_PRINT("pid: %d\n\n", getpid());
 
     Command *cmd = parseCommand(argc, argv);
 
@@ -201,8 +203,8 @@ int main(int argc, char *argv[])
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
-    // Segnala che il processo ha terminato
-    send_close(msqid);
+    exitAndNotifyDaemon(EXIT_SUCCESS);
 
-    return 0;
+    //UNREACHABLE CODE
+    return 1;
 }

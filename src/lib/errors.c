@@ -1,5 +1,6 @@
 #include "errors.h"
 #include "utilities.h"
+#include "../lib/syscalls.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -35,7 +36,7 @@ void error_fatal(int id, char const *msg)
             fprintf(stderr, "ERROR not specified: %s\n", msg);
             break;
     }
-    exit(id);
+    exitAndNotifyDaemon(id);
 }
 
 void error_warning(int id, char const *msg)
