@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
     DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
 
-    FILE *msgmaxFd = fopen("/proc/sys/kernel/msgmax", "r");
+    FILE *msgmaxFd = w_fopen("/proc/sys/kernel/msgmax", "r");
     unsigned int msgmax;
     fscanf(msgmaxFd, "%d", &msgmax);
     fclose(msgmaxFd);
@@ -62,9 +62,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    DEBUG_PRINT("Theoretical MSGMAX max size: %d\n", msgmax);
+    DEBUG_PRINT("MSGMAX max size: %d\n", msgmax);
     DEBUG_PRINT("Struct Command size: %d\n", (int) sizeof(Command));
 
+    //END - SANITY CHECKS
 
     // Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
     msqid = check();

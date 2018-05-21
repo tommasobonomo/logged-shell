@@ -23,6 +23,7 @@ void commandCopy(Command *dst, Command *src)
 void subCommandCopy(SubCommandResult *dst, SubCommandResult *src)
 {
     strcpy(dst->subCommand, src->subCommand);
+    dst->exitStatus = src->exitStatus;
     dst->parameters = src->parameters;
     dst->pid = src->pid;
     dst->ppid = src->ppid;

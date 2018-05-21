@@ -60,6 +60,7 @@ void printStatsC(FILE *fp, Command *cmd)
 void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
 {
     fprintf(fp, "Subcommand: %s\n", subCommandResult->subCommand);
+    fprintf(fp, "  Exit status: %d \n", subCommandResult->exitStatus);
     fprintf(fp, "  Real elapsed time: %f seconds \n", subCommandResult->totTime);
     fprintf(fp, "  PID: %d\n", subCommandResult->pid);
     fprintf(fp, "  system CPU time used: %ld μs\n", subCommandResult->cputime);

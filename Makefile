@@ -62,7 +62,7 @@ $(LOGS):
 	@echo Created $(LOGS) folder
 
 # object files
-$(BIN)/main.o: $(SRC)/main.c
+$(BIN)/main.o: $(SRC)/main.c $(BIN)/utilities.o
 	gcc -std=gnu90 -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
 
 $(BIN)/commands.o: $(LIBRARY)/commands.c $(LIBRARY)/commands.h

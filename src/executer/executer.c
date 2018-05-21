@@ -75,8 +75,6 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
-    int returnExecuter;
-
     struct timeval start, end;
     double mtime, seconds, useconds;
     gettimeofday(&start, NULL);
@@ -117,17 +115,12 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             getChildrenProcessStats(subCommandResult);
             subCommandResult->pid = fid;
             subCommandResult->totTime = mtime;
+            subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
 
             //SEND RES TO PARENT
             close(pipeResult[READ]);
             write(pipeResult[WRITE], subCommandResult, sizeof(SubCommandResult));
             close(pipeResult[WRITE]);
-
-            returnExecuter = WEXITSTATUS(statusExecuter);
-            if (returnExecuter != 0)
-            {
-                error_fatal(ERR_CHILD, subCommandResult->subCommand);
-            }
         }
         //END GESTORE
     }
@@ -140,7 +133,14 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
     if (fidGestore == 0)
     {
         //Gestore
-        exit(returnExecuter);
+        if (subCommandResult->exitStatus != 0)
+        {
+            error_fatal(ERR_CHILD, subCommandResult->subCommand);
+        }
+        else
+        {
+            exit(EXIT_SUCCESS);
+        }
     }
     else
     {
@@ -156,14 +156,14 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             {
                 if (returnGestore != 0)
                 {
-                    exit(returnGestore);
+                    exit(returnGestore); //TODO non va bene
                 }
             }
             else if (nextOr)
             {
                 if (returnGestore == 0)
                 {
-                    exit(returnGestore);
+                    exit(returnGestore); //TODO non va bene
                 }
             }
         }

@@ -21,8 +21,9 @@ typedef struct SubCommandResult
 {
     int ID;
     char subCommand[MAX_STRING_LENGHT];
-	char parameters;
+    char parameters; //TODO unused
 	// STATS
+    int exitStatus;
 	pid_t pid;
 	pid_t ppid; // TODO find it
 	double totTime;
