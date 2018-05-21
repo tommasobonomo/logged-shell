@@ -88,9 +88,9 @@ int main(int argc, char *argv[])
     Command *cmd = parseCommand(argc, argv);
 
     //CREAZIONE PIPES |
-    int pipes = countPipes(cmd->command);
-    int *pipefds = malloc(2 * pipes * sizeof(int));
-    for (i = 0; i < pipes * 2; i += 2)
+    int n_pipes = countPipes(cmd->command);
+    int *pipefds = malloc(2 * n_pipes * sizeof(int));
+    for (i = 0; i < n_pipes * 2; i += 2)
     {
         w_pipe(pipefds + i);
     }
@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
 
     while (start != NULL && end != NULL)
     {
-        SubCommandResult *subCmdResult = malloc(sizeof(SubCommandResult));
+        SubCommandResult *tmpSubCmdResult = malloc(sizeof(SubCommandResult));
 
         int length = (end - start) * sizeof(*start) + 1;
-        sprintf(subCmdResult->subCommand, "%.*s", length, start);
+        sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
 
         //READ OPERATOR
         getNextSubCommand(p, &start, &end);
@@ -146,11 +146,12 @@ int main(int argc, char *argv[])
         } //else there is no operator
         //END - READ OPERATOR
 
-        subCmdResult->ID = cmd->n_subCommands++;
-        executeSubCommand(subCmdResult, pipeResult, pipefds, pipes, pipeIndex, prevPipe, nextPipe, nextAnd, nextOr);
+        tmpSubCmdResult->ID = cmd->n_subCommands++;
+        executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, pipeIndex, prevPipe, nextPipe, nextAnd,
+                          nextOr);
 
         //PREPARE TO NEXT CYCLE
-        free(subCmdResult);
+        free(tmpSubCmdResult); //Real result are on the pipeResult
         if (nextPipe == true)
         {
             pipeIndex++;
@@ -167,12 +168,15 @@ int main(int argc, char *argv[])
         }
     }
 
-    //ATTENDO TUTTI I FIGLI
-    pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-    {
-        DEBUG_PRINT("Process %d terminated\n", pidFigli);
-    }
+    //DO NOT REMOVE THIS CODE --Zanna_37--
+    // ATTENDO TUTTI I GESTORI
+    // non serve attenderli perché ci pensa pipeResult
+    //pid_t pidFigli;
+    //while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+    //{
+    //    DEBUG_PRINT("Process %d terminated\n", pidFigli);
+    //}
+    //END - DO NOT REMOVE THIS CODE --Zanna_37--
 
 
     //SAVING SUBCOMMANDS-RESULT

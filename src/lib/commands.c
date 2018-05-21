@@ -1,6 +1,9 @@
 #include "commands.h"
 #include <string.h>
 
+/**
+ * @deprecated is it needed?
+ */
 void commandCopy(Command *dst, Command *src)
 {
     strcpy(dst->command, src->command);
@@ -20,6 +23,9 @@ void commandCopy(Command *dst, Command *src)
     }
 }
 
+/**
+ * @deprecated is it needed?
+ */
 void subCommandCopy(SubCommandResult *dst, SubCommandResult *src)
 {
     strcpy(dst->subCommand, src->subCommand);

@@ -7,9 +7,8 @@
 /**
  * Add all the default parameters
  * @param cmd the struct in which add the parameters
- * @return the struct with all defaults set
  */
-Command *addDefault(Command *cmd)
+void addDefault(Command *cmd)
 {
     cmd->command[0] = '\0';
     cmd->log_path[0] = '\0';

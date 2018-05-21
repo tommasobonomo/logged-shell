@@ -33,8 +33,6 @@ void getChildrenProcessStats(SubCommandResult *subCommandResult)
     subCommandResult->signals = usage.ru_nsignals;
     subCommandResult->voluntary_ctxt_switches = usage.ru_nvcsw;
     subCommandResult->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
-
-
 }
 
 void printStatsC(FILE *fp, Command *cmd)

@@ -77,15 +77,16 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
 
     struct timeval start, end;
     double mtime, seconds, useconds;
-    gettimeofday(&start, NULL);
 
     pid_t fidGestore = w_fork();
     if (fidGestore == 0)
     {
-        pid_t fid = w_fork();
-        if (fid == 0)
+        gettimeofday(&start, NULL);
+
+        pid_t eid = w_fork();
+        if (eid == 0)
         {
-            // Child process
+            // Executer process
 
             //PREPARE PIPES IF NEEDED
             managePipes(pipefds, pipes, pipeIndex, prevPipe, nextPipe);
@@ -98,13 +99,12 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
 
             //NON REACHABLE CODE
-            exit(1);
         }
         else
         {
             // Gestore process
             int statusExecuter;
-            waitpid(fid, &statusExecuter, 0);
+            waitpid(eid, &statusExecuter, 0);
 
             gettimeofday(&end, NULL);
 
@@ -113,7 +113,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             mtime = seconds + useconds / 1000000;
 
             getChildrenProcessStats(subCommandResult);
-            subCommandResult->pid = fid;
+            subCommandResult->pid = eid;
             subCommandResult->totTime = mtime;
             subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
 
@@ -125,6 +125,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
         //END GESTORE
     }
 
+    //CHIUSURA PIPES APERTE IN PRECEDENZA
     if (prevPipe)
         w_close(pipefds[(pipeIndex - 1) * 2]);
     if (nextPipe)
