@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
+#include <time.h>
 #include "../lib/errors.h"
 #include "../lib/utilities.h"
 #include "../lib/commands.h"
@@ -36,18 +37,28 @@ void getChildrenProcessStats(SubCommandResult *subCommandResult)
 
 void printStatsC(FILE *fp, Command *cmd)
 {
-    DEBUG_PRINT("\n######### STATS #########\n");
-    DEBUG_PRINT("Command: %s\n", cmd->command);
+    time_t now = time(NULL);
+    struct tm nowFormatted = *localtime(&now);
+
+    fprintf(fp, "######### STATS #########\n");
+    fprintf(fp, "#\n");
+    fprintf(fp, "# Command: %s\n", cmd->command);
+    fprintf(fp, "# n° subcommand: %d\n", cmd->n_subCommands);
+    fprintf(fp, "# %d-%02d-%02d %02d:%02d:%02d\n", nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1,
+            nowFormatted.tm_mday, nowFormatted.tm_hour, nowFormatted.tm_min, nowFormatted.tm_sec);
+    fprintf(fp, "#\n\n");
     int i;
     for (i = 0; i < cmd->n_subCommands; i++)
     {
-        printStatsS(fp, cmd->subCommandResults[i]);
+        printStatsS(fp, &cmd->subCommandResults[i]);
     }
+    fprintf(fp, "\n");
 }
 
 void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
 {
     fprintf(fp, "Subcommand: %s\n", subCommandResult->subCommand);
+    fprintf(fp, "  Exit status: %d \n", subCommandResult->exitStatus);
     fprintf(fp, "  Real elapsed time: %f seconds \n", subCommandResult->totTime);
     fprintf(fp, "  PID: %d\n", subCommandResult->pid);
     fprintf(fp, "  system CPU time used: %ld μs\n", subCommandResult->cputime);
@@ -58,81 +69,4 @@ void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
     fprintf(fp, "  signals received: %ld\n", subCommandResult->signals);
     fprintf(fp, "  voluntary context switches: %ld\n", subCommandResult->voluntary_ctxt_switches);
     fprintf(fp, "  involuntary context switches: %ld\n\n", subCommandResult->nonvoluntary_ctxt_switches);
-}
-
-void getProcessStats(pid_t pid, SubCommandResult *subcommand)
-{
-    DEBUG_PRINT("###### STATS (proc) ######\n");
-
-    char statsPath[20];
-    sprintf(statsPath, "/proc/%d", pid);
-
-    /* PROCESS STATUS */
-    char statFile[20];
-    sprintf(statFile, "%s/stat", statsPath);
-    FILE *statFileStream = fopen(statFile, "r"); //TODO fare wrapper
-    if (statFileStream == NULL)
-    {
-        error_fatal(ERR_X, "Failed to open 'stat' file\n");
-    }
-    //char *statsFromStatus[] = {"State", "Pid", "PPid", "VmSize", "VmRSS", "VmSwap", "Threads", "voluntary_ctxt_switches", "nonvoluntary_ctxt_switches"};
-
-    char buf[80];
-
-    int i;
-    for (i = 1; !feof(statFileStream) && i <= PROC_STAT_VALUES_N; i++)
-    {
-        fscanf(statFileStream, "%s", buf);
-        switch (i)
-        {
-            case 3:
-            {     // state
-                break;
-            }
-            case 4:
-            {     // ppid
-                break;
-            }
-            case 20:
-            {    // threads
-                break;
-            }
-            case 23:
-            {    // vmsize
-                break;
-            }
-            case 24:
-            {    // vmressize
-                printf("  ressize: %s kB\n", buf);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-    fclose(statFileStream);
-    //printf("Process status:\n%s\n", status);
-
-    /* OPENED FILES */
-    /*char commandListFD[25];
-    char *commandStatFormatter = "stat -c \"File: %N\tdim: %s bytes, owner: %U, modified: %y\" $f";
-    sprintf(commandListFD, "cd %s/fd; for f in * \ndo\n%s\ndone", statsPath, commandStatFormatter);
-    FILE *fp = popen(commandListFD, "r");
-    if (fp == NULL) {
-        error_fatal(ERR_X, "Failed to list opened files\n");
-    }*/
-
-    /* Read the output a line at a time */
-    /*char tmp[100], fds[1000] = "";
-    while (fgets(tmp, sizeof(tmp), fp) != NULL) {
-        strcat(fds, tmp);
-    }
-
-    // close
-    pclose(fp);
-
-    printf("Opened files:\n%s\n", fds);*/
-
-    DEBUG_PRINT("##########################\n");
 }

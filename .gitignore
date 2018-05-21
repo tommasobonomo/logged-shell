@@ -1,7 +1,9 @@
 bin/
 
-.idea/
 cmake-build-debug/
+.idea/
 CMakeLists.txt
 LabProjects.exe
 copyPrj.sh
+rmqueue.so
+rmqueue.c
