@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 
     while (w_read(pipeResult[READ], &subCmdResult, sizeof(SubCommandResult)) != 0)
     {
-        subCommandCopy(&cmd->subCommandResults[subCmdResult.ID], &subCmdResult);
+        cmd->subCommandResults[subCmdResult.ID] = subCmdResult;
     }
     close(pipeResult[READ]);
 

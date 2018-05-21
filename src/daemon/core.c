@@ -53,7 +53,7 @@ void core(int msqid_param)
             fp = w_fopen(LOGFILE, APPEND);
 
             Command cmd;
-            commandCopy(&cmd, &s_msg.cmd);
+            cmd = s_msg.cmd;
             printStatsC(fp, &cmd);
 
             fclose(fp);

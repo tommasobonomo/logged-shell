@@ -44,7 +44,7 @@ void send_msg(int msqid, Command *cmd)
     memset(&msg, 0, sizeof(stat_msg)); //initialize padding
 
     msg.type = STAT;
-    commandCopy(&msg.cmd, cmd);
+    msg.cmd = *cmd;
 
     w_msgsnd(msqid, &msg, COMMAND_SIZE, 0);
 }
