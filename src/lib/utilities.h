@@ -30,4 +30,6 @@ void printHelp();
  */
 bool strStartWith(const char *str, const char *prefix);
 
+void sanityCheck();
+
 #endif

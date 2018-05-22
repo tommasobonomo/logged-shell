@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <limits.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -18,11 +17,33 @@
 int msqid;
 pid_t pid_main;
 
+void initServiceVars(ServiceVars *serviceVars)
+{
+    serviceVars->pipeIndex = 0;
+    serviceVars->prevPipe = false;
+    serviceVars->nextPipe = false;
+    serviceVars->nextAnd = false;
+    serviceVars->nextOr = false;
+    serviceVars->ignoreNextSubCmd = false;
+    serviceVars->ignoreUntil[0] = '\0';
+}
+
+void serviceVarsNext(ServiceVars *serviceVars)
+{
+    if (serviceVars->nextPipe == true)
+    {
+        serviceVars->pipeIndex++;
+    }
+    serviceVars->prevPipe = serviceVars->nextPipe;
+    serviceVars->nextPipe = false;
+
+    serviceVars->nextAnd = false;
+    serviceVars->nextOr = false;
+}
+
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
-    send_close(msqid);
-
     switch (signum)
     {
         case SIGINT:
@@ -38,54 +59,20 @@ void interrupt_sighandler(int signum)
 
 int main(int argc, char *argv[])
 {
-    DEBUG_PRINT("  ###########\n");
-    DEBUG_PRINT("  ## DEBUG ##\n");
-    DEBUG_PRINT("  ###########\n\n");
-
     pid_main = getpid();
-    DEBUG_PRINT("pid: %d\n\n", pid_main);
+    msqid = check(); //Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
 
-    //SANITY CHECKS
-    if (PIPE_BUF < sizeof(SubCommandResult))
-    {
-        fprintf(stderr, "FATAL ERROR!!!\n");
-        fprintf(stderr, "PIPE_BUF max size: %d\n", PIPE_BUF);
-        fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
-        exitAndNotifyDaemon(EXIT_FAILURE);
-    }
-
-    DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
-    DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
-
-    FILE *msgmaxFd = w_fopen("/proc/sys/kernel/msgmax", "r");
-    unsigned int msgmax;
-    fscanf(msgmaxFd, "%d", &msgmax);
-    fclose(msgmaxFd);
-
-    if (msgmax < sizeof(Command))
-    {
-        fprintf(stderr, "FATAL ERROR!!!\n");
-        fprintf(stderr, "MSGMAX max size: %d\n", msgmax);
-        fprintf(stderr, "Struct Command size: %d\n", (int) sizeof(Command));
-        exitAndNotifyDaemon(EXIT_FAILURE);
-    }
-
-    DEBUG_PRINT("MSGMAX max size: %d\n", msgmax);
-    DEBUG_PRINT("Struct Command size: %d\n", (int) sizeof(Command));
-
-    //END - SANITY CHECKS
-
-    // Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
-    msqid = check();
-
-    int i = 1;
-    for (; i <= 64; i++)
+    int i;
+    for (i = 1; i <= 64; i++)
     {
         if (i != SIGCONT && i != SIGCHLD)
         {
             signal(i, interrupt_sighandler);
         }
     }
+
+    //SANITY CHECKS
+    sanityCheck();
 
     Command *cmd = parseCommand(argc, argv);
 
@@ -105,11 +92,9 @@ int main(int argc, char *argv[])
     char *p = cmd->command;
     char *start = NULL;
     char *end = NULL;
-    bool prevPipe = false;
-    bool nextPipe = false;
-    bool nextAnd = false;
-    bool nextOr = false;
-    int pipeIndex = 0;
+    int lengthOperator;
+    ServiceVars serviceVars;
+    initServiceVars(&serviceVars);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;
@@ -127,19 +112,19 @@ int main(int argc, char *argv[])
 
         if (start != NULL && end != NULL)
         {
-            int lengthOperator = (end - start) * sizeof(*start) + 1;
+            lengthOperator = (end - start) * sizeof(*start) + 1;
+
             if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
-                nextPipe = true;
-                //TODO redir output su fd corrente
+                serviceVars.nextPipe = true;
             }
             else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
             {
-                nextAnd = true;
+                serviceVars.nextAnd = true;
             }
             else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
             {
-                nextOr = true;
+                serviceVars.nextOr = true;
             }
             else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
@@ -149,19 +134,22 @@ int main(int argc, char *argv[])
         //END - READ OPERATOR
 
         tmpSubCmdResult->ID = cmd->n_subCommands++;
-        executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, pipeIndex, prevPipe, nextPipe, nextAnd,
-                          nextOr);
+        if (!serviceVars.ignoreNextSubCmd)
+        {
+            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars);
+        }
+        else
+        {
+            cmd->subCommandResults[tmpSubCmdResult->ID].executed = false;
+            if (start != NULL && strncmp(start, serviceVars.ignoreUntil, (size_t) lengthOperator) != 0)
+            {
+                serviceVars.ignoreNextSubCmd = false;
+            }
+        }
 
         //PREPARE TO NEXT CYCLE
         free(tmpSubCmdResult); //Real result are on the pipeResult
-        if (nextPipe == true)
-        {
-            pipeIndex++;
-        }
-        prevPipe = nextPipe;
-        nextPipe = false;
-        nextAnd = false;
-        nextOr = false;
+        serviceVarsNext(&serviceVars);
 
         if (start != NULL && end != NULL)
         {

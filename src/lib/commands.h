@@ -20,6 +20,7 @@
 typedef struct SubCommandResult
 {
     int ID;
+    bool executed;
     char subCommand[MAX_STRING_LENGHT];
     char parameters; //TODO unused
 	// STATS
