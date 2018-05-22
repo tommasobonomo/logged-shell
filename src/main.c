@@ -21,18 +21,17 @@ pid_t pid_main;
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
-    send_close(msqid);
 
     switch (signum)
     {
-        case SIGINT:
-        case SIGTERM:
-        case SIGQUIT:
-            exitAndNotifyDaemon(EXIT_SUCCESS);
-            break;
-        default:
-            DEBUG_PRINT("Signal: %d\n", signum);
-            exitAndNotifyDaemon(EXIT_FAILURE);
+    case SIGINT:
+    case SIGTERM:
+    case SIGQUIT:
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    default:
+        DEBUG_PRINT("Signal: %d\n", signum);
+        exitAndNotifyDaemon(EXIT_FAILURE);
     }
 }
 
@@ -50,12 +49,12 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
         fprintf(stderr, "PIPE_BUF max size: %d\n", PIPE_BUF);
-        fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
+        fprintf(stderr, "Struct SubCommandResult size: %d\n", (int)sizeof(SubCommandResult));
         exitAndNotifyDaemon(EXIT_FAILURE);
     }
 
     DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
-    DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
+    DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int)sizeof(SubCommandResult));
 
     FILE *msgmaxFd = w_fopen("/proc/sys/kernel/msgmax", "r");
     unsigned int msgmax;
@@ -66,12 +65,12 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
         fprintf(stderr, "MSGMAX max size: %d\n", msgmax);
-        fprintf(stderr, "Struct Command size: %d\n", (int) sizeof(Command));
+        fprintf(stderr, "Struct Command size: %d\n", (int)sizeof(Command));
         exitAndNotifyDaemon(EXIT_FAILURE);
     }
 
     DEBUG_PRINT("MSGMAX max size: %d\n", msgmax);
-    DEBUG_PRINT("Struct Command size: %d\n", (int) sizeof(Command));
+    DEBUG_PRINT("Struct Command size: %d\n", (int)sizeof(Command));
 
     //END - SANITY CHECKS
 
@@ -128,20 +127,20 @@ int main(int argc, char *argv[])
         if (start != NULL && end != NULL)
         {
             int lengthOperator = (end - start) * sizeof(*start) + 1;
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
             {
                 nextPipe = true;
                 //TODO redir output su fd corrente
             }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
             {
                 nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
             {
                 nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
             {
                 //fare niente
             }
@@ -179,7 +178,6 @@ int main(int argc, char *argv[])
     //    DEBUG_PRINT("Process %d terminated\n", pidFigli);
     //}
     //END - DO NOT REMOVE THIS CODE --Zanna_37--
-
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);
