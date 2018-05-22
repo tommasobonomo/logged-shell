@@ -12,4 +12,8 @@ int countPipes(char *wholeCmd);
 
 int setNullRedirections(struct Command *cmd);
 
+void manageRedirections(char *redirectFile, bool inRedirect, bool outRedirect, int *inFD, int *outFD);
+
+void resetRedirections(bool inRedirect, bool outRedirect, int *inFD, int *outFD);
+
 #endif

@@ -20,12 +20,12 @@ int setNullRedirections(struct Command *cmd)
     int null_fd = -1;
     if (cmd->output_mode == MODE_DISCARD)
     {
-        null_fd = w_open(NULLFILE, O_WRONLY);
+        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
         dup2(null_fd, STDOUT_FILENO);
     }
     else if (cmd->error_mode == MODE_DISCARD)
     {
-        null_fd = w_open(NULLFILE, O_WRONLY);
+        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
         dup2(null_fd, STDERR_FILENO);
     }
     return null_fd;
@@ -84,6 +84,46 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     for (i = pipeIndex * 2; i < (pipes)*2; i++)
     {
         w_close(pipefds[i]);
+    }
+}
+
+void manageRedirections(char *redirectFile, bool inRedirect, bool outRedirect, int *inFD, int *outFD)
+{
+    int tmpFD = *inFD;
+
+    // Redirect input if flag is set and not already redirected
+    if (inRedirect && tmpFD == -1)
+    {
+        tmpFD = w_open(redirectFile, O_RDONLY, PERMS);
+        dup2(tmpFD, STDIN_FILENO);
+        *inFD = tmpFD;
+    }
+
+    tmpFD = *outFD;
+
+    // Redirect output if flag is set and not already redirected
+    if (outRedirect && tmpFD == -1)
+    {
+        tmpFD = w_open(redirectFile, O_WRONLY | O_CREAT, PERMS);
+        dup2(tmpFD, STDOUT_FILENO);
+        *outFD = tmpFD;
+    }
+}
+
+void resetRedirections(bool inRedirect, bool outRedirect, int *inFD, int *outFD)
+{
+    int tmpFD;
+    if (inRedirect)
+    {
+        tmpFD = *inFD;
+        close(tmpFD);
+        *inFD = -1;
+    }
+    if (outRedirect)
+    {
+        tmpFD = *outFD;
+        close(tmpFD);
+        *outFD = -1;
     }
 }
 

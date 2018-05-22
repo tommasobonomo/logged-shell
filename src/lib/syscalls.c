@@ -33,9 +33,9 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     return oldSighandler;
 }
 
-int w_open(const char *pathname, int mode)
+int w_open(const char *pathname, int mode, mode_t permissions)
 {
-    int fd = open(pathname, mode);
+    int fd = open(pathname, mode, permissions);
     if (fd < 0)
     {
         error_fatal(ERR_IO_FILE, pathname);

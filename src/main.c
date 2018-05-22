@@ -14,6 +14,7 @@
 
 #define READ 0
 #define WRITE 1
+#define NUM_REDIR_CHECKS 2
 
 int msqid;
 pid_t pid_main;
@@ -109,6 +110,8 @@ int main(int argc, char *argv[])
     bool nextAnd = false;
     bool nextOr = false;
     int pipeIndex = 0;
+    bool inRedirect = false;
+    bool outRedirect = false;
 
     // Controlla le direzioni di tutti output e error a seconda dei flag
     int null_fd = setNullRedirections(cmd);
@@ -123,13 +126,51 @@ int main(int argc, char *argv[])
         int length = (end - start) * sizeof(*start) + 1;
         sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
 
-        //READ OPERATOR
+        // Leggo operatore o redir
         getNextSubCommand(p, &start, &end);
         p = end + 1;
 
+        // Controllo due volte se l'operatore è < o >, altrimenti leggo operatore
+        int inFD = -1, outFD = -1;
+        int i;
+
+        for (i = 0; i < NUM_REDIR_CHECKS; i++)
+        {
+            if (start != NULL && end != NULL)
+            {
+                int lengthOperator = (end - start) * sizeof(*start) + 1;
+                bool readRedirectOperator = false;
+                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
+                {
+                    outRedirect = true;
+                    readRedirectOperator = true;
+                }
+                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
+                {
+                    inRedirect = true;
+                    readRedirectOperator = true;
+                }
+
+                if (readRedirectOperator)
+                {
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                    int lengthFile = (end - start) * sizeof(*start) + 1;
+                    char redirectFile[lengthFile];
+                    sprintf(redirectFile, "%.*s", lengthFile, start);
+                    DEBUG_PRINT("Redirecting to file %s\n", redirectFile);
+                    manageRedirections(redirectFile, inRedirect, outRedirect, &inFD, &outFD);
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                }
+            }
+        }
+
+        // Leggo operatore
         if (start != NULL && end != NULL)
         {
             int lengthOperator = (end - start) * sizeof(*start) + 1;
+
             if (strncmp(start, "|", (size_t)lengthOperator) == 0)
             {
                 nextPipe = true;
@@ -148,11 +189,18 @@ int main(int argc, char *argv[])
                 //fare niente
             }
         } //else there is no operator
-        //END - READ OPERATOR
+          //END - READ OPERATOR
 
         tmpSubCmdResult->ID = cmd->n_subCommands++;
         executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, pipeIndex, prevPipe, nextPipe, nextAnd,
                           nextOr);
+
+        if (outRedirect || inRedirect)
+        {
+            resetRedirections(inRedirect, outRedirect, &inFD, &outFD);
+            inRedirect = false;
+            outRedirect = false;
+        }
 
         //PREPARE TO NEXT CYCLE
         free(tmpSubCmdResult); //Real result are on the pipeResult
