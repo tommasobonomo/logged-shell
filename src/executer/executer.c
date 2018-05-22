@@ -51,7 +51,7 @@ void vectorizeStringArguments(char argsString[], char *argsVect[])
     argsVect[npar] = NULL;
 }
 
-void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nextPipe)
+void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool nextPipe)
 {
     if (prevPipe == true)
     {
@@ -63,15 +63,15 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < (n_pipes) * 2; i++)
     {
         w_close(pipefds[i]);
     }
 }
 
-void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int pipes, int pipeIndex,
-                       bool prevPipe,
-                       bool nextPipe, bool nextAnd, bool nextOr)
+//TODO gestore as a thread
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
+                       ServiceVars *serviceVars)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
@@ -89,7 +89,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             // Executer process
 
             //PREPARE PIPES IF NEEDED
-            managePipes(pipefds, pipes, pipeIndex, prevPipe, nextPipe);
+            managePipes(pipefds, n_pipes, serviceVars->pipeIndex, serviceVars->prevPipe, serviceVars->nextPipe);
 
             //PREPARE ARGS
             char *args[MAX_ARGUMENTS];
@@ -126,10 +126,10 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
     }
 
     //CHIUSURA PIPES APERTE IN PRECEDENZA
-    if (prevPipe)
-        w_close(pipefds[(pipeIndex - 1) * 2]);
-    if (nextPipe)
-        w_close(pipefds[pipeIndex * 2 + 1]);
+    if (serviceVars->prevPipe)
+        w_close(pipefds[(serviceVars->pipeIndex - 1) * 2]);
+    if (serviceVars->nextPipe)
+        w_close(pipefds[serviceVars->pipeIndex * 2 + 1]);
 
     if (fidGestore == 0)
     {
@@ -146,25 +146,27 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
     else
     {
         //Parent
-        if (nextAnd || nextOr)
+        if (serviceVars->nextAnd || serviceVars->nextOr)
         {
             int statusGestore;
             int returnGestore;
             waitpid(fidGestore, &statusGestore, 0);
 
             returnGestore = WEXITSTATUS(statusGestore);
-            if (nextAnd)
+            if (serviceVars->nextAnd)
             {
                 if (returnGestore != 0)
                 {
-                    exitAndNotifyDaemon(returnGestore); //TODO non va bene
+                    serviceVars->ignoreNextSubCmd = true;
+                    strcpy(serviceVars->ignoreUntil, "&&");
                 }
             }
-            else if (nextOr)
+            else if (serviceVars->nextOr)
             {
                 if (returnGestore == 0)
                 {
-                    exitAndNotifyDaemon(returnGestore); //TODO non va bene
+                    serviceVars->ignoreNextSubCmd = true;
+                    strcpy(serviceVars->ignoreUntil, "||");
                 }
             }
         }

@@ -5,8 +5,19 @@
 #include <sys/types.h>
 #include <string.h>
 
-void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int pipes, int pipeIndex,
-                       bool prevPipe, bool nextPipe, bool nextAnd, bool nextOr);
+typedef struct ServiceVars
+{
+    int pipeIndex;
+    bool prevPipe;
+    bool nextPipe;
+    bool nextAnd;
+    bool nextOr;
+    bool ignoreNextSubCmd;
+    char ignoreUntil[2 + 1];
+} ServiceVars;
+
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
+                       struct ServiceVars *serviceVars);
 
 int countPipes(char *wholeCmd);
 
