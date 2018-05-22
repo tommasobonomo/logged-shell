@@ -15,11 +15,16 @@
 
 void sighandler(int signum)
 {
-    FILE *fp;
-    fp = w_fopen(LOGFILE, APPEND);
-    fprintf(fp, "Signal: %d\n", signum);
-    msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_SUCCESS);
+    switch (signum)
+    {
+    case SIGINT:
+    case SIGTERM:
+    case SIGQUIT:
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    default:
+        exitAndNotifyDaemon(EXIT_FAILURE);
+    }
 }
 
 void core(int msqid_param)
@@ -50,7 +55,7 @@ void core(int msqid_param)
             // C'è almeno una statistica da leggere
             msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             FILE *fp;
-            fp = w_fopen(LOGFILE, APPEND);
+            fp = w_fopen(s_msg.cmd.log_path, APPEND);
 
             Command cmd;
             cmd = s_msg.cmd;

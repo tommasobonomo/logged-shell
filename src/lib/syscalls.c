@@ -106,7 +106,7 @@ ssize_t w_read(int fd, void *buf, size_t count)
 
 void exitAndNotifyDaemon(int status)
 {
-    if (pid_main == getpid())
+    if (pid_main == getpid() && getppid() != 1)
     {
         send_close(msqid);
     }

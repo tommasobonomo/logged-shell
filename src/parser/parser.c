@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "../lib/errors.h"
+#include "../daemon/daemon.h"
 #include "parser.h"
 
 /**
@@ -11,7 +12,7 @@
 void addDefault(Command *cmd)
 {
     cmd->command[0] = '\0';
-    cmd->log_path[0] = '\0';
+    strcpy(cmd->log_path, DEFAULT_LOGPATH);
     cmd->log_format = LOG_FORMAT_TXT;
     cmd->create_log_ifNotExist = true;
     cmd->output_mode = MODE_SCREEN;
@@ -51,7 +52,7 @@ void setLogformat(Command *cmd, char *format)
 
 void setLogfile(Command *cmd, char *path)
 {
-    if (cmd->log_path[0] != '\0')
+    if (strcmp(cmd->log_path, DEFAULT_LOGPATH) != 0)
     {
         error_fatal(ERR_X, "log path alredy specified");
     }
@@ -279,14 +280,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-        case '|':
-        case ';':
-        case '<':
-        case '>':
-        case '&':
-            return true;
-        default:
-            return false;
+    case '|':
+    case ';':
+    case '<':
+    case '>':
+    case '&':
+        return true;
+    default:
+        return false;
     }
 }
 
