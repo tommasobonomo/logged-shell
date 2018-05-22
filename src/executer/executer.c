@@ -44,7 +44,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t)length) == 0)
+        if (strncmp(start, "|", (size_t) length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -108,7 +108,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
 
 //TODO gestore as a thread
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
-                       ServiceVars *serviceVars, bool inRedirect, bool outRedirect, char *inFile, char *outFile)
+                       ServiceVars *serviceVars, RedirectVars *redirectVars)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
@@ -129,7 +129,8 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             managePipes(pipefds, n_pipes, serviceVars->pipeIndex, serviceVars->prevPipe, serviceVars->nextPipe);
 
             //PREPARE REDIRECTIONS IF NEEDED
-            manageRedirections(inRedirect, outRedirect, inFile, outFile);
+            manageRedirections(redirectVars->inRedirect, redirectVars->outRedirect, redirectVars->inFile,
+                               redirectVars->outFile);
 
             //PREPARE ARGS
             char *args[MAX_ARGUMENTS];
