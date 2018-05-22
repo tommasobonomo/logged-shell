@@ -136,11 +136,13 @@ int main(int argc, char *argv[])
         tmpSubCmdResult->ID = cmd->n_subCommands++;
         if (!serviceVars.ignoreNextSubCmd)
         {
+            tmpSubCmdResult->executed = true;
             executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars);
         }
         else
         {
-            cmd->subCommandResults[tmpSubCmdResult->ID].executed = false;
+            tmpSubCmdResult->executed = false;
+            cmd->subCommandResults[tmpSubCmdResult->ID] = *tmpSubCmdResult;
             if (start != NULL && strncmp(start, serviceVars.ignoreUntil, (size_t) lengthOperator) != 0)
             {
                 serviceVars.ignoreNextSubCmd = false;

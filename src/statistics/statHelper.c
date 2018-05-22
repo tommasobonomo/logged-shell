@@ -60,19 +60,26 @@ void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
 {
     fprintf(fp, "#    ========================================================\n");
     fprintf(fp, "#\n");
-    fprintf(fp, "#                 Subcommand: %s\n", subCommandResult->subCommand);
-    fprintf(fp, "#\n");
-    fprintf(fp, "#                        PID:%14d\n", subCommandResult->pid);
-    fprintf(fp, "#                exit status:%14d\n", subCommandResult->exitStatus);
-    fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totTime);
-    fprintf(fp, "#              CPU time used:%14ld μs\n", subCommandResult->cputime);
-    fprintf(fp, "#               max ram size:%14ld kB\n", subCommandResult->vmressize);
-    fprintf(fp, "#           soft page faults:%14ld\n", subCommandResult->softPageFaults);
-    fprintf(fp, "#           hard page faults:%14ld\n", subCommandResult->hardPageFaults);
-    fprintf(fp, "#                      swaps:%14ld\n", subCommandResult->swaps);
-    fprintf(fp, "#           signals received:%14ld\n", subCommandResult->signals);
-    fprintf(fp, "#           signals received:%14ld\n", subCommandResult->voluntary_ctxt_switches);
-    fprintf(fp, "#      vol. context switches:%14ld\n", subCommandResult->voluntary_ctxt_switches);
-    fprintf(fp, "#      inv. context switches:%14ld\n", subCommandResult->nonvoluntary_ctxt_switches);
+    if (subCommandResult->executed)
+    {
+        fprintf(fp, "#                 Subcommand: %s\n", subCommandResult->subCommand);
+        fprintf(fp, "#\n");
+        fprintf(fp, "#                        PID:%14d\n", subCommandResult->pid);
+        fprintf(fp, "#                exit status:%14d\n", subCommandResult->exitStatus);
+        fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totTime);
+        fprintf(fp, "#              CPU time used:%14ld μs\n", subCommandResult->cputime);
+        fprintf(fp, "#               max ram size:%14ld kB\n", subCommandResult->vmressize);
+        fprintf(fp, "#           soft page faults:%14ld\n", subCommandResult->softPageFaults);
+        fprintf(fp, "#           hard page faults:%14ld\n", subCommandResult->hardPageFaults);
+        fprintf(fp, "#                      swaps:%14ld\n", subCommandResult->swaps);
+        fprintf(fp, "#           signals received:%14ld\n", subCommandResult->signals);
+        fprintf(fp, "#           signals received:%14ld\n", subCommandResult->voluntary_ctxt_switches);
+        fprintf(fp, "#      vol. context switches:%14ld\n", subCommandResult->voluntary_ctxt_switches);
+        fprintf(fp, "#      inv. context switches:%14ld\n", subCommandResult->nonvoluntary_ctxt_switches);
+    }
+    else
+    {
+        fprintf(fp, "#                 Subcommand: %s [SKIPPED]\n", subCommandResult->subCommand);
+    }
     fprintf(fp, "#\n");
 }
