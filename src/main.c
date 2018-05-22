@@ -5,7 +5,6 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <limits.h>
-#include <fcntl.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -111,13 +110,8 @@ int main(int argc, char *argv[])
     bool nextOr = false;
     int pipeIndex = 0;
 
-    // Controlla se stampare o no a video
-    int null_fd = -1;
-    if (cmd->output_mode == MODE_DISCARD)
-    {
-        null_fd = w_open("/dev/null", O_WRONLY);
-        dup2(null_fd, STDOUT_FILENO);
-    }
+    // Controlla le direzioni di tutti output e error a seconda dei flag
+    int null_fd = setRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;

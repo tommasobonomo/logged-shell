@@ -1,17 +1,35 @@
+#include <signal.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <fcntl.h>
 #include "../statistics/statHelper.h"
 #include "../executer/executer.h"
 #include "../lib/syscalls.h"
 #include "../lib/errors.h"
-#include <sys/wait.h>
-#include <signal.h>
-#include <string.h>
 #include "../parser/parser.h"
 #include "../daemon/daemon.h"
-#include <sys/types.h>
-#include <sys/time.h>
 
 #define READ 0
 #define WRITE 1
+#define NULLFILE "/dev/null"
+
+int setRedirections(struct Command *cmd)
+{
+    int null_fd = -1;
+    if (cmd->output_mode == MODE_DISCARD)
+    {
+        null_fd = w_open(NULLFILE, O_WRONLY);
+        dup2(null_fd, STDOUT_FILENO);
+    }
+    else if (cmd->error_mode == MODE_DISCARD)
+    {
+        null_fd = w_open(NULLFILE, O_WRONLY);
+        dup2(null_fd, STDERR_FILENO);
+    }
+    return null_fd;
+}
 
 int countPipes(char *wholeCmd)
 {
@@ -26,7 +44,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t) length) == 0)
+        if (strncmp(start, "|", (size_t)length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -63,7 +81,7 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < (pipes)*2; i++)
     {
         w_close(pipefds[i]);
     }
