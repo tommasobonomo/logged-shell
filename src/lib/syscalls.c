@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/msg.h>
+#include <fcntl.h>
 
 extern int msqid;
 extern pid_t pid_main;
@@ -30,6 +31,16 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     }
 
     return oldSighandler;
+}
+
+int w_open(const char *pathname, int mode)
+{
+    int fd = open(pathname, mode);
+    if (fd < 0)
+    {
+        error_fatal(ERR_IO_FILE, pathname);
+    }
+    return fd;
 }
 
 FILE *w_fopen(const char *pathname, const char *mode)
