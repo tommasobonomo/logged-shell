@@ -42,6 +42,14 @@ void serviceVarsNext(ServiceVars *serviceVars)
     serviceVars->nextOr = false;
 }
 
+void initRedirectVars(RedirectVars *redirectVars)
+{
+    redirectVars->inRedirect = false;
+    redirectVars->outRedirect = false;
+    redirectVars->inFile[0] = '\0';
+    redirectVars->outFile[0] = '\0';
+}
+
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
@@ -94,14 +102,13 @@ int main(int argc, char *argv[])
     char *start = NULL;
     char *end = NULL;
     int lengthOperator;
+    //variabili per pipe
     ServiceVars serviceVars;
     // Variabili necessarie per gestione ridirezioni
-    bool inRedirect = false;
-    bool outRedirect = false;
-    char inFile[MAX_STRING_LENGHT] = "\0";
-    char outFile[MAX_STRING_LENGHT] = "\0";
+    RedirectVars redirectVars;
 
     initServiceVars(&serviceVars);
+    initRedirectVars(&redirectVars);
 
     // Controlla le direzioni di tutti output e error a seconda dei flag
     int null_fd = setNullRedirections(cmd);
@@ -127,25 +134,25 @@ int main(int argc, char *argv[])
         {
             if (start != NULL && end != NULL)
             {
-                int lengthOperator = (end - start) * sizeof(*start) + 1;
+                int lengthRedirector = (end - start) * sizeof(*start) + 1;
                 bool readRedirectOperator = false;
-                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
+                if (strncmp(start, ">", (size_t)lengthRedirector) == 0)
                 {
-                    outRedirect = true;
+                    redirectVars.outRedirect = true;
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
                     int lengthFile = (end - start) * sizeof(*start) + 1;
-                    sprintf(outFile, "%.*s", lengthFile, start);
+                    sprintf(redirectVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
+                else if (strncmp(start, "<", (size_t)lengthRedirector) == 0)
                 {
-                    inRedirect = true;
+                    redirectVars.inRedirect = true;
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
                     int lengthFile = (end - start) * sizeof(*start) + 1;
-                    sprintf(inFile, "%.*s", lengthFile, start);
+                    sprintf(redirectVars.inFile, "%.*s", lengthFile, start);
                 }
 
                 if (readRedirectOperator)
@@ -184,8 +191,7 @@ int main(int argc, char *argv[])
         if (!serviceVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars, inRedirect, outRedirect,
-                              inFile, outFile);
+            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars, &redirectVars);
         }
         else
         {
@@ -198,12 +204,12 @@ int main(int argc, char *argv[])
         }
 
         // Reset redirections
-        if (outRedirect || inRedirect)
+        if (redirectVars.outRedirect || redirectVars.inRedirect)
         {
-            inRedirect = false;
-            outRedirect = false;
-            memset(inFile, 0, MAX_STRING_LENGHT);
-            memset(outFile, 0, MAX_STRING_LENGHT);
+            redirectVars.inRedirect = false;
+            redirectVars.outRedirect = false;
+            memset(redirectVars.inFile, 0, MAX_STRING_LENGHT);
+            memset(redirectVars.outFile, 0, MAX_STRING_LENGHT);
         }
 
         //PREPARE TO NEXT CYCLE
