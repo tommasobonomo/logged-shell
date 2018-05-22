@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <string.h>
 
-typedef struct ServiceVars
+typedef struct OperatorVars
 {
     int pipeIndex;
     bool prevPipe;
@@ -14,18 +14,14 @@ typedef struct ServiceVars
     bool nextOr;
     bool ignoreNextSubCmd;
     char ignoreUntil[2 + 1];
-} ServiceVars;
-
-typedef struct RedirectVars
-{
     bool inRedirect;
     bool outRedirect;
     char inFile[MAX_STRING_LENGHT];
     char outFile[MAX_STRING_LENGHT];
-} RedirectVars;
+} OperatorVars;
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
-                       ServiceVars *serviceVars, RedirectVars *redirectVars);
+                       OperatorVars *operatorVars);
 
 int countPipes(char *wholeCmd);
 

@@ -18,36 +18,33 @@
 int msqid;
 pid_t pid_main;
 
-void initServiceVars(ServiceVars *serviceVars)
+void initOperatorVars(OperatorVars *operatorVars)
 {
-    serviceVars->pipeIndex = 0;
-    serviceVars->prevPipe = false;
-    serviceVars->nextPipe = false;
-    serviceVars->nextAnd = false;
-    serviceVars->nextOr = false;
-    serviceVars->ignoreNextSubCmd = false;
-    serviceVars->ignoreUntil[0] = '\0';
+    operatorVars->pipeIndex = 0;
+    operatorVars->prevPipe = false;
+    operatorVars->nextPipe = false;
+    operatorVars->nextAnd = false;
+    operatorVars->nextOr = false;
+    operatorVars->ignoreNextSubCmd = false;
+    operatorVars->ignoreUntil[0] = '\0';
+
+    operatorVars->inRedirect = false;
+    operatorVars->outRedirect = false;
+    operatorVars->inFile[0] = '\0';
+    operatorVars->outFile[0] = '\0';
 }
 
-void serviceVarsNext(ServiceVars *serviceVars)
+void OperatorVarsNext(OperatorVars *operatorVars)
 {
-    if (serviceVars->nextPipe == true)
+    if (operatorVars->nextPipe == true)
     {
-        serviceVars->pipeIndex++;
+        operatorVars->pipeIndex++;
     }
-    serviceVars->prevPipe = serviceVars->nextPipe;
-    serviceVars->nextPipe = false;
+    operatorVars->prevPipe = operatorVars->nextPipe;
+    operatorVars->nextPipe = false;
 
-    serviceVars->nextAnd = false;
-    serviceVars->nextOr = false;
-}
-
-void initRedirectVars(RedirectVars *redirectVars)
-{
-    redirectVars->inRedirect = false;
-    redirectVars->outRedirect = false;
-    redirectVars->inFile[0] = '\0';
-    redirectVars->outFile[0] = '\0';
+    operatorVars->nextAnd = false;
+    operatorVars->nextOr = false;
 }
 
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
@@ -102,13 +99,10 @@ int main(int argc, char *argv[])
     char *start = NULL;
     char *end = NULL;
     int lengthOperator;
-    //variabili per pipe
-    ServiceVars serviceVars;
-    // Variabili necessarie per gestione ridirezioni
-    RedirectVars redirectVars;
+    //variabili per operatori
+    OperatorVars operatorVars;
 
-    initServiceVars(&serviceVars);
-    initRedirectVars(&redirectVars);
+    initOperatorVars(&operatorVars);
 
     // Controlla le direzioni di tutti output e error a seconda dei flag
     int null_fd = setNullRedirections(cmd);
@@ -138,21 +132,21 @@ int main(int argc, char *argv[])
                 bool readRedirectOperator = false;
                 if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
-                    redirectVars.outRedirect = true;
+                    operatorVars.outRedirect = true;
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
                     int lengthFile = (end - start) * sizeof(*start) + 1;
-                    sprintf(redirectVars.outFile, "%.*s", lengthFile, start);
+                    sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
                 else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
                 {
-                    redirectVars.inRedirect = true;
+                    operatorVars.inRedirect = true;
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
                     int lengthFile = (end - start) * sizeof(*start) + 1;
-                    sprintf(redirectVars.inFile, "%.*s", lengthFile, start);
+                    sprintf(operatorVars.inFile, "%.*s", lengthFile, start);
                 }
 
                 if (readRedirectOperator)
@@ -170,15 +164,15 @@ int main(int argc, char *argv[])
 
             if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
-                serviceVars.nextPipe = true;
+                operatorVars.nextPipe = true;
             }
             else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
             {
-                serviceVars.nextAnd = true;
+                operatorVars.nextAnd = true;
             }
             else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
             {
-                serviceVars.nextOr = true;
+                operatorVars.nextOr = true;
             }
             else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
@@ -188,33 +182,33 @@ int main(int argc, char *argv[])
           //END - READ OPERATOR
 
         tmpSubCmdResult->ID = cmd->n_subCommands++;
-        if (!serviceVars.ignoreNextSubCmd)
+        if (!operatorVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars, &redirectVars);
+            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &operatorVars);
         }
         else
         {
             tmpSubCmdResult->executed = false;
             cmd->subCommandResults[tmpSubCmdResult->ID] = *tmpSubCmdResult;
-            if (start != NULL && strncmp(start, serviceVars.ignoreUntil, (size_t) lengthOperator) != 0)
+            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
             {
-                serviceVars.ignoreNextSubCmd = false;
+                operatorVars.ignoreNextSubCmd = false;
             }
         }
 
         // Reset redirections
-        if (redirectVars.outRedirect || redirectVars.inRedirect)
+        if (operatorVars.outRedirect || operatorVars.inRedirect)
         {
-            redirectVars.inRedirect = false;
-            redirectVars.outRedirect = false;
-            memset(redirectVars.inFile, 0, MAX_STRING_LENGHT);
-            memset(redirectVars.outFile, 0, MAX_STRING_LENGHT);
+            operatorVars.inRedirect = false;
+            operatorVars.outRedirect = false;
+            memset(operatorVars.inFile, 0, MAX_STRING_LENGHT);
+            memset(operatorVars.outFile, 0, MAX_STRING_LENGHT);
         }
 
         //PREPARE TO NEXT CYCLE
         free(tmpSubCmdResult); //Real result are on the pipeResult
-        serviceVarsNext(&serviceVars);
+        OperatorVarsNext(&operatorVars);
 
         if (start != NULL && end != NULL)
         {

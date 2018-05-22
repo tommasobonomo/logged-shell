@@ -108,7 +108,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
 
 //TODO gestore as a thread
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
-                       ServiceVars *serviceVars, RedirectVars *redirectVars)
+                       OperatorVars *operatorVars)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
@@ -126,11 +126,11 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
             // Executer process
 
             //PREPARE PIPES IF NEEDED
-            managePipes(pipefds, n_pipes, serviceVars->pipeIndex, serviceVars->prevPipe, serviceVars->nextPipe);
+            managePipes(pipefds, n_pipes, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
 
             //PREPARE REDIRECTIONS IF NEEDED
-            manageRedirections(redirectVars->inRedirect, redirectVars->outRedirect, redirectVars->inFile,
-                               redirectVars->outFile);
+            manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
+                               operatorVars->outFile);
 
             //PREPARE ARGS
             char *args[MAX_ARGUMENTS];
@@ -167,10 +167,10 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
     }
 
     //CHIUSURA PIPES APERTE IN PRECEDENZA
-    if (serviceVars->prevPipe)
-        w_close(pipefds[(serviceVars->pipeIndex - 1) * 2]);
-    if (serviceVars->nextPipe)
-        w_close(pipefds[serviceVars->pipeIndex * 2 + 1]);
+    if (operatorVars->prevPipe)
+        w_close(pipefds[(operatorVars->pipeIndex - 1) * 2]);
+    if (operatorVars->nextPipe)
+        w_close(pipefds[operatorVars->pipeIndex * 2 + 1]);
 
     if (fidGestore == 0)
     {
@@ -187,27 +187,27 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
     else
     {
         //Parent
-        if (serviceVars->nextAnd || serviceVars->nextOr)
+        if (operatorVars->nextAnd || operatorVars->nextOr)
         {
             int statusGestore;
             int returnGestore;
             waitpid(fidGestore, &statusGestore, 0);
 
             returnGestore = WEXITSTATUS(statusGestore);
-            if (serviceVars->nextAnd)
+            if (operatorVars->nextAnd)
             {
                 if (returnGestore != 0)
                 {
-                    serviceVars->ignoreNextSubCmd = true;
-                    strcpy(serviceVars->ignoreUntil, "&&");
+                    operatorVars->ignoreNextSubCmd = true;
+                    strcpy(operatorVars->ignoreUntil, "&&");
                 }
             }
-            else if (serviceVars->nextOr)
+            else if (operatorVars->nextOr)
             {
                 if (returnGestore == 0)
                 {
-                    serviceVars->ignoreNextSubCmd = true;
-                    strcpy(serviceVars->ignoreUntil, "||");
+                    operatorVars->ignoreNextSubCmd = true;
+                    strcpy(operatorVars->ignoreUntil, "||");
                 }
             }
         }
