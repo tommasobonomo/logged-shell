@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
     int pipeIndex = 0;
 
     // Controlla le direzioni di tutti output e error a seconda dei flag
-    int null_fd = setRedirections(cmd);
+    int null_fd = setNullRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;

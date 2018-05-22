@@ -10,6 +10,6 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
 
 int countPipes(char *wholeCmd);
 
-int setRedirections(struct Command *cmd);
+int setNullRedirections(struct Command *cmd);
 
 #endif

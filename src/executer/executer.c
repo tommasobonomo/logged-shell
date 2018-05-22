@@ -15,7 +15,7 @@
 #define WRITE 1
 #define NULLFILE "/dev/null"
 
-int setRedirections(struct Command *cmd)
+int setNullRedirections(struct Command *cmd)
 {
     int null_fd = -1;
     if (cmd->output_mode == MODE_DISCARD)
