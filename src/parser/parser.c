@@ -12,7 +12,7 @@
 void addDefault(Command *cmd)
 {
     cmd->command[0] = '\0';
-    strcpy(cmd->log_path, DEFAULT_LOGPATH);
+    strcpy(cmd->log_path, DEFAULT_LOGPATH_TXT);
     cmd->log_format = LOG_FORMAT_TXT;
     cmd->create_log_ifNotExist = true;
     cmd->output_mode = MODE_SCREEN;
@@ -43,6 +43,7 @@ void setLogformat(Command *cmd, char *format)
     else if (strcmp(format, "csv") == 0)
     {
         cmd->log_format = LOG_FORMAT_CSV;
+        setLogfile(cmd, DEFAULT_LOGPATH_CSV);
     }
     else
     {
@@ -52,7 +53,7 @@ void setLogformat(Command *cmd, char *format)
 
 void setLogfile(Command *cmd, char *path)
 {
-    if (strcmp(cmd->log_path, DEFAULT_LOGPATH) != 0)
+    if (strcmp(cmd->log_path, DEFAULT_LOGPATH_TXT) != 0 || strcmp(cmd->log_path, DEFAULT_LOGPATH_CSV) != 0)
     {
         error_fatal(ERR_X, "log path alredy specified");
     }
@@ -189,7 +190,7 @@ Command *parseCommand(int argc, char *argv[])
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGFORMAT))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setLogformat(result, secondaryArg);
+                    setLogformat(result, secondaryArg); // Replaces default logpath if needed
                     DEBUG_PRINT("format: %d\n", result->log_format);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTDISCARD))
