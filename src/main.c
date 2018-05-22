@@ -134,9 +134,9 @@ int main(int argc, char *argv[])
         {
             if (start != NULL && end != NULL)
             {
-                int lengthRedirector = (end - start) * sizeof(*start) + 1;
+                lengthOperator = (end - start) * sizeof(*start) + 1;
                 bool readRedirectOperator = false;
-                if (strncmp(start, ">", (size_t)lengthRedirector) == 0)
+                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
                     redirectVars.outRedirect = true;
                     readRedirectOperator = true;
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start) * sizeof(*start) + 1;
                     sprintf(redirectVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t)lengthRedirector) == 0)
+                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
                 {
                     redirectVars.inRedirect = true;
                     readRedirectOperator = true;
