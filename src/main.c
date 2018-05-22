@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <limits.h>
+#include <fcntl.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -110,6 +111,14 @@ int main(int argc, char *argv[])
     bool nextOr = false;
     int pipeIndex = 0;
 
+    // Controlla se stampare o no a video
+    int null_fd = -1;
+    if (cmd->output_mode == MODE_DISCARD)
+    {
+        null_fd = w_open("/dev/null", O_WRONLY);
+        dup2(null_fd, STDOUT_FILENO);
+    }
+
     getNextSubCommand(p, &start, &end);
     p = end + 1;
 
@@ -178,6 +187,12 @@ int main(int argc, char *argv[])
     //    DEBUG_PRINT("Process %d terminated\n", pidFigli);
     //}
     //END - DO NOT REMOVE THIS CODE --Zanna_37--
+
+    // Chiudo eventuale ridirezione output
+    if (null_fd != -1)
+    {
+        close(null_fd);
+    }
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);
