@@ -184,7 +184,8 @@ int main(int argc, char *argv[])
         if (!serviceVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars);
+            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &serviceVars, inRedirect, outRedirect,
+                              inFile, outFile);
         }
         else
         {

@@ -108,7 +108,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
 
 //TODO gestore as a thread
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
-                       ServiceVars *serviceVars)
+                       ServiceVars *serviceVars, bool inRedirect, bool outRedirect, char *inFile, char *outFile)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 

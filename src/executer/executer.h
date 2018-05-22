@@ -17,7 +17,7 @@ typedef struct ServiceVars
 } ServiceVars;
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
-                       struct ServiceVars *serviceVars);
+                       struct ServiceVars *serviceVars, bool inRedirect, bool outRedirect, char *inFile, char *outFile);
 
 int countPipes(char *wholeCmd);
 
