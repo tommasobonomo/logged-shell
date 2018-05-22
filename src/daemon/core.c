@@ -54,7 +54,7 @@ void core(int msqid_param)
 
             Command cmd;
             cmd = s_msg.cmd;
-            printStatsC(fp, &cmd);
+            printStatsCommand(fp, &cmd);
 
             fclose(fp);
             errno = 0;

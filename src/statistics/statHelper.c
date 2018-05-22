@@ -35,28 +35,44 @@ void getChildrenProcessStats(SubCommandResult *subCommandResult)
     subCommandResult->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
 }
 
-void printStatsC(FILE *fp, Command *cmd)
+void printStatsCommand(FILE *fp, Command *cmd)
 {
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
 
-    fprintf(fp, "############################## STATS ############################\n");
-    fprintf(fp, "#\n");
-    fprintf(fp, "#      %d-%02d-%02d %02d:%02d:%02d\n", nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1,
-            nowFormatted.tm_mday, nowFormatted.tm_hour, nowFormatted.tm_min, nowFormatted.tm_sec);
-    fprintf(fp, "#\n");
-    fprintf(fp, "#      whole command: %s\n", cmd->command);
-    fprintf(fp, "#      n° subcommand: %d\n", cmd->n_subCommands);
-    fprintf(fp, "#\n");
-    int i;
-    for (i = 0; i < cmd->n_subCommands; i++)
+    if (cmd->log_format == LOG_FORMAT_TXT)
     {
-        printStatsS(fp, &cmd->subCommandResults[i]);
+        fprintf(fp, "############################## STATS ############################\n");
+        fprintf(fp, "#\n");
+        fprintf(fp, "#      %d-%02d-%02d %02d:%02d:%02d\n", nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1,
+                nowFormatted.tm_mday, nowFormatted.tm_hour, nowFormatted.tm_min, nowFormatted.tm_sec);
+        fprintf(fp, "#\n");
+        fprintf(fp, "#      whole command: %s\n", cmd->command);
+        fprintf(fp, "#      n° subcommand: %d\n", cmd->n_subCommands);
+        fprintf(fp, "#\n");
+        int i;
+        for (i = 0; i < cmd->n_subCommands; i++)
+        {
+            printStatsSubCommandTxt(fp, &cmd->subCommandResults[i]);
+        }
+        fprintf(fp, "#################################################################\n\n\n");
     }
-    fprintf(fp, "#################################################################\n\n\n");
+    else if (cmd->log_format == LOG_FORMAT_CSV)
+    {
+        fprintf(fp, "\"Command log time\",\"whole command\",\"n° subcommand\",Subcommand,PID,\"exit status\",\"elapsed time\","
+                    "\"CPU time used\",\"max ram size\",\"soft page faults\",\"hard page faults\",swaps,\"signals received\","
+                    "\"vol. context switches\",\"inv. context switches\"\n");
+        int i;
+        for (i = 0; i < cmd->n_subCommands; i++)
+        {
+            fprintf(fp, "\"%d-%02d-%02d %02d:%02d:%02d\",", nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1,
+                    nowFormatted.tm_mday, nowFormatted.tm_hour, nowFormatted.tm_min, nowFormatted.tm_sec);
+            printStatsSubCommandCsv(fp, cmd, &cmd->subCommandResults[i]);
+        }
+    }
 }
 
-void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
+void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)  // TODO rename
 {
     fprintf(fp, "#    ========================================================\n");
     fprintf(fp, "#\n");
@@ -73,7 +89,6 @@ void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
         fprintf(fp, "#           hard page faults:%14ld\n", subCommandResult->hardPageFaults);
         fprintf(fp, "#                      swaps:%14ld\n", subCommandResult->swaps);
         fprintf(fp, "#           signals received:%14ld\n", subCommandResult->signals);
-        fprintf(fp, "#           signals received:%14ld\n", subCommandResult->voluntary_ctxt_switches);
         fprintf(fp, "#      vol. context switches:%14ld\n", subCommandResult->voluntary_ctxt_switches);
         fprintf(fp, "#      inv. context switches:%14ld\n", subCommandResult->nonvoluntary_ctxt_switches);
     }
@@ -82,4 +97,22 @@ void printStatsS(FILE *fp, SubCommandResult *subCommandResult)
         fprintf(fp, "#                 Subcommand: %s [SKIPPED]\n", subCommandResult->subCommand);
     }
     fprintf(fp, "#\n");
+}
+
+void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subCommandResult)
+{
+    fprintf(fp, "\"%s\",", cmd->command);
+    fprintf(fp, "%d,", cmd->n_subCommands);
+    fprintf(fp, "\"%s\",", subCommandResult->subCommand);
+    fprintf(fp, "%d,", subCommandResult->pid);
+    fprintf(fp, "%d,", subCommandResult->exitStatus);
+    fprintf(fp, "\"%f s\",", subCommandResult->totTime);
+    fprintf(fp, "\"%ld μs\",", subCommandResult->cputime);
+    fprintf(fp, "\"%ld kB\",", subCommandResult->vmressize);
+    fprintf(fp, "%ld,", subCommandResult->softPageFaults);
+    fprintf(fp, "%ld,", subCommandResult->hardPageFaults);
+    fprintf(fp, "%ld,", subCommandResult->swaps);
+    fprintf(fp, "%ld,", subCommandResult->signals);
+    fprintf(fp, "%ld,", subCommandResult->voluntary_ctxt_switches);
+    fprintf(fp, "%ld\n", subCommandResult->nonvoluntary_ctxt_switches);
 }

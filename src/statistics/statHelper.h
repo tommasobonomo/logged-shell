@@ -8,10 +8,10 @@
 
 void getChildrenProcessStats(SubCommandResult *subCommandResult);
 
-void getProcessStats(pid_t pid, SubCommandResult *subcommand);
+void printStatsCommand(FILE *fp, Command *cmd);
 
-void printStatsC(FILE *fp, Command *cmd);
+void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult);
 
-void printStatsS(FILE *fp, SubCommandResult *subCommandResult);
+void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subCommandResult);
 
 #endif

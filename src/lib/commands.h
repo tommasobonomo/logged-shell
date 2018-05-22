@@ -26,14 +26,12 @@ typedef struct SubCommandResult
 	// STATS
     int exitStatus;
 	pid_t pid;
-	pid_t ppid; // TODO find it
 	double totTime;
 	time_t cputime;
 	long vmressize;
 	long swaps;
 	long softPageFaults;
 	long hardPageFaults;
-	int threads; // TODO thread number
 	long signals;
 	long voluntary_ctxt_switches;
 	long nonvoluntary_ctxt_switches;
