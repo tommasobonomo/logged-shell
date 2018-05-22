@@ -87,49 +87,26 @@ void managePipes(int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nex
     }
 }
 
-void manageRedirections(char *redirectFile, bool inRedirect, bool outRedirect, int *inFD, int *outFD)
-{
-    int tmpFD = *inFD;
-
-    // Redirect input if flag is set and not already redirected
-    if (inRedirect && tmpFD == -1)
-    {
-        tmpFD = w_open(redirectFile, O_RDONLY, PERMS);
-        dup2(tmpFD, STDIN_FILENO);
-        *inFD = tmpFD;
-    }
-
-    tmpFD = *outFD;
-
-    // Redirect output if flag is set and not already redirected
-    if (outRedirect && tmpFD == -1)
-    {
-        tmpFD = w_open(redirectFile, O_WRONLY | O_CREAT, PERMS);
-        dup2(tmpFD, STDOUT_FILENO);
-        *outFD = tmpFD;
-    }
-}
-
-void resetRedirections(bool inRedirect, bool outRedirect, int *inFD, int *outFD)
+void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile)
 {
     int tmpFD;
+
+    // Redirect input if flag is set
     if (inRedirect)
     {
-        tmpFD = *inFD;
-        close(tmpFD);
-        *inFD = -1;
+        tmpFD = w_open(inFile, O_RDONLY, PERMS);
+        dup2(tmpFD, STDIN_FILENO);
     }
+
+    // Redirect output if flag is set
     if (outRedirect)
     {
-        tmpFD = *outFD;
-        close(tmpFD);
-        *outFD = -1;
+        tmpFD = w_open(outFile, O_WRONLY | O_CREAT, PERMS);
+        dup2(tmpFD, STDOUT_FILENO);
     }
 }
 
-void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int pipes, int pipeIndex,
-                       bool prevPipe,
-                       bool nextPipe, bool nextAnd, bool nextOr)
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int pipes, int pipeIndex, bool prevPipe, bool nextPipe, bool nextAnd, bool nextOr, bool inRedirect, bool outRedirect, char *inFile, char *outFile)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
@@ -148,6 +125,9 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int 
 
             //PREPARE PIPES IF NEEDED
             managePipes(pipefds, pipes, pipeIndex, prevPipe, nextPipe);
+
+            //PREPARE REDIRECTIONS IF NEEDED
+            manageRedirections(inRedirect, outRedirect, inFile, outFile);
 
             //PREPARE ARGS
             char *args[MAX_ARGUMENTS];
