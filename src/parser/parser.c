@@ -174,7 +174,12 @@ Command *parseCommand(int argc, char *argv[])
             else
             {
                 //MNEMONIC ARG
-                if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
+                if (strStartWith(&argv[currArgc][2], ARG_MEM_HELP))
+                {
+                    printHelp();
+                    exit(EXIT_SUCCESS); // TODO find another way to exit
+                }
+                else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogfile(result, secondaryArg);

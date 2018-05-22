@@ -7,7 +7,7 @@
 //TODO normal args
 
 // MNEMONIC ARGUMENTS
-#define ARG_MEM_LOGPATH "logpath"
+#define ARG_MEM_LOGPATH "path"
 #define ARG_MEM_LOGFORMAT "format"
 
 #define ARG_MEM_OUTDISCARD "discardout"
@@ -22,7 +22,10 @@
 #define ARG_MEM_ERRFILEAPP "fileapperr"
 #define ARG_MEM_ERRFILEOVER "fileovererr"
 
-#define ARG_MEM_DONTCREATELOG "dontcreate"
+#define ARG_MEM_DONTCREATELOG "nolog"
+
+#define ARG_MEM_HELP "help"
+#define ARG_MEM_VERSION "version"
 
 /**
  * Parse all the command line arguments and build a structure with the parameters set, even default, but the Sub-commands
