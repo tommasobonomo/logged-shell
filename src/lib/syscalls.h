@@ -12,6 +12,8 @@ pid_t w_fork();
 
 sighandler_t wSignal(int signum, sighandler_t handler);
 
+int w_open(const char *pathname, int mode, mode_t permissions);
+
 FILE *w_fopen(const char *pathname, const char *mode);
 
 int w_dup2(int oldfd, int newfd);

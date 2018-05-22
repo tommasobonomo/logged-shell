@@ -3,9 +3,9 @@
 
 #include "../lib/commands.h"
 
-#define MSGQUE_PATH "."				// Path per la msg_queue, impostato di default alla directory corrente
-#define MSGQUE_NUM 1				// ID numerico della msg_queue, impostato di default a 1
-#define LOGFILE "/tmp/logged_shell/default.log"		// Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define MSGQUE_PATH "."									// Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_NUM 1									// ID numerico della msg_queue, impostato di default a 1
+#define DEFAULT_LOGPATH "/tmp/logged_shell/default.log" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 
 extern int msqid; // ID msg_queue creata ed attiva
 
@@ -19,7 +19,7 @@ void core(int msqid_param);
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
 #define COMMAND_SIZE sizeof(Command) // Messaggio stat_msg
-#define PROCSZ 0							   // Messaggio proc_msg
+#define PROCSZ 0					 // Messaggio proc_msg
 
 // Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
 #define PERMS 0600
@@ -32,8 +32,8 @@ void core(int msqid_param);
 // Strutture dei messaggi
 typedef struct stat_msg
 {
-	long type;					 // > 0
-    Command cmd; //payload, sara' struttura del subcommandresult
+	long type;   // > 0
+	Command cmd; //payload, sara' struttura del subcommandresult
 } stat_msg;
 
 typedef struct proc_msg

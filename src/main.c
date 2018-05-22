@@ -13,6 +13,7 @@
 
 #define READ 0
 #define WRITE 1
+#define NUM_REDIR_CHECKS 2
 
 int msqid;
 pid_t pid_main;
@@ -94,7 +95,16 @@ int main(int argc, char *argv[])
     char *end = NULL;
     int lengthOperator;
     ServiceVars serviceVars;
+    // Variabili necessarie per gestione ridirezioni
+    bool inRedirect = false;
+    bool outRedirect = false;
+    char inFile[MAX_STRING_LENGHT] = "\0";
+    char outFile[MAX_STRING_LENGHT] = "\0";
+
     initServiceVars(&serviceVars);
+
+    // Controlla le direzioni di tutti output e error a seconda dei flag
+    int null_fd = setNullRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;
@@ -106,10 +116,47 @@ int main(int argc, char *argv[])
         int length = (end - start) * sizeof(*start) + 1;
         sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
 
-        //READ OPERATOR
+        // Leggo operatore o redir
         getNextSubCommand(p, &start, &end);
         p = end + 1;
 
+        // Controllo due volte se l'operatore è < o >, altrimenti leggo operatore
+        int i;
+
+        for (i = 0; i < NUM_REDIR_CHECKS; i++)
+        {
+            if (start != NULL && end != NULL)
+            {
+                int lengthOperator = (end - start) * sizeof(*start) + 1;
+                bool readRedirectOperator = false;
+                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
+                {
+                    outRedirect = true;
+                    readRedirectOperator = true;
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                    int lengthFile = (end - start) * sizeof(*start) + 1;
+                    sprintf(outFile, "%.*s", lengthFile, start);
+                }
+                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
+                {
+                    inRedirect = true;
+                    readRedirectOperator = true;
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                    int lengthFile = (end - start) * sizeof(*start) + 1;
+                    sprintf(inFile, "%.*s", lengthFile, start);
+                }
+
+                if (readRedirectOperator)
+                {
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                }
+            }
+        }
+
+        // Leggo operatore
         if (start != NULL && end != NULL)
         {
             lengthOperator = (end - start) * sizeof(*start) + 1;
@@ -131,7 +178,7 @@ int main(int argc, char *argv[])
                 //fare niente
             }
         } //else there is no operator
-        //END - READ OPERATOR
+          //END - READ OPERATOR
 
         tmpSubCmdResult->ID = cmd->n_subCommands++;
         if (!serviceVars.ignoreNextSubCmd)
@@ -147,6 +194,15 @@ int main(int argc, char *argv[])
             {
                 serviceVars.ignoreNextSubCmd = false;
             }
+        }
+
+        // Reset redirections
+        if (outRedirect || inRedirect)
+        {
+            inRedirect = false;
+            outRedirect = false;
+            memset(inFile, 0, MAX_STRING_LENGHT);
+            memset(outFile, 0, MAX_STRING_LENGHT);
         }
 
         //PREPARE TO NEXT CYCLE
@@ -170,6 +226,11 @@ int main(int argc, char *argv[])
     //}
     //END - DO NOT REMOVE THIS CODE --Zanna_37--
 
+    // Chiudo eventuale ridirezione output
+    if (null_fd != -1)
+    {
+        close(null_fd);
+    }
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);
