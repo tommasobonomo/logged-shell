@@ -34,6 +34,18 @@ void setCommand(Command *cmd, char *str_cmd)
     }
 }
 
+void setLogfile(Command *cmd, char *path)
+{
+    if (strcmp(cmd->log_path, DEFAULT_LOGPATH_TXT) != 0 && strcmp(cmd->log_path, DEFAULT_LOGPATH_CSV) != 0)
+    {
+        error_fatal(ERR_X, "log path alredy specified");
+    }
+    else
+    {
+        strcpy(cmd->log_path, path);
+    }
+}
+
 void setLogformat(Command *cmd, char *format)
 {
     if (strcmp(format, "txt") == 0)
@@ -48,18 +60,6 @@ void setLogformat(Command *cmd, char *format)
     else
     {
         error_fatal(ERR_BAD_ARG_X, format);
-    }
-}
-
-void setLogfile(Command *cmd, char *path)
-{
-    if (strcmp(cmd->log_path, DEFAULT_LOGPATH_TXT) != 0 || strcmp(cmd->log_path, DEFAULT_LOGPATH_CSV) != 0)
-    {
-        error_fatal(ERR_X, "log path alredy specified");
-    }
-    else
-    {
-        strcpy(cmd->log_path, path);
     }
 }
 
