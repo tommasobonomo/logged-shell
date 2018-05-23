@@ -7,6 +7,7 @@
 #define MSGQUE_NUM 1										// ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/logged_shell/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DEFAULT_LOGPATH_CSV "/tmp/logged_shell/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define DAEMON_ERRORFILE "/tmp/logged_shell/daemon_errors.log"
 
 extern int msqid; // ID msg_queue creata ed attiva
 

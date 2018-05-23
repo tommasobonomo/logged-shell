@@ -46,16 +46,32 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
+    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND);
+
     do
     {
-        msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
+        w_msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
 
         if (errno == E2BIG)
         {
             // C'è almeno una statistica da leggere
-            msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
+            int result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
+            if (result < 0)
+            {
+                fprintf(error_fd, "ERROR: msgrcv failed\n%s\n", strerror(errno));
+                msgctl(msqid, IPC_RMID, NULL);
+                exitAndNotifyDaemon(EXIT_FAILURE);
+            }
+
             FILE *fp;
-            fp = w_fopen(s_msg.cmd.log_path, APPEND);
+            fp = fopen(s_msg.cmd.log_path, APPEND);
+            if (fp == NULL)
+            {
+                // Fallita creazione file
+                fprintf(error_fd, "ERROR: failed to create logfile %s!\n", s_msg.cmd.log_path);
+                msgctl(msqid, IPC_RMID, NULL);
+                exitAndNotifyDaemon(EXIT_FAILURE);
+            }
 
             Command cmd;
             cmd = s_msg.cmd;
@@ -75,10 +91,10 @@ void core(int msqid_param)
                 proc_count--;
             }
         }
-
     } while (proc_count > 0);
 
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
+    fclose(error_fd);
     msgctl(msqid, IPC_RMID, NULL);
     exitAndNotifyDaemon(EXIT_SUCCESS);
 }
