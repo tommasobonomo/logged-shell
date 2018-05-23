@@ -44,6 +44,7 @@ bool strStartWith(const char *str, const char *prefix)
 
 void sanityCheck()
 {
+    DEBUG_PRINT("\n");
     if (PIPE_BUF < sizeof(SubCommandResult))
     {
         fprintf(stderr, "FATAL ERROR!!!\n");

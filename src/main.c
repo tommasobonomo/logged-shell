@@ -53,10 +53,10 @@ void interrupt_sighandler(int signum)
     switch (signum)
     {
         case SIGINT:
+            fprintf(stderr, "\n(Command not logged)\n");
         case SIGTERM:
         case SIGQUIT:
             exitAndNotifyDaemon(EXIT_SUCCESS);
-            break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
             exitAndNotifyDaemon(EXIT_FAILURE);
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     int i;
     for (i = 1; i <= 64; i++)
     {
-        if (i != SIGCONT && i != SIGCHLD)
+        if (i != SIGTSTP && i != SIGCONT && i != SIGCHLD)
         {
             signal(i, interrupt_sighandler);
         }
@@ -99,9 +99,9 @@ int main(int argc, char *argv[])
     char *start = NULL;
     char *end = NULL;
     int lengthOperator;
+    
     //variabili per operatori
     OperatorVars operatorVars;
-
     initOperatorVars(&operatorVars);
 
     // Controlla le direzioni di tutti output e error a seconda dei flag
