@@ -27,6 +27,13 @@ void sighandler(int signum)
     }
 }
 
+void manageDaemonError(char const *error_msg, FILE *error_fd)
+{
+    fprintf(error_fd, "ERROR: %s\n%s\n", error_msg, strerror(errno));
+    msgctl(msqid, IPC_RMID, NULL);
+    exitAndNotifyDaemon(EXIT_FAILURE);
+}
+
 void core(int msqid_param)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
@@ -50,17 +57,15 @@ void core(int msqid_param)
 
     do
     {
-        w_msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
+        int result = msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
 
         if (errno == E2BIG)
         {
             // C'è almeno una statistica da leggere
-            int result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
+            result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             if (result < 0)
             {
-                fprintf(error_fd, "ERROR: msgrcv failed\n%s\n", strerror(errno));
-                msgctl(msqid, IPC_RMID, NULL);
-                exitAndNotifyDaemon(EXIT_FAILURE);
+                manageDaemonError("msgrcv failed", error_fd);
             }
 
             FILE *fp;
@@ -68,9 +73,7 @@ void core(int msqid_param)
             if (fp == NULL)
             {
                 // Fallita creazione file
-                fprintf(error_fd, "ERROR: failed to create logfile %s!\n", s_msg.cmd.log_path);
-                msgctl(msqid, IPC_RMID, NULL);
-                exitAndNotifyDaemon(EXIT_FAILURE);
+                manageDaemonError("failed to create logfile", error_fd);
             }
 
             Command cmd;
@@ -82,6 +85,11 @@ void core(int msqid_param)
         }
         else
         {
+            if (result < 0)
+            {
+                manageDaemonError("msgrcv failed", error_fd);
+            }
+
             if (p_msg.type == PROC_INIT)
             {
                 proc_count++;
