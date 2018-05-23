@@ -29,7 +29,7 @@ void sighandler(int signum)
 
 void manageDaemonError(char const *error_msg, FILE *error_fd)
 {
-    fprintf(error_fd, "ERROR: %s\n%s\n", error_msg, strerror(errno));
+    fprintf(error_fd, "ERROR: %s --> %s\n", error_msg, strerror(errno));
     msgctl(msqid, IPC_RMID, NULL);
     exitAndNotifyDaemon(EXIT_FAILURE);
 }
