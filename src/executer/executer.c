@@ -18,14 +18,17 @@
 
 void setNullRedirections(struct Command *cmd)
 {
-    int null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
-    if (cmd->output_mode == MODE_DISCARD)
+    if (cmd->output_mode == MODE_DISCARD || cmd->error_mode == MODE_DISCARD)
     {
-        dup2(null_fd, STDOUT_FILENO);
-    }
-    if (cmd->error_mode == MODE_DISCARD)
-    {
-        dup2(null_fd, STDERR_FILENO);
+        int null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
+        if (cmd->output_mode == MODE_DISCARD)
+        {
+            dup2(null_fd, STDOUT_FILENO);
+        }
+        if (cmd->error_mode == MODE_DISCARD)
+        {
+            dup2(null_fd, STDERR_FILENO);
+        }
     }
 }
 
