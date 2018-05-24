@@ -216,15 +216,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    //DO NOT REMOVE THIS CODE --Zanna_37--
     // ATTENDO TUTTI I GESTORI
-    // non serve attenderli perché ci pensa pipeResult
-    //pid_t pidFigli;
-    //while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-    //{
-    //    DEBUG_PRINT("Process %d terminated\n", pidFigli);
-    //}
-    //END - DO NOT REMOVE THIS CODE --Zanna_37--
+    pid_t pidFigli;
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);

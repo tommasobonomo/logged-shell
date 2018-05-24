@@ -23,11 +23,11 @@ void error_fatal(int id, char const *msg)
             break;
         case ERR_IO_FILE:
             fprintf(stderr, "ERROR, can't open file: %s\n", msg);
-            perror(" --->");
+            perror(" --> ");
             break;
         case ERR_SYSCALL:
             fprintf(stderr, "ERROR: %s\n", msg);
-            perror(" --->");
+            perror(" --> ");
             break;
         case ERR_CHILD:
             fprintf(stderr, "ERROR on child doing: %s\n", msg);
@@ -45,7 +45,7 @@ void error_warning(int id, char const *msg)
     {
         case ERR_SYSCALL:
             fprintf(stderr, "WARNING: %s\n", msg);
-            perror(" --->");
+            perror(" --> ");
             break;
         default:
             fprintf(stderr, "WARNING not specified: %s\n", msg);
