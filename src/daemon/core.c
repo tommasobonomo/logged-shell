@@ -13,16 +13,8 @@
 
 void sighandler(int signum)
 {
-    switch (signum)
-    {
-    case SIGINT:
-    case SIGTERM:
-    case SIGQUIT:
-        exitAndNotifyDaemon(EXIT_SUCCESS);
-        break;
-    default:
-        exitAndNotifyDaemon(EXIT_FAILURE);
-    }
+    //TODO si potrebbe aggiungere le informazioni di chiusura forzata al file di log
+    exit(128+signum);
 }
 
 void core(int msqid_param)
@@ -78,5 +70,5 @@ void core(int msqid_param)
 
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
     msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_SUCCESS);
+    exit(EXIT_SUCCESS);
 }
