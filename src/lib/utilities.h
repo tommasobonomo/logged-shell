@@ -10,6 +10,8 @@ typedef enum
 #define MAX_SUBCOMMANDS 40 //TODO fai almeno dei controlli nel main
 #define MAX_ARGUMENTS 50 //TODO fai almeno dei controlli
 
+#define TOOL_NAME "xlogger"
+
 #ifdef DEBUG
 #include <stdio.h> //TODO is it needed?
 #define DEBUG_PRINT( ... ) fprintf (stderr, __VA_ARGS__ )

@@ -1,9 +1,9 @@
-PNAME = logged_shell
+PNAME = xlogger
 DEBUGGUARD = $(BIN)/DEBUG
 
 SRC = ./src
 BIN = ./bin
-LOGS = /tmp/logged_shell
+LOGS = /tmp/xlogger
 LIBRARY = $(SRC)/lib
 PARSER = $(SRC)/parser
 EXECUTER = $(SRC)/executer
