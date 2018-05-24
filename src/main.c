@@ -50,18 +50,20 @@ void OperatorVarsNext(OperatorVars *operatorVars)
 // Handler di segnali per mandare un segnale di chiusura al demone comunque
 void interrupt_sighandler(int signum)
 {
-	switch (signum)
-	{
-    	case SIGTERM:
-    	case SIGQUIT:
-    		exitAndNotifyDaemon(EXIT_SUCCESS);
-    	case SIGINT:
-    		fprintf(stderr, "\n(Command not logged)\n");
-    		exitAndNotifyDaemon(128+signum);
-    	default:
-    		DEBUG_PRINT("Signal: %d\n", signum);
-    		exitAndNotifyDaemon(128+signum);
-	}
+    switch (signum)
+    {
+    case SIGTERM:
+    case SIGQUIT:
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    case SIGINT:
+        fprintf(stderr, "\n(Command not logged)\n");
+        exitAndNotifyDaemon(128 + signum);
+        break;
+    default:
+        DEBUG_PRINT("Signal: %d\n", signum);
+        exitAndNotifyDaemon(128 + signum);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -161,19 +163,19 @@ int main(int argc, char *argv[])
         {
             lengthOperator = (end - start + 1) * sizeof(char);
 
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
             {
                 //fare niente
             }
@@ -190,7 +192,7 @@ int main(int argc, char *argv[])
         {
             tmpSubCmdResult->executed = false;
             cmd->subCommandResults[tmpSubCmdResult->ID] = *tmpSubCmdResult;
-            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
+            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t)lengthOperator) != 0)
             {
                 operatorVars.ignoreNextSubCmd = false;
             }
@@ -218,7 +220,8 @@ int main(int argc, char *argv[])
 
     // ATTENDO TUTTI I GESTORI
     pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+        ;
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);
@@ -233,15 +236,15 @@ int main(int argc, char *argv[])
     //SEND COMMAND-RESULT
     send_msg(msqid, cmd);
 
-	// FREEING DYNAMICALLY ALLOCATED MEMORY
-	free(pipefds);
+    // FREEING DYNAMICALLY ALLOCATED MEMORY
+    free(pipefds);
 
-	for (i = 0; i < cmd->n_subCommands; i++)
-	{
-		//free(cmd->subCommandResults[i]);
-	}
-	free(cmd);
-	// END FREEING DYNAMICALLY ALLOCATED MEMORY
+    for (i = 0; i < cmd->n_subCommands; i++)
+    {
+        //free(cmd->subCommandResults[i]);
+    }
+    free(cmd);
+    // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
     exitAndNotifyDaemon(EXIT_SUCCESS);
 
