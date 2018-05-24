@@ -4,20 +4,37 @@
 #include "../lib/commands.h"
 
 // NORMAL ARGUMENTS
-//TODO normal args
+#define ARG_LOGPATH "p"
+#define ARG_LOGFORMAT "f"
+
+#define ARG_OUTSCREEN "o"
+#define ARG_OUTLOG "O"
+#define ARG_OUTFILEAPP "a"
+#define ARG_OUTFILEOVER "x"
+
+#define ARG_ERRSCREEN "e"
+#define ARG_ERRLOG "E"
+#define ARG_ERRFILEAPP "A"
+#define ARG_ERRFILEOVER "X"
+
+#define ARG_DONTCREATELOG "n"
+
+#define ARG_HELP "h"
+#define ARG_VERSION "v"
+
 
 // MNEMONIC ARGUMENTS
 #define ARG_MEM_LOGPATH "path"
 #define ARG_MEM_LOGFORMAT "format"
 
 #define ARG_MEM_OUTDISCARD "discardout"
-#define ARG_MEM_OUTSCEEN "printout"
+#define ARG_MEM_OUTSCREEN "printout"
 #define ARG_MEM_OUTLOG "logout"
 #define ARG_MEM_OUTFILEAPP "fileappout"
 #define ARG_MEM_OUTFILEOVER "fileoverout"
 
 #define ARG_MEM_ERRDISCARD "discarderr"
-#define ARG_MEM_ERRSCEEN "printerr"
+#define ARG_MEM_ERRSCREEN "printerr"
 #define ARG_MEM_ERRLOG "logerr"
 #define ARG_MEM_ERRFILEAPP "fileapperr"
 #define ARG_MEM_ERRFILEOVER "fileovererr"
