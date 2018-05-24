@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
 	initOperatorVars(&operatorVars);
 
 	// Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
-	setNullRedirections(cmd);
+	int null_fd = setNullRedirections(cmd);
 
 	getNextSubCommand(p, &start, &end);
 	p = end + 1;
@@ -225,6 +225,12 @@ int main(int argc, char *argv[])
 	//    DEBUG_PRINT("Process %d terminated\n", pidFigli);
 	//}
 	//END - DO NOT REMOVE THIS CODE --Zanna_37--
+
+    // Chiudo eventuale ridirezione output
+    if (null_fd != -1)
+    {
+        close(null_fd);
+    }
 
 	//SAVING SUBCOMMANDS-RESULT
 	close(pipeResult[WRITE]);

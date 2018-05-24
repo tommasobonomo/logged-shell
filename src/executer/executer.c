@@ -16,11 +16,12 @@
 #define NULLFILE "/dev/null"
 
 
-void setNullRedirections(struct Command *cmd)
+int setNullRedirections(struct Command *cmd)
 {
+	int null_fd = -1;
     if (cmd->output_mode == MODE_DISCARD || cmd->error_mode == MODE_DISCARD)
     {
-        int null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
+        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
         if (cmd->output_mode == MODE_DISCARD)
         {
             dup2(null_fd, STDOUT_FILENO);
@@ -30,6 +31,7 @@ void setNullRedirections(struct Command *cmd)
             dup2(null_fd, STDERR_FILENO);
         }
     }
+	return null_fd;
 }
 
 int countPipes(char *wholeCmd)
