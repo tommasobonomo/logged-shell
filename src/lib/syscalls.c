@@ -33,7 +33,7 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     return oldSighandler;
 }
 
-int w_open(const char *pathname, int mode, mode_t permissions)
+int w_open(const char *pathname, int mode, mode_t permissions) //TODO why use permission?
 {
     int fd = open(pathname, mode, permissions);
     if (fd < 0)

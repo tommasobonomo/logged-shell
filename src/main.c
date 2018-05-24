@@ -79,13 +79,13 @@ int main(int argc, char *argv[])
 
     //SANITY CHECKS
     sanityCheck();
-
     Command *cmd = parseCommand(argc, argv);
 
     //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
-    int *pipefds = malloc(2 * n_pipes * sizeof(int));
-    for (i = 0; i < n_pipes * 2; i += 2)
+    int n_fds = 2 * n_pipes;
+    int *pipefds = malloc(n_fds * sizeof(int));
+    for (i = 0; i < n_fds; i += 2)
     {
         w_pipe(pipefds + i);
     }
@@ -99,13 +99,13 @@ int main(int argc, char *argv[])
     char *start = NULL;
     char *end = NULL;
     int lengthOperator;
-    
+
     //variabili per operatori
     OperatorVars operatorVars;
     initOperatorVars(&operatorVars);
 
-    // Controlla le direzioni di tutti output e error a seconda dei flag
-    int null_fd = setNullRedirections(cmd);
+    // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
+    setNullRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;
@@ -114,21 +114,19 @@ int main(int argc, char *argv[])
     {
         SubCommandResult *tmpSubCmdResult = malloc(sizeof(SubCommandResult));
 
-        int length = (end - start) * sizeof(*start) + 1;
+        int length = (end - start + 1) * sizeof(char);
         sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
 
         // Leggo operatore o redir
         getNextSubCommand(p, &start, &end);
         p = end + 1;
 
-        // Controllo due volte se l'operatore è < o >, altrimenti leggo operatore
-        int i;
-
+        // Controllo NUM_REDIR_CHECKS volte se l'operatore è < o >, altrimenti leggo operatore
         for (i = 0; i < NUM_REDIR_CHECKS; i++)
         {
             if (start != NULL && end != NULL)
             {
-                lengthOperator = (end - start) * sizeof(*start) + 1;
+                lengthOperator = (end - start + 1) * sizeof(char);
                 bool readRedirectOperator = false;
                 if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
@@ -136,7 +134,7 @@ int main(int argc, char *argv[])
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
-                    int lengthFile = (end - start) * sizeof(*start) + 1;
+                    int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
                 else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
@@ -145,7 +143,7 @@ int main(int argc, char *argv[])
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
-                    int lengthFile = (end - start) * sizeof(*start) + 1;
+                    int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.inFile, "%.*s", lengthFile, start);
                 }
 
@@ -160,7 +158,7 @@ int main(int argc, char *argv[])
         // Leggo operatore
         if (start != NULL && end != NULL)
         {
-            lengthOperator = (end - start) * sizeof(*start) + 1;
+            lengthOperator = (end - start + 1) * sizeof(char);
 
             if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
@@ -226,12 +224,6 @@ int main(int argc, char *argv[])
     //    DEBUG_PRINT("Process %d terminated\n", pidFigli);
     //}
     //END - DO NOT REMOVE THIS CODE --Zanna_37--
-
-    // Chiudo eventuale ridirezione output
-    if (null_fd != -1)
-    {
-        close(null_fd);
-    }
 
     //SAVING SUBCOMMANDS-RESULT
     close(pipeResult[WRITE]);

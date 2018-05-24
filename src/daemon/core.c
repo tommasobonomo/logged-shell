@@ -11,8 +11,6 @@
 #include "../statistics/statHelper.h"
 #include "daemon.h"
 
-#define APPEND "a"
-
 void sighandler(int signum)
 {
     switch (signum)
@@ -35,7 +33,7 @@ void core(int msqid_param)
     int i = 1;
     for (; i <= 64; i++)
     {
-        if (i != SIGCONT && i != SIGCHLD)
+        if (i != SIGTSTP && i != SIGCONT && i != SIGCHLD)
         {
             signal(i, sighandler);
         }
@@ -55,7 +53,7 @@ void core(int msqid_param)
             // C'è almeno una statistica da leggere
             msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             FILE *fp;
-            fp = w_fopen(s_msg.cmd.log_path, APPEND);
+            fp = w_fopen(s_msg.cmd.log_path, "a");
 
             Command cmd;
             cmd = s_msg.cmd;

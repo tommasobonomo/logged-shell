@@ -15,20 +15,18 @@
 #define WRITE 1
 #define NULLFILE "/dev/null"
 
-int setNullRedirections(struct Command *cmd)
+
+void setNullRedirections(struct Command *cmd)
 {
-    int null_fd = -1;
+    int null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
     if (cmd->output_mode == MODE_DISCARD)
     {
-        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
         dup2(null_fd, STDOUT_FILENO);
     }
-    else if (cmd->error_mode == MODE_DISCARD)
+    if (cmd->error_mode == MODE_DISCARD)
     {
-        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
         dup2(null_fd, STDERR_FILENO);
     }
-    return null_fd;
 }
 
 int countPipes(char *wholeCmd)
