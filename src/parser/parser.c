@@ -175,7 +175,7 @@ Command *parseCommand(int argc, char *argv[])
             }
             else
             {
-                //MNEMONIC ARG
+                //MNEMONIC ARG:
                 if (strStartWith(&argv[currArgc][2], ARG_MEM_HELP))
                 {
                     printHelp();
@@ -196,64 +196,64 @@ Command *parseCommand(int argc, char *argv[])
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTDISCARD))
                 {
                     setOutputMode(result, MODE_DISCARD);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                    DEBUG_PRINT("output_mode: %d\n", result->output_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRDISCARD))
                 {
                     setErrorMode(result, MODE_DISCARD);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                    DEBUG_PRINT("error_mode: %d\n", result->error_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTSCEEN))
                 {
                     setOutputMode(result, MODE_SCREEN);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                    DEBUG_PRINT("output_mode: %d\n", result->output_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRSCEEN))
                 {
                     setErrorMode(result, MODE_SCREEN);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                    DEBUG_PRINT("error_mode: %d\n", result->error_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTLOG)) //TODO not the best name in the world
                 {
                     setOutputMode(result, MODE_LOG);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                    DEBUG_PRINT("output_mode: %d\n", result->output_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRLOG))
                 {
                     setErrorMode(result, MODE_LOG);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                    DEBUG_PRINT("error_mode: %d\n", result->error_mode);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEAPP))
                 {
                     setOutputMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setOutputPath(result, secondaryArg);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
-                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
+                    DEBUG_PRINT("output_mode: %d\n", result->output_mode);
+                    DEBUG_PRINT("output_path: %s\n", result->output_path);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEAPP))
                 {
                     setErrorMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setErrorPath(result, secondaryArg);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
-                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
+                    DEBUG_PRINT("error_mode: %d\n", result->error_mode);
+                    DEBUG_PRINT("error_path: %s\n", result->error_path);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_OUTFILEOVER))
                 {
                     setOutputMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setOutputPath(result, secondaryArg);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
-                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
+                    DEBUG_PRINT("output_mode: %d\n", result->output_mode);
+                    DEBUG_PRINT("output_path: %s\n", result->output_path);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_ERRFILEOVER))
                 {
                     setErrorMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setErrorPath(result, secondaryArg);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
-                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
+                    DEBUG_PRINT("error_mode: %d\n", result->error_mode);
+                    DEBUG_PRINT("error_path: %s\n", result->error_path);
                 }
 
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_DONTCREATELOG))

@@ -10,19 +10,19 @@
 #define ARG_MEM_LOGPATH "path"
 #define ARG_MEM_LOGFORMAT "format"
 
-#define ARG_MEM_OUTDISCARD "discardout"
-#define ARG_MEM_OUTSCEEN "printout"
-#define ARG_MEM_OUTLOG "logout"
+#define ARG_MEM_OUTDISCARD "nout"
+#define ARG_MEM_OUTSCEEN "pout"
+#define ARG_MEM_OUTLOG "outtolog"
 #define ARG_MEM_OUTFILEAPP "fileappout"
 #define ARG_MEM_OUTFILEOVER "fileoverout"
 
-#define ARG_MEM_ERRDISCARD "discarderr"
-#define ARG_MEM_ERRSCEEN "printerr"
-#define ARG_MEM_ERRLOG "logerr"
+#define ARG_MEM_ERRDISCARD "nerr"
+#define ARG_MEM_ERRSCEEN "perr"
+#define ARG_MEM_ERRLOG "errtolog"
 #define ARG_MEM_ERRFILEAPP "fileapperr"
 #define ARG_MEM_ERRFILEOVER "fileovererr"
 
-#define ARG_MEM_DONTCREATELOG "nolog"
+#define ARG_MEM_DONTCREATELOG "nlog"
 
 #define ARG_MEM_HELP "help"
 #define ARG_MEM_VERSION "version"

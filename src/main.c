@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         p = end + 1;
 
         // Controllo NUM_REDIR_CHECKS volte se l'operatore è < o >, altrimenti leggo operatore
-        for (i = 0; i < NUM_REDIR_CHECKS; i++)
+        for (i = 0; i < NUM_REDIR_CHECKS; i++) //TODO perchè NUM_REDIR_CHECKS = 2?
         {
             if (start != NULL && end != NULL)
             {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
                 //fare niente
             }
         } //else there is no operator
-          //END - READ OPERATOR
+        //END - READ OPERATOR
 
         tmpSubCmdResult->ID = cmd->n_subCommands++;
         if (!operatorVars.ignoreNextSubCmd)
@@ -240,6 +240,7 @@ int main(int argc, char *argv[])
 
     // FREEING DYNAMICALLY ALLOCATED MEMORY
     free(pipefds);
+
     for (i = 0; i < cmd->n_subCommands; i++)
     {
         //free(cmd->subCommandResults[i]);
