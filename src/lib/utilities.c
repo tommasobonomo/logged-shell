@@ -45,7 +45,6 @@ bool strStartWith(const char *str, const char *prefix)
 
 void sanityCheck()
 {
-    DEBUG_PRINT("\n");
     if (PIPE_BUF < sizeof(SubCommandResult))
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
@@ -53,6 +52,7 @@ void sanityCheck()
         fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
         exitAndNotifyDaemon(EXIT_FAILURE);
     }
+    DEBUG_PRINT("\n");
     DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
     DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
 

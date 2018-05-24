@@ -11,6 +11,8 @@
 #include "../statistics/statHelper.h"
 #include "daemon.h"
 
+#define APPEND "a"
+
 void sighandler(int signum)
 {
     //TODO si potrebbe aggiungere le informazioni di chiusura forzata al file di log
@@ -45,7 +47,7 @@ void core(int msqid_param)
             // C'è almeno una statistica da leggere
             msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             FILE *fp;
-            fp = w_fopen(s_msg.cmd.log_path, "a");
+            fp = w_fopen(s_msg.cmd.log_path, APPEND);
 
             Command cmd;
             cmd = s_msg.cmd;
