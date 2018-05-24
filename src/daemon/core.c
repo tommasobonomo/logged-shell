@@ -14,7 +14,20 @@
 void sighandler(int signum)
 {
     //TODO si potrebbe aggiungere le informazioni di chiusura forzata al file di log
+<<<<<<< HEAD
     exit(128+signum);
+=======
+    switch (signum)
+	{
+    	case SIGTERM:
+    	case SIGQUIT:
+    		exit(EXIT_SUCCESS);
+    	case SIGINT:
+    		exit(128+signum);
+    	default:
+    		exit(128+signum);
+	}
+>>>>>>> a9128aca29d9a4e6122fc7953ec523964a2332b2
 }
 
 void core(int msqid_param)
