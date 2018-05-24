@@ -19,6 +19,13 @@ void sighandler(int signum)
     exit(128+signum);
 }
 
+void manageDaemonError(char const *error_msg, FILE *error_fd)
+{
+    fprintf(error_fd, "ERROR: %s --> %s\n", error_msg, strerror(errno));
+    msgctl(msqid, IPC_RMID, NULL);
+    exitAndNotifyDaemon(EXIT_FAILURE);
+}
+
 void core(int msqid_param)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
@@ -38,16 +45,28 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
+    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND);
+
     do
     {
-        msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
+        int result = msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
 
         if (errno == E2BIG)
         {
             // C'è almeno una statistica da leggere
-            msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
+            result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
+            if (result < 0)
+            {
+                manageDaemonError("msgrcv failed", error_fd);
+            }
+
             FILE *fp;
-            fp = w_fopen(s_msg.cmd.log_path, APPEND);
+            fp = fopen(s_msg.cmd.log_path, APPEND);
+            if (fp == NULL)
+            {
+                // Fallita creazione file
+                manageDaemonError("failed to create logfile", error_fd);
+            }
 
             Command cmd;
             cmd = s_msg.cmd;
@@ -58,6 +77,11 @@ void core(int msqid_param)
         }
         else
         {
+            if (result < 0)
+            {
+                manageDaemonError("msgrcv failed", error_fd);
+            }
+
             if (p_msg.type == PROC_INIT)
             {
                 proc_count++;
@@ -67,10 +91,10 @@ void core(int msqid_param)
                 proc_count--;
             }
         }
-
     } while (proc_count > 0);
 
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
+    fclose(error_fd);
     msgctl(msqid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
 }
