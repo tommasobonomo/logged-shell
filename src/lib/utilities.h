@@ -11,6 +11,7 @@ typedef enum
 #define MAX_ARGUMENTS 50 //TODO fai almeno dei controlli
 
 #define TOOL_NAME "xlogger"
+#define TOOL_FOLDER TOOL_NAME"-ZZN5V7KH3H"
 
 #ifdef DEBUG
 #include <stdio.h> //TODO is it needed?
