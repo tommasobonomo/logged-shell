@@ -13,7 +13,7 @@ void error_fatal(int id, char const *msg)
             break;
         case ERR_BAD_ARGS:
             fprintf(stderr, "ERROR: Bad arguments\n");
-            printHelp();
+            printHelpAndExit();
             break;
         case ERR_BAD_ARG_X:
             fprintf(stderr, "ERROR, bad argument: %s\n", msg);

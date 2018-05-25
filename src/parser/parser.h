@@ -29,17 +29,17 @@
 
 #define ARG_MEM_OUTDISCARD "nout"
 #define ARG_MEM_OUTSCREEN "pout"
-#define ARG_MEM_OUTLOG "outtolog"
+#define ARG_MEM_OUTLOG "outtolog"   // TODO remove
 #define ARG_MEM_OUTFILEAPP "fileappout"
 #define ARG_MEM_OUTFILEOVER "fileoverout"
 
 #define ARG_MEM_ERRDISCARD "nerr"
 #define ARG_MEM_ERRSCREEN "perr"
-#define ARG_MEM_ERRLOG "errtolog"
+#define ARG_MEM_ERRLOG "errtolog"   // TODO remove
 #define ARG_MEM_ERRFILEAPP "fileapperr"
 #define ARG_MEM_ERRFILEOVER "fileovererr"
 
-#define ARG_MEM_DONTCREATELOG "nlog"
+#define ARG_MEM_DONTCREATELOG "nlog"    /// TODO remove
 
 #define ARG_MEM_HELP "help"
 #define ARG_MEM_VERSION "version"

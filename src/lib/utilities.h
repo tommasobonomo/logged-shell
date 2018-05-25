@@ -23,7 +23,7 @@ typedef enum
 /**
  * Print an help screen to stdout
  */
-void printHelp();
+void printHelpAndExit();
 
 /**
  * Check is the string <b>str</b> starts with the prefix <b>*prefix</b>

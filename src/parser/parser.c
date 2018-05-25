@@ -167,8 +167,7 @@ Command *parseCommand(int argc, char *argv[])
                 //NORMAL ARG
                 if (strStartWith(&argv[currArgc][2], ARG_HELP))
                 {
-                    printHelp();
-                    exit(EXIT_SUCCESS); // TODO find another way to exit
+                    printHelpAndExit();
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_LOGPATH))
                 {
@@ -250,8 +249,7 @@ Command *parseCommand(int argc, char *argv[])
                 //MNEMONIC ARG:
                 if (strStartWith(&argv[currArgc][2], ARG_MEM_HELP))
                 {
-                    printHelp();
-                    exit(EXIT_SUCCESS); // TODO find another way to exit
+                    printHelpAndExit();
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MEM_LOGPATH))
                 {

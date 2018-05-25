@@ -7,7 +7,7 @@
 #include "../lib/commands.h"
 #include "../lib/syscalls.h"
 
-void printHelp()
+void printHelpAndExit()
 {
     printf("\n###### "TOOL_NAME" ######\n");
     printf("\nGet useful statistics from commands passed as parameters and log them to file\n"
