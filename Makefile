@@ -30,7 +30,7 @@ OBJ = 	$(BIN)/main.o \
 
 # build rule, the standard one
 build: $(BIN) checkDebug $(OBJ) $(LOGS)
-	@gcc -o $(BIN)/$(PNAME) $(OBJ)
+	@gcc -o $(BIN)/$(PNAME) $(OBJ) $(FLAGS)
 	@echo Finished building
 
 # debug rule, use it when debugging. It sets custom flags

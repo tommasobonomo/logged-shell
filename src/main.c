@@ -192,7 +192,6 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            cmd->subCommandResults[tmpSubCmdResult->ID] = *tmpSubCmdResult;
             if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
             {
                 operatorVars.ignoreNextSubCmd = false;

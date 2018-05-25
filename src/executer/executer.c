@@ -23,7 +23,7 @@ typedef struct ThreadArgs
     pthread_t *threads;
     SubCommandResult *subCommandResult;
     pid_t eid;
-    OperatorVars operatorVars;
+    OperatorVars *operatorVars;
     int *pipefds;
     struct timeval start;
 } ThreadArgs;
@@ -148,29 +148,23 @@ void finalizeSubCommand(ThreadArgs *args)
         //TODO log a video subCommandResult->subCommand
     }
 
-    //CHIUSURA PIPES APERTE IN PRECEDENZA
-    if (args->operatorVars.prevPipe)
-        w_close(args->pipefds[(args->operatorVars.pipeIndex - 1) * 2]);
-    if (args->operatorVars.nextPipe)
-        w_close(args->pipefds[args->operatorVars.pipeIndex * 2 + 1]);
 
-
-    if (!args->operatorVars.nextPipe)
+    if (!args->operatorVars->nextPipe)
     {
-        if (args->operatorVars.nextAnd)
+        if (args->operatorVars->nextAnd)
         {
             if (args->subCommandResult->exitStatus != 0)
             {
-                args->operatorVars.ignoreNextSubCmd = true;
-                strcpy(args->operatorVars.ignoreUntil, "&&");
+                args->operatorVars->ignoreNextSubCmd = true;
+                strcpy(args->operatorVars->ignoreUntil, "&&");
             }
         }
-        else if (args->operatorVars.nextOr)
+        else if (args->operatorVars->nextOr)
         {
             if (args->subCommandResult->exitStatus == 0)
             {
-                args->operatorVars.ignoreNextSubCmd = true;
-                strcpy(args->operatorVars.ignoreUntil, "||");
+                args->operatorVars->ignoreNextSubCmd = true;
+                strcpy(args->operatorVars->ignoreUntil, "||");
             }
         }
     }
@@ -179,12 +173,12 @@ void finalizeSubCommand(ThreadArgs *args)
 void *waitExecuterAndfinalizeSubCommand(void *argument)
 {
     ThreadArgs *threadArgs = (ThreadArgs *) argument;
-    DEBUG_PRINT("[THREAD PARTITO]\n");
     finalizeSubCommand(argument);
-    if (threadArgs->operatorVars.prevPipe)
+    if (threadArgs->operatorVars->prevPipe)
     {
         pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
     }
+    free(threadArgs->operatorVars);
     free(argument);
     pthread_exit(NULL);
 }
@@ -223,27 +217,33 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
     {
         //Parent
 
+        //CHIUSURA PIPES APERTE IN PRECEDENZA
+        if (operatorVars->prevPipe)
+            w_close(pipefds[(operatorVars->pipeIndex - 1) * 2]);
+        if (operatorVars->nextPipe)
+            w_close(pipefds[operatorVars->pipeIndex * 2 + 1]);
+
         ThreadArgs *args = malloc(sizeof(ThreadArgs));
         args->ID = operatorVars->pipeIndex;
         args->threads = threads;
         args->subCommandResult = subCommandResult;
         args->eid = eid;
-        args->operatorVars = *operatorVars;
+        args->operatorVars = operatorVars;
         args->pipefds = pipefds;
         args->start = start;
 
         if (operatorVars->nextPipe)
         {
+            args->operatorVars = malloc(sizeof(OperatorVars));
+            *args->operatorVars = *operatorVars;
             pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndfinalizeSubCommand, args);
-            DEBUG_PRINT("Thread %d creato\n", operatorVars->pipeIndex);
         }
         else
         {
-            if (operatorVars->prevPipe == true)
+            if (operatorVars->prevPipe)
             {
                 DEBUG_PRINT("Aspetto thread %d\n", operatorVars->pipeIndex - 1);
-                pthread_join(threads[operatorVars->pipeIndex - 1], NULL); //TODO aspetta anche gli altri
-                DEBUG_PRINT("thread %d terminato\n", operatorVars->pipeIndex - 1);
+                pthread_join(threads[operatorVars->pipeIndex - 1], NULL);
             }
             finalizeSubCommand(args);
         }
