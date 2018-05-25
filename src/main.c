@@ -229,6 +229,7 @@ int main(int argc, char *argv[])
 
     // FREEING DYNAMICALLY ALLOCATED MEMORY
     free(pipefds);
+    free(threads);
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
