@@ -7,9 +7,13 @@
 #include "../lib/commands.h"
 #include "../lib/syscalls.h"
 
-void newLine(const char *whatToPrint)
+/**
+ * Little helper for printHelpAndExit to print a string to a new line
+ * @param string String to be printed on a new line
+ */
+void newLine(const char *string)
 {
-    printf("\n%*c\t\t  %s\n", 15, ' ', whatToPrint);
+    printf("\n%*c\t\t  %s\n", 15, ' ', string);
 }
 
 void printHelpAndExit()
@@ -39,12 +43,18 @@ void printHelpAndExit()
 
     //TODO documentation resource
 
-    // printf("Created in Trento with <3 by:\n");
-    // printf(" - Tommaso Bonomo\n");
-    // printf(" - Francesco Cadei\n");
-    // printf(" - Federico Favotto\n");
-    // printf(" - Andrea Zanotto\n");
 
+    exitAndNotifyDaemon(EXIT_SUCCESS);
+}
+
+void printVersionAndExit()
+{
+    printf(""TOOL_NAME" "TOOL_VERSION_CODE"\n\n");
+    printf("Created in Trento with <3 by:\n");
+    printf(" - Tommaso Bonomo\n");
+    printf(" - Francesco Cadei\n");
+    printf(" - Federico Favotto\n");
+    printf(" - Andrea Zanotto\n");
 
     exitAndNotifyDaemon(EXIT_SUCCESS);
 }

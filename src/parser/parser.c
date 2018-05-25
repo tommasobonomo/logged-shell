@@ -290,6 +290,10 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("error_mode: %d\n", result->error_mode);
                     DEBUG_PRINT("error_path: %s\n", result->error_path);
                 }
+                else if (strStartWith(&argv[currArgc][2], ARG_MNEM_VERSION))
+                {
+                    printVersionAndExit();
+                }
                 else
                 {
                     error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);

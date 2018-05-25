@@ -12,6 +12,7 @@ typedef enum
 
 #define TOOL_NAME "xlogger"
 #define TOOL_FOLDER TOOL_NAME"-ZZN5V7KH3H"
+#define TOOL_VERSION_CODE "1.23.4 'copenhagen'" //TODO update version
 
 #ifdef DEBUG
 #include <stdio.h> //TODO is it needed?
@@ -21,9 +22,14 @@ typedef enum
 #endif
 
 /**
- * Print an help screen to stdout
+ * Print an help screen to stdout, then exit
  */
 void printHelpAndExit();
+
+/**
+ * Print the current version of the tool to stdout, then exit
+ */
+void printVersionAndExit();
 
 /**
  * Check is the string <b>str</b> starts with the prefix <b>*prefix</b>
