@@ -217,6 +217,11 @@ int main(int argc, char *argv[])
         }
     }
 
+    // ATTENDO TUTTI I FIGLI
+    pid_t pidFigli;
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
+
+
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)
     {
