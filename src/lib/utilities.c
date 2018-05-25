@@ -35,6 +35,7 @@ void printHelp()
     // printf(" - Francesco Cadei\n");
     // printf(" - Federico Favotto\n");
     // printf(" - Andrea Zanotto\n");
+    exitAndNotifyDaemon(EXIT_SUCCESS);
 }
 
 bool strStartWith(const char *str, const char *prefix)
