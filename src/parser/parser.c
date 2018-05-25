@@ -160,33 +160,29 @@ Command *parseCommand(int argc, char *argv[])
             if (argv[currArgc][1] != '-')
             {
                 //NORMAL ARG
-                if (strStartWith(&argv[currArgc][2], ARG_HELP))
-                {
-                    printHelpAndExit();
-                }
-                else if (strStartWith(&argv[currArgc][2], ARG_LOGPATH))
+                if (strStartWith(&argv[currArgc][1], ARG_LOGPATH))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogfile(result, secondaryArg);
                     DEBUG_PRINT("path logfile: %s\n", result->log_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_LOGFORMAT))
+                else if (strStartWith(&argv[currArgc][1], ARG_LOGFORMAT))
                 {
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
                     setLogformat(result, secondaryArg); // Replaces default logpath if needed
                     DEBUG_PRINT("format: %d\n", result->log_format);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_OUTSCREEN))
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTSCREEN))
                 {
                     setOutputMode(result, MODE_SCREEN);
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_ERRSCREEN))
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRSCREEN))
                 {
                     setErrorMode(result, MODE_SCREEN);
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_OUTFILEAPP))
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEAPP))
                 {
                     setOutputMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -194,7 +190,7 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_ERRFILEAPP))
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEAPP))
                 {
                     setErrorMode(result, MODE_FILEAPP);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -202,7 +198,7 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_OUTFILEOVER))
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEOVER))
                 {
                     setOutputMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
@@ -210,7 +206,7 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("outputmode: %d\n", result->output_mode);
                     DEBUG_PRINT("outputpath: %s\n", result->output_path);
                 }
-                else if (strStartWith(&argv[currArgc][2], ARG_ERRFILEOVER))
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEOVER))
                 {
                     setErrorMode(result, MODE_FILEOVER);
                     char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);

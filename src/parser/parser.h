@@ -15,9 +15,6 @@
 #define ARG_ERRFILEAPP "A"
 #define ARG_ERRFILEOVER "X"
 
-#define ARG_HELP "h"
-#define ARG_VERSION "v"
-
 
 // MNEMONIC ARGUMENTS
 #define ARG_MNEM_LOGPATH "path"
@@ -25,13 +22,13 @@
 
 #define ARG_MNEM_OUTDISCARD "nout"
 #define ARG_MNEM_OUTSCREEN "pout"
-#define ARG_MNEM_OUTFILEAPP "fileappout"
-#define ARG_MNEM_OUTFILEOVER "fileoverout"
+#define ARG_MNEM_OUTFILEAPP "appout"
+#define ARG_MNEM_OUTFILEOVER "overout"
 
 #define ARG_MNEM_ERRDISCARD "nerr"
 #define ARG_MNEM_ERRSCREEN "perr"
-#define ARG_MNEM_ERRFILEAPP "fileapperr"
-#define ARG_MNEM_ERRFILEOVER "fileovererr"
+#define ARG_MNEM_ERRFILEAPP "apperr"
+#define ARG_MNEM_ERRFILEOVER "overerr"
 
 #define ARG_MNEM_HELP "help"
 #define ARG_MNEM_VERSION "version"
