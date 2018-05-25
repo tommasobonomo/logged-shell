@@ -18,12 +18,12 @@
  */
 typedef struct SubCommandResult
 {
-    int ID;
-    bool executed;
-    char subCommand[MAX_STRING_LENGHT];
-    char parameters; //TODO unused
-	// STATS
-    int exitStatus;
+	int ID;
+	bool executed;
+	char subCommand[MAX_STRING_LENGHT];
+	char parameters; //TODO unused
+					 // STATS
+	int exitStatus;
 	pid_t pid;
 	double totTime;
 	time_t cputime;
@@ -41,15 +41,15 @@ typedef struct SubCommandResult
  */
 typedef struct Command
 {
-    char command[MAX_STRING_LENGHT];
-    char log_path[MAX_STRING_LENGHT];
+	char command[MAX_STRING_LENGHT];
+	char log_path[MAX_STRING_LENGHT];
 	int log_format;
 	int output_mode;
-    char output_path[MAX_STRING_LENGHT];
+	char output_path[MAX_STRING_LENGHT];
 	int error_mode;
-    char error_path[MAX_STRING_LENGHT];
+	char error_path[MAX_STRING_LENGHT];
 	int n_subCommands;
-    SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
+	SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
 
 void commandCopy(Command *dst, Command *src);

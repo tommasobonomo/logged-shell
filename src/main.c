@@ -20,13 +20,13 @@ pid_t pid_main;
 
 void initOperatorVars(OperatorVars *operatorVars)
 {
-	operatorVars->pipeIndex = 0;
-	operatorVars->prevPipe = false;
-	operatorVars->nextPipe = false;
-	operatorVars->nextAnd = false;
-	operatorVars->nextOr = false;
-	operatorVars->ignoreNextSubCmd = false;
-	operatorVars->ignoreUntil[0] = '\0';
+    operatorVars->pipeIndex = 0;
+    operatorVars->prevPipe = false;
+    operatorVars->nextPipe = false;
+    operatorVars->nextAnd = false;
+    operatorVars->nextOr = false;
+    operatorVars->ignoreNextSubCmd = false;
+    operatorVars->ignoreUntil[0] = '\0';
 
     operatorVars->inRedirect = false;
     operatorVars->outRedirect = false;
@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
     OperatorVars operatorVars;
     initOperatorVars(&operatorVars);
 
-	// Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
-	int null_fd = setNullRedirections(cmd);
+    // // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
+    // int null_fd = setNullRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;
@@ -220,17 +220,18 @@ int main(int argc, char *argv[])
 
     // ATTENDO TUTTI I GESTORI
     pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+        ;
 
-    // Chiudo eventuale ridirezione output
-    if (null_fd != -1)
-    {
-        close(null_fd);
-    }
+    // // Chiudo eventuale ridirezione output
+    // if (null_fd != -1)
+    // {
+    //     close(null_fd);
+    // }
 
-	//SAVING SUBCOMMANDS-RESULT
-	close(pipeResult[WRITE]);
-	SubCommandResult subCmdResult;
+    //SAVING SUBCOMMANDS-RESULT
+    close(pipeResult[WRITE]);
+    SubCommandResult subCmdResult;
 
     while (w_read(pipeResult[READ], &subCmdResult, sizeof(SubCommandResult)) != 0)
     {
