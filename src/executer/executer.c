@@ -15,13 +15,12 @@
 #define WRITE 1
 #define NULLFILE "/dev/null"
 
-
 int setNullRedirections(struct Command *cmd)
 {
-	int null_fd = -1;
+    int null_fd = -1;
     if (cmd->output_mode == MODE_DISCARD || cmd->error_mode == MODE_DISCARD)
     {
-        null_fd = w_open(NULLFILE, O_WRONLY, PERMS);
+        null_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
         if (cmd->output_mode == MODE_DISCARD)
         {
             dup2(null_fd, STDOUT_FILENO);
@@ -31,7 +30,7 @@ int setNullRedirections(struct Command *cmd)
             dup2(null_fd, STDERR_FILENO);
         }
     }
-	return null_fd;
+    return null_fd;
 }
 
 int countPipes(char *wholeCmd)
@@ -47,7 +46,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t) length) == 0)
+        if (strncmp(start, "|", (size_t)length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -84,7 +83,7 @@ void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool n
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (n_pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < (n_pipes)*2; i++)
     {
         w_close(pipefds[i]);
     }
@@ -97,14 +96,14 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     // Redirect input if flag is set
     if (inRedirect)
     {
-        tmpFD = w_open(inFile, O_RDONLY, PERMS);
+        tmpFD = w_open(inFile, O_RDONLY, USER_PERMS);
         dup2(tmpFD, STDIN_FILENO);
     }
 
     // Redirect output if flag is set
     if (outRedirect)
     {
-        tmpFD = w_open(outFile, O_WRONLY | O_CREAT, PERMS);
+        tmpFD = w_open(outFile, O_WRONLY | O_CREAT, USER_PERMS);
         dup2(tmpFD, STDOUT_FILENO);
     }
 }

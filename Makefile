@@ -29,7 +29,7 @@ OBJ = 	$(BIN)/main.o \
 .PHONY = build debug checkDebug clean
 
 # build rule, the standard one
-build: $(BIN) checkDebug $(OBJ) $(LOGS)
+build: $(BIN) checkDebug $(OBJ)
 	@gcc -o $(BIN)/$(PNAME) $(OBJ)
 	@echo Finished building
 
@@ -58,11 +58,6 @@ checkNotDebug:
 $(BIN):
 	@mkdir -p $(BIN)
 	@echo Created $(BIN) folder
-
-# creates /tmp/logs folder if it doesn't exist
-$(LOGS):
-	@mkdir -p $(LOGS)
-	@echo Created $(LOGS) folder
 
 # object files
 $(BIN)/main.o: $(SRC)/main.c
@@ -102,5 +97,7 @@ $(BIN)/core.o: $(DAEMON)/core.c $(DAEMON)/daemon.h
 clean:
 	@rm -rf $(BIN)
 	@echo Removed $(BIN) folder
-	@rm -rf $(LOGS)
-	@echo Removed $(LOGS) folder
+	@if [ -d $(LOGS) ]; then \
+		rm -rf $(LOGS); \
+		echo Removed $(LOGS) folder; \
+	fi
