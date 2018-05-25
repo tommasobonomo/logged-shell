@@ -13,22 +13,19 @@ void printHelpAndExit()
     printf("\nGet useful statistics from commands passed as parameters and log them to file\n"
            "or simply output them, together with commands output and errors.\n\n");
     printf("Usage: "TOOL_NAME" [OPTION] \"<command>\"\n\n");
-    printf("  -"ARG_LOGPATH", --"ARG_MEM_LOGPATH"\t\tspecifies the log file path\n");
-    printf("  -"ARG_LOGFORMAT", --"ARG_MEM_LOGFORMAT"\t\tspecifies the format for the log file\n");
-    printf("      --"ARG_MEM_OUTDISCARD"\t\tdiscards command output\n");
-    printf("  -"ARG_OUTSCREEN", --"ARG_MEM_OUTSCREEN"\t\tprints command output to screen instead of creating a log file\n");
-    printf("  -"ARG_OUTLOG", --"ARG_MEM_OUTLOG"\tputs command output to a log file (requires specifying its path)\n");
-    printf("  -"ARG_OUTFILEAPP", --"ARG_MEM_OUTFILEAPP"\tappends command output to file (requires specifying its path)\n");
-    printf("  -"ARG_OUTFILEOVER", --"ARG_MEM_OUTFILEOVER"\toverwrites output file content (requires specifying its path)\n");
-    printf("      --"ARG_MEM_ERRDISCARD"\t\tdiscards command errors\n");
-    printf("  -"ARG_ERRSCREEN", --"ARG_MEM_ERRSCREEN"\t\tprints command errors to screen instead of creating a log file\n");
-    printf("  -"ARG_ERRLOG", --"ARG_MEM_ERRLOG"\tputs command errors to a log file (requires specifying its path)\n");
-    printf("  -"ARG_ERRFILEAPP", --"ARG_MEM_ERRFILEAPP"\tappends command errors to file (requires specifying its path)\n");
-    printf("  -"ARG_ERRFILEOVER", --"ARG_MEM_ERRFILEOVER"\toverwrites errors file content (requires specifying its path)\n");
-    printf("  -"ARG_DONTCREATELOG", --"ARG_MEM_DONTCREATELOG"\t\tdon't create command log\n");
+    printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"\t\tspecifies the log file path\n");
+    printf("  -"ARG_LOGFORMAT", --"ARG_MNEM_LOGFORMAT"\t\tspecifies the format for the log file\n");
+    printf("      --"ARG_MNEM_OUTDISCARD"\t\tdiscards command output\n");
+    printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\t\tprints command output to screen instead of creating a log file\n");
+    printf("  -"ARG_OUTFILEAPP", --"ARG_MNEM_OUTFILEAPP"\tappends command output to file (requires specifying its path)\n");
+    printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"\toverwrites output file content (requires specifying its path)\n");
+    printf("      --"ARG_MNEM_ERRDISCARD"\t\tdiscards command errors\n");
+    printf("  -"ARG_ERRSCREEN", --"ARG_MNEM_ERRSCREEN"\t\tprints command errors to screen instead of creating a log file\n");
+    printf("  -"ARG_ERRFILEAPP", --"ARG_MNEM_ERRFILEAPP"\tappends command errors to file (requires specifying its path)\n");
+    printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"\toverwrites errors file content (requires specifying its path)\n");
     printf("\n");
-    printf("  -"ARG_HELP", --"ARG_MEM_HELP"\t\t\tshows this help and exits\n");
-    printf("  -"ARG_VERSION", --"ARG_MEM_VERSION"\t\t\tprints the current version of this tool and exits\n");
+    printf("  -"ARG_HELP", --"ARG_MNEM_HELP"\t\t\tshows this help and exits\n");
+    printf("  -"ARG_VERSION", --"ARG_MNEM_VERSION"\t\t\tprints the current version of this tool and exits\n");
 
     //TODO documentation resource
 

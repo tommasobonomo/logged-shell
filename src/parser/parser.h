@@ -8,41 +8,33 @@
 #define ARG_LOGFORMAT "f"
 
 #define ARG_OUTSCREEN "o"
-#define ARG_OUTLOG "O"
 #define ARG_OUTFILEAPP "a"
 #define ARG_OUTFILEOVER "x"
 
 #define ARG_ERRSCREEN "e"
-#define ARG_ERRLOG "E"
 #define ARG_ERRFILEAPP "A"
 #define ARG_ERRFILEOVER "X"
-
-#define ARG_DONTCREATELOG "n"
 
 #define ARG_HELP "h"
 #define ARG_VERSION "v"
 
 
 // MNEMONIC ARGUMENTS
-#define ARG_MEM_LOGPATH "path"
-#define ARG_MEM_LOGFORMAT "format"
+#define ARG_MNEM_LOGPATH "path"
+#define ARG_MNEM_LOGFORMAT "format"
 
-#define ARG_MEM_OUTDISCARD "nout"
-#define ARG_MEM_OUTSCREEN "pout"
-#define ARG_MEM_OUTLOG "outtolog"   // TODO remove
-#define ARG_MEM_OUTFILEAPP "fileappout"
-#define ARG_MEM_OUTFILEOVER "fileoverout"
+#define ARG_MNEM_OUTDISCARD "nout"
+#define ARG_MNEM_OUTSCREEN "pout"
+#define ARG_MNEM_OUTFILEAPP "fileappout"
+#define ARG_MNEM_OUTFILEOVER "fileoverout"
 
-#define ARG_MEM_ERRDISCARD "nerr"
-#define ARG_MEM_ERRSCREEN "perr"
-#define ARG_MEM_ERRLOG "errtolog"   // TODO remove
-#define ARG_MEM_ERRFILEAPP "fileapperr"
-#define ARG_MEM_ERRFILEOVER "fileovererr"
+#define ARG_MNEM_ERRDISCARD "nerr"
+#define ARG_MNEM_ERRSCREEN "perr"
+#define ARG_MNEM_ERRFILEAPP "fileapperr"
+#define ARG_MNEM_ERRFILEOVER "fileovererr"
 
-#define ARG_MEM_DONTCREATELOG "nlog"    /// TODO remove
-
-#define ARG_MEM_HELP "help"
-#define ARG_MEM_VERSION "version"
+#define ARG_MNEM_HELP "help"
+#define ARG_MNEM_VERSION "version"
 
 /**
  * Parse all the command line arguments and build a structure with the parameters set, even default, but the Sub-commands

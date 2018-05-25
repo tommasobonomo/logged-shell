@@ -10,9 +10,8 @@
 
 #define MODE_DISCARD 0
 #define MODE_SCREEN 1
-#define MODE_LOG 2
-#define MODE_FILEAPP 3
-#define MODE_FILEOVER 4
+#define MODE_FILEAPP 2
+#define MODE_FILEOVER 3
 
 /**
  * Struct where a single sub-command is stored
@@ -45,7 +44,6 @@ typedef struct Command
     char command[MAX_STRING_LENGHT];
     char log_path[MAX_STRING_LENGHT];
 	int log_format;
-    bool create_log_ifNotExist;
 	int output_mode;
     char output_path[MAX_STRING_LENGHT];
 	int error_mode;
