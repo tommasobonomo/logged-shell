@@ -20,9 +20,10 @@
 typedef struct ThreadArgs
 {
     SubCommandResult *subCommandResult;
-    pid_t *eid;
+    pid_t eid;
     OperatorVars *operatorVars;
     int *pipefds;
+    struct timeval *start;
 } ThreadArgs;
 
 int setNullRedirections(struct Command *cmd)
@@ -122,20 +123,20 @@ void finalizeSubCommand(ThreadArgs *args)
 {
     struct rusage childUsage;
     int statusExecuter;
-    struct timeval start, end;
+    struct timeval end;
     double mtime, seconds, useconds;
 
-    DEBUG_PRINT("aspetto %s", args->subCommandResult->subCommand);
-    wait4(*args->eid, &statusExecuter, 0, &childUsage);
-    DEBUG_PRINT("aspetto finito\n");
+    wait4(args->eid, &statusExecuter, 0, &childUsage);
+
+    DEBUG_PRINT("CAZZO\n");
     gettimeofday(&end, NULL);
 
-    seconds = end.tv_sec - start.tv_sec;
-    useconds = end.tv_usec - start.tv_usec;
+    seconds = end.tv_sec - args->start->tv_sec;
+    useconds = end.tv_usec - args->start->tv_usec;
     mtime = seconds + useconds / 1000000;
 
     saveProcessStats(args->subCommandResult, &childUsage);
-    args->subCommandResult->pid = *(args->eid);
+    args->subCommandResult->pid = args->eid;
     args->subCommandResult->totTime = mtime;
     args->subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
 
@@ -143,8 +144,6 @@ void finalizeSubCommand(ThreadArgs *args)
     {
         //TODO log a video subCommandResult->subCommand
     }
-
-    //TODO Salvare subcommand su cmd
 
     //CHIUSURA PIPES APERTE IN PRECEDENZA
     if (args->operatorVars->prevPipe)
@@ -215,7 +214,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
     {
         //Parent
 
-        ThreadArgs args = {subCommandResult, &eid, operatorVars, pipefds};
+        ThreadArgs args = {subCommandResult, eid, operatorVars, pipefds, &start};
         if (operatorVars->nextPipe)
         {
             pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndfinalizeSubCommand, &args);
@@ -223,12 +222,11 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         }
         else
         {
-            DEBUG_PRINT("Aspetto thread %d\n", n_pipes - 1);
-            if (n_pipes > 0)
+            if (operatorVars->prevPipe == true)
             {
-                pthread_join(threads[n_pipes - 1], NULL);
+                DEBUG_PRINT("Aspetto thread %d\n", operatorVars->pipeIndex - 1);
+                pthread_join(threads[operatorVars->pipeIndex], NULL);
             }
-            DEBUG_PRINT("BBB");
             finalizeSubCommand(&args);
         }
 

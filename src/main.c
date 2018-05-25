@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     while (start != NULL && end != NULL)
     {
-        SubCommandResult *tmpSubCmdResult = malloc(sizeof(SubCommandResult));
+        SubCommandResult *tmpSubCmdResult = &cmd->subCommandResults[cmd->n_subCommands];
 
         int length = (end - start + 1) * sizeof(char);
         sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
@@ -209,7 +209,6 @@ int main(int argc, char *argv[])
         }
 
         //PREPARE TO NEXT CYCLE
-        free(tmpSubCmdResult); //Real result are on the pipeResult
         OperatorVarsNext(&operatorVars);
 
         if (start != NULL && end != NULL)
