@@ -1,5 +1,4 @@
 #include "./statHelper.h"
-#include <sys/resource.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -20,19 +19,16 @@
  * https://www.linux.com/news/discover-possibilities-proc-directory
  */
 
-void getChildrenProcessStats(SubCommandResult *subCommandResult)
+void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage)
 {
-    struct rusage usage;
-    getrusage(RUSAGE_CHILDREN, &usage);
-
-    subCommandResult->cputime = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec;
-    subCommandResult->vmressize = usage.ru_maxrss;
-    subCommandResult->softPageFaults = usage.ru_minflt;
-    subCommandResult->hardPageFaults = usage.ru_majflt;
-    subCommandResult->swaps = usage.ru_nswap;
-    subCommandResult->signals = usage.ru_nsignals;
-    subCommandResult->voluntary_ctxt_switches = usage.ru_nvcsw;
-    subCommandResult->nonvoluntary_ctxt_switches = usage.ru_nivcsw;
+    subCommandResult->cputime = usage->ru_stime.tv_sec + usage->ru_stime.tv_usec;
+    subCommandResult->vmressize = usage->ru_maxrss;
+    subCommandResult->softPageFaults = usage->ru_minflt;
+    subCommandResult->hardPageFaults = usage->ru_majflt;
+    subCommandResult->swaps = usage->ru_nswap;
+    subCommandResult->signals = usage->ru_nsignals;
+    subCommandResult->voluntary_ctxt_switches = usage->ru_nvcsw;
+    subCommandResult->nonvoluntary_ctxt_switches = usage->ru_nivcsw;
 }
 
 void printStatsCommand(FILE *fp, Command *cmd)

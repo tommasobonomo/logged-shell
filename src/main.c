@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <pthread.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -20,13 +21,13 @@ pid_t pid_main;
 
 void initOperatorVars(OperatorVars *operatorVars)
 {
-	operatorVars->pipeIndex = 0;
-	operatorVars->prevPipe = false;
-	operatorVars->nextPipe = false;
-	operatorVars->nextAnd = false;
-	operatorVars->nextOr = false;
-	operatorVars->ignoreNextSubCmd = false;
-	operatorVars->ignoreUntil[0] = '\0';
+    operatorVars->pipeIndex = 0;
+    operatorVars->prevPipe = false;
+    operatorVars->nextPipe = false;
+    operatorVars->nextAnd = false;
+    operatorVars->nextOr = false;
+    operatorVars->ignoreNextSubCmd = false;
+    operatorVars->ignoreUntil[0] = '\0';
 
     operatorVars->inRedirect = false;
     operatorVars->outRedirect = false;
@@ -52,17 +53,17 @@ void interrupt_sighandler(int signum)
 {
     switch (signum)
     {
-    case SIGTERM:
-    case SIGQUIT:
-        exitAndNotifyDaemon(EXIT_SUCCESS);
-        break;
-    case SIGINT:
-        fprintf(stderr, "\n(Command not logged)\n");
-        exitAndNotifyDaemon(128 + signum);
-        break;
-    default:
-        DEBUG_PRINT("Signal: %d\n", signum);
-        exitAndNotifyDaemon(128 + signum);
+        case SIGTERM:
+        case SIGQUIT:
+            exitAndNotifyDaemon(EXIT_SUCCESS);
+            break;
+        case SIGINT:
+            fprintf(stderr, "\n(Command not logged)\n");
+            exitAndNotifyDaemon(128 + signum);
+            break;
+        default:
+            DEBUG_PRINT("Signal: %d\n", signum);
+            exitAndNotifyDaemon(128 + signum);
     }
 }
 
@@ -93,9 +94,8 @@ int main(int argc, char *argv[])
         w_pipe(pipefds + i);
     }
 
-    //CREAZIONE PIPE padre-figlio
-    int pipeResult[2];
-    w_pipe(pipeResult);
+    //CREAZIONE THREAD
+    pthread_t *threads = malloc(n_pipes * sizeof(pthread_t));
 
     //ESECUZIONE SUBCOMANDI
     char *p = cmd->command;
@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
     OperatorVars operatorVars;
     initOperatorVars(&operatorVars);
 
-	// Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
-	int null_fd = setNullRedirections(cmd);
+    // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
+    int null_fd = setNullRedirections(cmd);
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
             {
                 lengthOperator = (end - start + 1) * sizeof(char);
                 bool readRedirectOperator = false;
-                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
+                if (strncmp(start, ">", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     readRedirectOperator = true;
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
+                else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
                     readRedirectOperator = true;
@@ -163,36 +163,37 @@ int main(int argc, char *argv[])
         {
             lengthOperator = (end - start + 1) * sizeof(char);
 
-            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
                 //fare niente
             }
         } //else there is no operator
-          //END - READ OPERATOR
+        //END - READ OPERATOR
 
+        //Da qui in poi gli operatori sono stati filtrati quindi sono presenti solo programmi validi da eseguire
         tmpSubCmdResult->ID = cmd->n_subCommands++;
         if (!operatorVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipeResult, pipefds, n_pipes, &operatorVars);
+            executeSubCommand(tmpSubCmdResult, pipefds, n_pipes, threads, &operatorVars);
         }
         else
         {
             tmpSubCmdResult->executed = false;
             cmd->subCommandResults[tmpSubCmdResult->ID] = *tmpSubCmdResult;
-            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t)lengthOperator) != 0)
+            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
             {
                 operatorVars.ignoreNextSubCmd = false;
             }
@@ -218,41 +219,21 @@ int main(int argc, char *argv[])
         }
     }
 
-    // ATTENDO TUTTI I GESTORI
-    pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
-
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)
     {
         close(null_fd);
     }
 
-	//SAVING SUBCOMMANDS-RESULT
-	close(pipeResult[WRITE]);
-	SubCommandResult subCmdResult;
-
-    while (w_read(pipeResult[READ], &subCmdResult, sizeof(SubCommandResult)) != 0)
-    {
-        cmd->subCommandResults[subCmdResult.ID] = subCmdResult;
-    }
-    close(pipeResult[READ]);
-
     //SEND COMMAND-RESULT
     send_msg(msqid, cmd);
 
     // FREEING DYNAMICALLY ALLOCATED MEMORY
     free(pipefds);
-
-    for (i = 0; i < cmd->n_subCommands; i++)
-    {
-        //free(cmd->subCommandResults[i]);
-    }
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
     exitAndNotifyDaemon(EXIT_SUCCESS);
-
     //UNREACHABLE CODE
     return 1;
 }
