@@ -72,7 +72,7 @@ void printStatsCommand(FILE *fp, Command *cmd)
     }
 }
 
-void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)  // TODO rename
+void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)
 {
     fprintf(fp, "#    ========================================================\n");
     fprintf(fp, "#\n");
