@@ -27,6 +27,8 @@ void printHelp()
     printf("  -"ARG_ERRFILEOVER", --"ARG_MEM_ERRFILEOVER"\toverwrites errors file content (requires specifying its path)\n");
     printf("  -"ARG_DONTCREATELOG", --"ARG_MEM_DONTCREATELOG"\t\tdon't create command log\n");
     printf("\n");
+    printf("  -"ARG_HELP", --"ARG_MEM_HELP"\t\t\tshows this help and exits\n");
+    printf("  -"ARG_VERSION", --"ARG_MEM_VERSION"\t\t\tprints the current version of this tool and exits\n");
 
     //TODO documentation resource
 
