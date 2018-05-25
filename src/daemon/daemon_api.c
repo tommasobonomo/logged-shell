@@ -2,6 +2,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <string.h>
 #include "../lib/commands.h"
@@ -12,17 +13,25 @@
 
 int check()
 {
+    if (mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS) == -1)
+    {
+        if (errno != EEXIST)
+        {
+            error_fatal(ERR_SYSCALL, "mkdir failed");
+        }
+    }
+
     key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //scegliere percorso univovo
     DEBUG_PRINT("key: %d\n", key);
 
-    int msqid = msgget(key, PERMS | IPC_CREAT | IPC_EXCL);
+    int msqid = msgget(key, USER_PERMS | IPC_CREAT | IPC_EXCL);
     if (msqid >= 0)
     {
         daemonize(msqid);
     }
     else
     {
-        msqid = msgget(key, PERMS | IPC_CREAT);
+        msqid = msgget(key, USER_PERMS | IPC_CREAT);
         if (msqid < 0)
         {
             error_fatal(ERR_SYSCALL, "msgget failed");

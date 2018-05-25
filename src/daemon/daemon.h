@@ -3,11 +3,11 @@
 
 #include "../lib/commands.h"
 
-#define MSGQUE_PATH "."										// Path per la msg_queue, impostato di default alla directory corrente
-#define MSGQUE_NUM 1										// ID numerico della msg_queue, impostato di default a 1
-#define DEFAULT_LOGPATH_TXT "/tmp/"TOOL_FOLDER"/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
-#define DEFAULT_LOGPATH_CSV "/tmp/"TOOL_FOLDER"/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
-#define DAEMON_ERRORFILE "/tmp/"TOOL_FOLDER"/daemon_errors.log"
+#define MSGQUE_PATH "."										   // Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_NUM 1										   // ID numerico della msg_queue, impostato di default a 1
+#define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define DAEMON_ERRORFILE "/tmp/" TOOL_FOLDER "/daemon_errors.log"
 
 extern int msqid; // ID msg_queue creata ed attiva
 
@@ -24,7 +24,8 @@ void core(int msqid_param);
 #define PROCSZ 0					 // Messaggio proc_msg
 
 // Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
-#define PERMS 0600
+#define USER_PERMS 0600
+#define USER_AND_DAEMON_PERMS 0755
 
 // Tipologie di messaggio
 #define STAT 1		 // Messaggio di statistiche
