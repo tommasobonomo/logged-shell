@@ -225,7 +225,7 @@ Command *parseCommand(int argc, char *argv[])
                 //MNEMONIC ARG:
                 if (strStartWith(&argv[currArgc][2], ARG_MNEM_HELP))
                 {
-                    printHelpAndExit();
+                    printHelpAndExit(EXIT_SUCCESS);
                 }
                 else if (strStartWith(&argv[currArgc][2], ARG_MNEM_LOGPATH))
                 {
@@ -333,11 +333,6 @@ bool isspecial(char c)
 
 void getNextSubCommand(char *str, char **start, char **end)
 {
-    if (str == NULL)
-    {
-        error_fatal(ERR_BAD_ARG_X, "Command to execute not specified");
-    }
-
     bool exit = false;
     bool precSpecial = false;
     *start = NULL;

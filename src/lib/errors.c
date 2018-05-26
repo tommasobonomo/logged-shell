@@ -9,32 +9,34 @@ void error_fatal(int id, char const *msg)
     switch (id)
     {
         case ERR_X:
-            fprintf(stderr, "ERROR: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR: %s\n"COLOR_NORMAL, msg);
             break;
         case ERR_BAD_ARGS:
-            fprintf(stderr, "ERROR: Bad arguments\n");
-            printHelpAndExit();
+            fprintf(stderr, COLOR_RED"ERROR: Bad arguments\n"COLOR_NORMAL);
+            printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_BAD_ARG_X:
-            fprintf(stderr, "ERROR, bad argument: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR, bad argument: %s\n"COLOR_NORMAL, msg);
+            printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_UNKNOWN_ARG_X:
-            fprintf(stderr, "ERROR, unknown argument: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR, unknown argument: %s\n"COLOR_NORMAL, msg);
+            printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_IO_FILE:
-            fprintf(stderr, "ERROR, can't open file: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR, can't open file: %s\n"COLOR_NORMAL, msg);
             perror(" --> ");
             break;
         case ERR_SYSCALL:
-            fprintf(stderr, "ERROR: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR: %s\n"COLOR_NORMAL, msg);
             perror(" --> ");
             break;
         case ERR_EXEC:
-            fprintf(stderr, "ERROR exec failed doing: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR exec failed doing: %s\n"COLOR_NORMAL, msg);
             perror(" --> ");
             break;
         default:
-            fprintf(stderr, "ERROR not specified: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR not specified: %s\n"COLOR_NORMAL, msg);
             break;
     }
 

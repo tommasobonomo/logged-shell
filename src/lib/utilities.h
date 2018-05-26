@@ -24,7 +24,7 @@ typedef enum
 /**
  * Print an help screen to stdout, then exit
  */
-void printHelpAndExit();
+void printHelpAndExit(int status);
 
 /**
  * Print the current version of the tool to stdout, then exit
