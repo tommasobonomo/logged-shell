@@ -48,11 +48,11 @@ void error_warning(int id, char const *msg)
     switch (id)
     {
         case ERR_SYSCALL:
-            fprintf(stderr, "WARNING: %s\n", msg);
+            fprintf(stderr, COLOR_YELLOW"WARNING: %s\n"COLOR_NORMAL, msg);
             perror(" --> ");
             break;
         default:
-            fprintf(stderr, "WARNING not specified: %s\n", msg);
+            fprintf(stderr, COLOR_YELLOW"WARNING not specified: %s\n"COLOR_NORMAL, msg);
             break;
     }
 }

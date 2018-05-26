@@ -9,8 +9,9 @@
 #define ERR_SYSCALL 6
 #define ERR_EXEC 7
 
-#define COLOR_NORMAL  "\x1B[0m"
+#define COLOR_NORMAL "\x1B[0m"
 #define COLOR_RED "\x1B[31m"
+#define COLOR_YELLOW "\x1B[33m"
 
 /**
  * Useful function to print a template error and exit the program<br>
