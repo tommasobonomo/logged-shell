@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <pwd.h>
 #include <fcntl.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
@@ -53,17 +54,17 @@ void interrupt_sighandler(int signum)
 {
     switch (signum)
     {
-    case SIGTERM:
-    case SIGQUIT:
-        exitAndNotifyDaemon(EXIT_SUCCESS);
-        break;
-    case SIGINT:
-        fprintf(stderr, "\n(Command not logged)\n");
-        exitAndNotifyDaemon(128 + signum);
-        break;
-    default:
-        DEBUG_PRINT("Signal: %d\n", signum);
-        exitAndNotifyDaemon(128 + signum);
+        case SIGTERM:
+        case SIGQUIT:
+            exitAndNotifyDaemon(EXIT_SUCCESS);
+            break;
+        case SIGINT:
+            fprintf(stderr, "\n(Command not logged)\n");
+            exitAndNotifyDaemon(128 + signum);
+            break;
+        default:
+            DEBUG_PRINT("Signal: %d\n", signum);
+            exitAndNotifyDaemon(128 + signum);
     }
 }
 
@@ -103,6 +104,13 @@ int main(int argc, char *argv[])
         w_close(fd);
     }
 
+    //USERNAME AND UID
+    struct passwd *pws;
+    pws = getpwuid(geteuid());
+    strcpy(cmd->username, pws->pw_name);
+    cmd->uid = pws->pw_uid;
+
+    //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
     int *pipefds = malloc(n_fds * sizeof(int));

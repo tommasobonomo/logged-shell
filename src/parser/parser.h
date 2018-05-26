@@ -20,12 +20,12 @@
 #define ARG_MNEM_LOGFORMAT "format"
 
 #define ARG_MNEM_OUTDISCARD "nout"
-#define ARG_MNEM_OUTSCREEN "pout"
+#define ARG_MNEM_OUTSCREEN "printout"
 #define ARG_MNEM_OUTFILEAPP "appout"
 #define ARG_MNEM_OUTFILEOVER "overout"
 
 #define ARG_MNEM_ERRDISCARD "nerr"
-#define ARG_MNEM_ERRSCREEN "perr"
+#define ARG_MNEM_ERRSCREEN "printerr"
 #define ARG_MNEM_ERRFILEAPP "apperr"
 #define ARG_MNEM_ERRFILEOVER "overerr"
 #define ARG_MNEM_QUIET "quiet"

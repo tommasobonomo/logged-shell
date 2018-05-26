@@ -19,25 +19,21 @@ void newLine(const char *string)
 void printHelpAndExit(int status)
 {
     printf("Usage: "TOOL_NAME" [OPTION]... \"SCRIPT\"\n");
-    printf("Execute and get useful statistics from SCRIPT, logging them to a file or simply\nto stdout.\n\n");
+    printf("Execute and get useful statistics from SCRIPT, logging them to file.\n\n");
 
-    printf("  -"ARG_OUTFILEAPP", --"ARG_MNEM_OUTFILEAPP"\t\tuse append mode when writing command output to file;");
-    newLine("you also have to specify its path, use -p to do so");
-    printf("  -"ARG_ERRFILEAPP", --"ARG_MNEM_ERRFILEAPP"\t\tuse append mode when writing command errors to file;");
-    newLine("you also have to specify its path, use -p to do so");
-    printf("  -"ARG_ERRSCREEN", --"ARG_MNEM_ERRSCREEN"\t\tprints command errors to screen instead of creating a");
+    printf("  -"ARG_OUTFILEAPP", --"ARG_MNEM_OUTFILEAPP"=FILE\tuse append mode when writing command output to FILE\n");
+    printf("  -"ARG_ERRFILEAPP", --"ARG_MNEM_ERRFILEAPP"=FILE\tcommand errors will be appended to FILE\n");
+    printf("  -"ARG_ERRSCREEN", --"ARG_MNEM_ERRSCREEN"\tprints command errors to screen instead of creating a");
     newLine("log file");
     printf("  -"ARG_LOGFORMAT", --"ARG_MNEM_LOGFORMAT"=FORMAT\tspecifies the FORMAT for the log file, choose from");
     newLine("\"txt\" (default) or \"csv\"");
     printf("      --"ARG_MNEM_ERRDISCARD"\t\tdiscards command errors\n");
     printf("      --"ARG_MNEM_OUTDISCARD"\t\tdiscards command output\n");
-    printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\t\tprints command output to screen instead of creating a");
+    printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\tprints command output to screen instead of creating a");
     newLine("log file");
-    printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILEPATH\tspecifies the full path for the log file with FILEPATH\n");
-    printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"\t\tuse overwrite mode when writing command output to file;");
-    newLine("you also have to specify its path, use -p to do so");
-    printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"\t\tuse overwrite mode when writing command errors to file;");
-    newLine("you also have to specify its path, use -p to do so");
+    printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILE\tspecifies the full path for the log FILE\n");
+    printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"=FILE\tuse overwrite mode when writing command output to FILE\n");
+    printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tcommand errors will be overwritten in FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
     printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n");
 
