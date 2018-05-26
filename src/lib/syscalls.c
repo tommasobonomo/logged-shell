@@ -104,6 +104,16 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     return result;
 }
 
+int w_chdir(char *path)
+{
+    int res = chdir(path);
+    if (res == -1)
+    {
+        error_warning(ERR_SYSCALL, "change of working directory failed");
+    }
+    return res;
+}
+
 ssize_t w_read(int fd, void *buf, size_t count)
 {
     ssize_t result = read(fd, buf, count);

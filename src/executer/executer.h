@@ -17,8 +17,10 @@ typedef struct OperatorVars
 
     bool inRedirect;
     bool outRedirect;
-    char inFile[MAX_STRING_LENGHT];
-    char outFile[MAX_STRING_LENGHT];
+    char inFile[MAX_STRING_LENGTH];
+    char outFile[MAX_STRING_LENGTH];
+
+    char currentDirectory[MAX_STRING_LENGTH-3];
 } OperatorVars;
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,

@@ -31,6 +31,10 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->outRedirect = false;
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
+    if (getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory)) == NULL)
+    {
+        // TODO: gestisci fallimento
+    }
 }
 
 void OperatorVarsNext(OperatorVars *operatorVars)
@@ -201,8 +205,8 @@ int main(int argc, char *argv[])
         {
             operatorVars.inRedirect = false;
             operatorVars.outRedirect = false;
-            memset(operatorVars.inFile, 0, MAX_STRING_LENGHT);
-            memset(operatorVars.outFile, 0, MAX_STRING_LENGHT);
+            memset(operatorVars.inFile, 0, MAX_STRING_LENGTH);
+            memset(operatorVars.outFile, 0, MAX_STRING_LENGTH);
         }
 
         //PREPARE TO NEXT CYCLE
