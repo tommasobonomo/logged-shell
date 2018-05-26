@@ -214,14 +214,14 @@ int main(int argc, char *argv[])
             p = end + 1;
         }
     }
-
-    // ATTENDO TUTTI I FIGLI
-    pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-    {
-        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
-    }
-
+//DO NOT REMOVE THIS CODE - Zanna_37 -
+//     //ATTENDO TUTTI I FIGLI
+//    pid_t pidFigli;
+//    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+//    {
+//        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
+//    }
+//END - DO NOT REMOVE THIS CODE - Zanna_37 -
 
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)

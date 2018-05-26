@@ -128,9 +128,7 @@ void finalizeSubCommand(ThreadArgs *args)
     struct timeval end;
     double mtime, seconds, useconds;
 
-    DEBUG_PRINT("GIANNI %d\n", args->eid);
-    DEBUG_PRINT("WAIT %d\n", wait4(args->eid, &statusExecuter, 0, &childUsage));
-    DEBUG_PRINT("BRUNO\n");
+    wait4(args->eid, &statusExecuter, 0, &childUsage);
 
     gettimeofday(&end, NULL);
 
