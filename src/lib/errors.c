@@ -32,11 +32,11 @@ void error_fatal(int id, char const *msg)
             perror(" --> ");
             break;
         case ERR_EXEC:
-            fprintf(stderr, COLOR_RED"ERROR"COLOR_NORMAL" exec failed doing: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR exec failed doing: %s\n"COLOR_NORMAL, msg);
             perror(" --> ");
             break;
         default:
-            fprintf(stderr, COLOR_RED"ERROR"COLOR_NORMAL" not specified: %s\n", msg);
+            fprintf(stderr, COLOR_RED"ERROR not specified: %s\n"COLOR_NORMAL, msg);
             break;
     }
     exitAndNotifyDaemon(id);
