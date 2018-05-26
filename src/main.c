@@ -11,6 +11,7 @@
 #include "./statistics/statHelper.h"
 #include "./executer/executer.h"
 #include "./daemon/daemon.h"
+#include "./lib/errors.h"
 
 #define NUM_REDIR_CHECKS 2
 
@@ -107,6 +108,11 @@ int main(int argc, char *argv[])
 
     // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
     int null_fd = setNullRedirections(cmd);
+
+    if (cmd->command[0] == '\0')
+    {
+        error_fatal(ERR_BAD_ARG_X, "Command to execute not specified");
+    }
 
     getNextSubCommand(p, &start, &end);
     p = end + 1;

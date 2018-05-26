@@ -16,7 +16,7 @@ void newLine(const char *string)
     printf("\n%*c\t\t  %s\n", 15, ' ', string);
 }
 
-void printHelpAndExit()
+void printHelpAndExit(int status)
 {
     printf("Usage: "TOOL_NAME" [OPTION]... \"SCRIPT\"\n");
     printf("Execute and get useful statistics from SCRIPT, logging them to a file or simply\nto stdout.\n\n");
@@ -44,7 +44,7 @@ void printHelpAndExit()
     //TODO documentation resource
 
 
-    exitAndNotifyDaemon(EXIT_SUCCESS);
+    exitAndNotifyDaemon(status);
 }
 
 void printVersionAndExit()
