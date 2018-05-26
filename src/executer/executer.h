@@ -26,7 +26,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
 
 int countPipes(char *wholeCmd);
 
-int setNullRedirections(struct Command *cmd);
+int manageQuietMode(struct Command *cmd);
 
 void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile);
 

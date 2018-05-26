@@ -24,20 +24,14 @@ typedef struct ThreadArgs
     struct timeval start;
 } ThreadArgs;
 
-int setNullRedirections(struct Command *cmd)
+int manageQuietMode(struct Command *cmd)
 {
     int null_fd = -1;
-    if (cmd->output_mode == MODE_DISCARD || cmd->error_mode == MODE_DISCARD)
+    if (cmd->quiet_mode == QUIET)
     {
         null_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-        if (cmd->output_mode == MODE_DISCARD)
-        {
-            dup2(null_fd, STDOUT_FILENO);
-        }
-        if (cmd->error_mode == MODE_DISCARD)
-        {
-            dup2(null_fd, STDERR_FILENO);
-        }
+        dup2(null_fd, STDOUT_FILENO);
+        dup2(null_fd, STDERR_FILENO);
     }
     return null_fd;
 }
@@ -55,7 +49,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t) length) == 0)
+        if (strncmp(start, "|", (size_t)length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -92,7 +86,7 @@ void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool n
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (n_pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < (n_pipes)*2; i++)
     {
         w_close(pipefds[i]);
     }
@@ -142,7 +136,6 @@ void finalizeSubCommand(ThreadArgs *args)
         //TODO log a video subCommandResult->subCommand
     }
 
-
     if (!args->operatorVars->nextPipe)
     {
         if (args->operatorVars->nextAnd)
@@ -166,7 +159,7 @@ void finalizeSubCommand(ThreadArgs *args)
 
 void *waitExecuterAndfinalizeSubCommand(void *argument)
 {
-    ThreadArgs *threadArgs = (ThreadArgs *) argument;
+    ThreadArgs *threadArgs = (ThreadArgs *)argument;
     finalizeSubCommand(argument);
     if (threadArgs->operatorVars->prevPipe)
     {
