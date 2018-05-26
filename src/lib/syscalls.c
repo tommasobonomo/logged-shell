@@ -89,7 +89,7 @@ int w_execvp(const char *file, char *const argv[])
     int result = execvp(file, argv);
     if (result < 0)
     {
-        error_fatal(ERR_SYSCALL, "exec failed");
+        error_fatal(ERR_EXEC, argv[0]);
     }
     return result;
 }
