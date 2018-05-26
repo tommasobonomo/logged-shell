@@ -15,8 +15,8 @@
 
 void sighandler(int signum)
 {
-    //TODO si potrebbe aggiungere le informazioni di chiusura forzata al file di log
-    exit(128+signum);
+    msgctl(msqid, IPC_RMID, NULL);
+    exit(128 + signum);
 }
 
 void manageDaemonError(char const *error_msg, FILE *error_fd)
