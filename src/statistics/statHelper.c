@@ -8,8 +8,6 @@
 #include "../lib/utilities.h"
 #include "../lib/commands.h"
 
-#define PROC_STAT_VALUES_N 52
-
 /*
  * USEFUL:
  * getrusage
@@ -78,7 +76,7 @@ void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)  // T
         fprintf(fp, "#\n");
         fprintf(fp, "#                        PID:%14d\n", subCommandResult->pid);
         fprintf(fp, "#                exit status:%14d\n", subCommandResult->exitStatus);
-        fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totTime);
+        fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totRealTime);
         fprintf(fp, "#              CPU time used:%14ld μs\n", subCommandResult->cputime);
         fprintf(fp, "#               max ram size:%14ld kB\n", subCommandResult->vmressize);
         fprintf(fp, "#           soft page faults:%14ld\n", subCommandResult->softPageFaults);
@@ -102,7 +100,7 @@ void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subComman
     fprintf(fp, "\"%s\",", subCommandResult->subCommand);
     fprintf(fp, "%d,", subCommandResult->pid);
     fprintf(fp, "%d,", subCommandResult->exitStatus);
-    fprintf(fp, "\"%f s\",", subCommandResult->totTime);
+    fprintf(fp, "\"%f s\",", subCommandResult->totRealTime);
     fprintf(fp, "\"%ld μs\",", subCommandResult->cputime);
     fprintf(fp, "\"%ld kB\",", subCommandResult->vmressize);
     fprintf(fp, "%ld,", subCommandResult->softPageFaults);

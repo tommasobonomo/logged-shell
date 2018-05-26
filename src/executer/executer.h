@@ -14,6 +14,7 @@ typedef struct OperatorVars
     bool nextOr;
     bool ignoreNextSubCmd;
     char ignoreUntil[2 + 1];
+
     bool inRedirect;
     bool outRedirect;
     char inFile[MAX_STRING_LENGHT];

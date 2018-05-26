@@ -19,20 +19,18 @@
  */
 typedef struct SubCommandResult
 {
-    int ID;
     bool executed;
     char subCommand[MAX_STRING_LENGHT];
-    char parameters; //TODO unused
 	// STATS
-    int exitStatus;
 	pid_t pid;
-	double totTime;
+    int exitStatus;
+    double totRealTime;
 	time_t cputime;
 	long vmressize;
-	long swaps;
 	long softPageFaults;
-	long hardPageFaults;
-	long signals;
+    long hardPageFaults;
+    long swaps;
+    long signals;
 	long voluntary_ctxt_switches;
 	long nonvoluntary_ctxt_switches;
 } SubCommandResult;

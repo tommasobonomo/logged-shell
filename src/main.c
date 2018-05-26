@@ -12,8 +12,6 @@
 #include "./executer/executer.h"
 #include "./daemon/daemon.h"
 
-#define READ 0
-#define WRITE 1
 #define NUM_REDIR_CHECKS 2
 
 int msqid;
@@ -183,7 +181,7 @@ int main(int argc, char *argv[])
         //END - READ OPERATOR
 
         //Da qui in poi gli operatori sono stati filtrati quindi sono presenti solo programmi validi da eseguire
-        tmpSubCmdResult->ID = cmd->n_subCommands++;
+        cmd->n_subCommands++;
         if (!operatorVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
@@ -219,7 +217,10 @@ int main(int argc, char *argv[])
 
     // ATTENDO TUTTI I FIGLI
     pid_t pidFigli;
-    while ((pidFigli = waitpid(-1, NULL, 0)) != -1);
+    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+    {
+        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
+    }
 
 
     // Chiudo eventuale ridirezione output

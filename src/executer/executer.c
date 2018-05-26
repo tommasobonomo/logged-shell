@@ -140,7 +140,7 @@ void finalizeSubCommand(ThreadArgs *args)
 
     saveProcessStats(args->subCommandResult, &childUsage);
     args->subCommandResult->pid = args->eid;
-    args->subCommandResult->totTime = mtime;
+    args->subCommandResult->totRealTime = mtime;
     args->subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
 
     if (args->subCommandResult->exitStatus != 0)
@@ -246,6 +246,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
                 pthread_join(threads[operatorVars->pipeIndex - 1], NULL);
             }
             finalizeSubCommand(args);
+            free(args);
         }
 
     }
