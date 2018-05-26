@@ -1,4 +1,5 @@
 #include "./statHelper.h"
+#include <sys/resource.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -19,7 +20,7 @@
 
 void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage)
 {
-    subCommandResult->cputime = usage->ru_stime.tv_sec + usage->ru_stime.tv_usec;
+    subCommandResult->cputime = (usage->ru_stime.tv_sec + usage->ru_stime.tv_usec) / 1000000.0;
     subCommandResult->vmressize = usage->ru_maxrss;
     subCommandResult->softPageFaults = usage->ru_minflt;
     subCommandResult->hardPageFaults = usage->ru_majflt;
@@ -77,7 +78,7 @@ void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)
         fprintf(fp, "#                        PID:%14d\n", subCommandResult->pid);
         fprintf(fp, "#                exit status:%14d\n", subCommandResult->exitStatus);
         fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totRealTime);
-        fprintf(fp, "#              CPU time used:%14ld μs\n", subCommandResult->cputime);
+        fprintf(fp, "#              CPU time used:%14f s\n", subCommandResult->cputime);
         fprintf(fp, "#               max ram size:%14ld kB\n", subCommandResult->vmressize);
         fprintf(fp, "#           soft page faults:%14ld\n", subCommandResult->softPageFaults);
         fprintf(fp, "#           hard page faults:%14ld\n", subCommandResult->hardPageFaults);
@@ -101,7 +102,7 @@ void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subComman
     fprintf(fp, "%d,", subCommandResult->pid);
     fprintf(fp, "%d,", subCommandResult->exitStatus);
     fprintf(fp, "\"%f s\",", subCommandResult->totRealTime);
-    fprintf(fp, "\"%ld μs\",", subCommandResult->cputime);
+    fprintf(fp, "\"%f s\",", subCommandResult->cputime);
     fprintf(fp, "\"%ld kB\",", subCommandResult->vmressize);
     fprintf(fp, "%ld,", subCommandResult->softPageFaults);
     fprintf(fp, "%ld,", subCommandResult->hardPageFaults);

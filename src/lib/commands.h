@@ -24,7 +24,7 @@ typedef struct SubCommandResult
 	pid_t pid;
     int exitStatus;
     double totRealTime;
-	time_t cputime;
+	double cputime;
 	long vmressize;
 	long softPageFaults;
     long hardPageFaults;
