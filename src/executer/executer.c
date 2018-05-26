@@ -124,7 +124,22 @@ void finalizeSubCommand(ThreadArgs *args)
     struct timeval end;
     double mtime, seconds, useconds;
 
-    wait4(args->eid, &statusExecuter, 0, &childUsage);
+	wait4(args->eid, &statusExecuter, 0, &childUsage);
+	if (strncmp(args->subCommandResult->subCommand, "cd ", 3) == 0)
+	{
+		char *currentDir = getcwd(NULL, 0);
+        char *selectedPath = args->subCommandResult->subCommand + 3;
+		DEBUG_PRINT("Working directory:  %s\n", currentDir);
+		DEBUG_PRINT("operatorVars     :  _%s_\n", selectedPath);
+
+		if (strcmp(currentDir, selectedPath) != 0)
+		{
+            statusExecuter = w_chdir(selectedPath); //TODO check if exit status are corrects
+            DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0)); //TODO il free dov'è?
+		}
+		free(currentDir); //TODO is it needed?
+	}
+
 
     gettimeofday(&end, NULL);
 
@@ -166,15 +181,15 @@ void finalizeSubCommand(ThreadArgs *args)
 
 void *waitExecuterAndfinalizeSubCommand(void *argument)
 {
+	finalizeSubCommand(argument);
     ThreadArgs *threadArgs = (ThreadArgs *) argument;
-    finalizeSubCommand(argument);
-    if (threadArgs->operatorVars->prevPipe)
-    {
-        pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
-    }
-    free(threadArgs->operatorVars);
-    free(argument);
-    pthread_exit(NULL);
+	if (threadArgs->operatorVars->prevPipe)
+	{
+		pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
+	}
+	free(threadArgs->operatorVars);
+	free(argument);
+	pthread_exit(NULL);
 }
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
@@ -202,14 +217,22 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         char *args[MAX_ARGUMENTS];
         vectorizeStringArguments(subCommandResult->subCommand, args);
 
-        //EXECUTE SUBCOMMAND
-        w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
-
-        //UNREACHABLE CODE
-    }
-    else
-    {
-        //Parent
+		//EXECUTE SUBCOMMAND
+		if(strcmp(args[0], "cd") == 0) //builtin cd
+		{
+			strcpy(operatorVars->currentDirectory, args[1]);
+            DEBUG_PRINT("Copied path: %s\n", operatorVars->currentDirectory);
+			exit(EXIT_SUCCESS);
+		}
+		else //others
+		{
+			w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
+		}
+		//UNREACHABLE CODE
+	}
+	else
+	{
+		//Parent
 
         //CHIUSURA PIPES APERTE IN PRECEDENZA
         if (operatorVars->prevPipe)
