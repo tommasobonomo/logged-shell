@@ -111,6 +111,42 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     }
 }
 
+void manageFlags(int output_mode, char *output_path, int error_mode, char *error_path)
+{
+    int tmp_fd;
+    switch (output_mode)
+    {
+    case MODE_DISCARD:
+        tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
+        dup2(tmp_fd, STDOUT_FILENO);
+        break;
+    case MODE_FILEAPP:
+        tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
+        dup2(tmp_fd, STDOUT_FILENO);
+        break;
+    case MODE_FILEOVER:
+        tmp_fd = w_open(output_path, O_WRONLY | O_CREAT, USER_PERMS);
+        dup2(tmp_fd, STDOUT_FILENO);
+        break;
+    }
+
+    switch (error_mode)
+    {
+    case MODE_DISCARD:
+        tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
+        dup2(tmp_fd, STDERR_FILENO);
+        break;
+    case MODE_FILEAPP:
+        tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
+        dup2(tmp_fd, STDERR_FILENO);
+        break;
+    case MODE_FILEOVER:
+        tmp_fd = w_open(error_path, O_WRONLY | O_CREAT, USER_PERMS);
+        dup2(tmp_fd, STDERR_FILENO);
+        break;
+    }
+}
+
 void finalizeSubCommand(ThreadArgs *args)
 {
     struct rusage childUsage;
@@ -171,7 +207,7 @@ void *waitExecuterAndfinalizeSubCommand(void *argument)
 }
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
-                       OperatorVars *operatorVars)
+                       OperatorVars *operatorVars, FlagRedirectVars *flagVars)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
@@ -190,6 +226,9 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         //PREPARE REDIRECTIONS IF NEEDED
         manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
                            operatorVars->outFile);
+
+        // MANAGE FLAGS
+        manageFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path);
 
         //PREPARE ARGS
         char *args[MAX_ARGUMENTS];

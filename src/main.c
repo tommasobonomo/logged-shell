@@ -83,6 +83,12 @@ int main(int argc, char *argv[])
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
 
+    FlagRedirectVars flagVars;
+    flagVars.output_mode = cmd->output_mode;
+    strcpy(flagVars.output_path, cmd->output_path);
+    flagVars.error_mode = cmd->error_mode;
+    strcpy(flagVars.error_path, cmd->error_path);
+
     //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
@@ -185,7 +191,7 @@ int main(int argc, char *argv[])
         if (!operatorVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipefds, n_pipes, threads, &operatorVars);
+            executeSubCommand(tmpSubCmdResult, pipefds, n_pipes, threads, &operatorVars, &flagVars);
         }
         else
         {
