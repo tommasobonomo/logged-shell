@@ -164,7 +164,7 @@ void finalizeSubCommand(ThreadArgs *args)
     }
 }
 
-void *waitExecuterAndfinalizeSubCommand(void *argument)
+void *waitExecuterAndFinalizeSubCommand(void *argument)
 {
     ThreadArgs *threadArgs = (ThreadArgs *) argument;
     finalizeSubCommand(argument);
@@ -224,12 +224,16 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         args->eid = eid;
         args->operatorVars = operatorVars;
         args->start = start;
+        args->subCommandResult->pgid = getpgid(eid);
+        args->subCommandResult->sid = getsid(eid);
+
+
 
         if (operatorVars->nextPipe)
         {
             args->operatorVars = malloc(sizeof(OperatorVars));
             *args->operatorVars = *operatorVars;
-            pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndfinalizeSubCommand, args);
+            pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndFinalizeSubCommand, args);
         }
         else
         {

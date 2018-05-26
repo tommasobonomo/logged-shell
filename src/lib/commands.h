@@ -22,6 +22,8 @@ typedef struct SubCommandResult
     char subCommand[MAX_STRING_LENGHT];
 	// STATS
 	pid_t pid;
+	pid_t pgid;
+	pid_t sid;
     int exitStatus;
     double totRealTime;
 	double cputime;
@@ -47,6 +49,8 @@ typedef struct Command
 	int error_mode;
     char error_path[MAX_STRING_LENGHT];
 	int n_subCommands;
+	char username[MAX_STRING_LENGHT];
+	__uid_t uid;
     SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
 

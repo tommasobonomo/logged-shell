@@ -37,6 +37,7 @@ void printStatsCommand(FILE *fp, Command *cmd)
         fprintf(fp, "#\n");
         fprintf(fp, "#      whole command: %s\n", cmd->command);
         fprintf(fp, "#      n° subcommand: %d\n", cmd->n_subCommands);
+        fprintf(fp, "#           username: %s (%d)\n", cmd->username, cmd->uid);
         fprintf(fp, "#\n");
         int i;
         for (i = 0; i < cmd->n_subCommands; i++)
@@ -47,7 +48,7 @@ void printStatsCommand(FILE *fp, Command *cmd)
     }
     else if (cmd->log_format == LOG_FORMAT_CSV)
     {
-        fprintf(fp, "\"Command log time\",\"whole command\",\"n° subcommand\",Subcommand,PID,\"exit status\",\"elapsed time\","
+        fprintf(fp, "\"command log time\",\"whole command\",\"n° subcommand\",username,UID,subcommand,PID,PGRP,SID,\"exit status\",\"elapsed time\","
                     "\"CPU time used\",\"max ram size\",\"soft page faults\",\"hard page faults\",swaps,\"signals received\","
                     "\"vol. context switches\",\"inv. context switches\"\n");
         int i;
@@ -66,9 +67,11 @@ void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult)
     fprintf(fp, "#\n");
     if (subCommandResult->executed)
     {
-        fprintf(fp, "#                 Subcommand: %s\n", subCommandResult->subCommand);
+        fprintf(fp, "#                 subcommand: %s\n", subCommandResult->subCommand);
         fprintf(fp, "#\n");
         fprintf(fp, "#                        PID:%14d\n", subCommandResult->pid);
+        fprintf(fp, "#                       PGRP:%14d\n", subCommandResult->pgid);
+        fprintf(fp, "#                        SID:%14d\n", subCommandResult->sid);
         fprintf(fp, "#                exit status:%14d\n", subCommandResult->exitStatus);
         fprintf(fp, "#               elapsed time:%14f s\n", subCommandResult->totRealTime);
         fprintf(fp, "#              CPU time used:%14f s\n", subCommandResult->cputime);
@@ -91,8 +94,12 @@ void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subComman
 {
     fprintf(fp, "\"%s\",", cmd->command);
     fprintf(fp, "%d,", cmd->n_subCommands);
+    fprintf(fp, "\"%s\",", cmd->username);
+    fprintf(fp, "%d,", cmd->uid);
     fprintf(fp, "\"%s\",", subCommandResult->subCommand);
     fprintf(fp, "%d,", subCommandResult->pid);
+    fprintf(fp, "%d,", subCommandResult->pgid);
+    fprintf(fp, "%d,", subCommandResult->sid);
     fprintf(fp, "%d,", subCommandResult->exitStatus);
     fprintf(fp, "\"%f s\",", subCommandResult->totRealTime);
     fprintf(fp, "\"%f s\",", subCommandResult->cputime);

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <pwd.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -83,6 +84,11 @@ int main(int argc, char *argv[])
     //SANITY CHECKS
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
+
+    struct passwd *pws;
+    pws = getpwuid(geteuid());
+    strcpy(cmd->username, pws->pw_name);
+    cmd->uid = pws->pw_uid;
 
     //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
