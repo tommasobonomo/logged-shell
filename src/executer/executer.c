@@ -92,7 +92,7 @@ void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool n
     }
 }
 
-void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile)
+void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode)
 {
     int tmpFD;
 
@@ -106,7 +106,14 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     // Redirect output if flag is set
     if (outRedirect)
     {
-        tmpFD = w_open(outFile, O_WRONLY | O_CREAT, USER_PERMS);
+        if (outMode == MODE_FILEOVER)
+        {
+            tmpFD = w_open(outFile, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
+        }
+        else
+        {
+            tmpFD = w_open(outFile, O_WRONLY | O_CREAT | O_APPEND, USER_PERMS);
+        }
         dup2(tmpFD, STDOUT_FILENO);
     }
 }
@@ -223,7 +230,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
 
         //PREPARE REDIRECTIONS IF NEEDED
         manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
-                           operatorVars->outFile);
+                           operatorVars->outFile, operatorVars->outMode);
 
         // MANAGE FLAGS
         manageFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path, operatorVars->nextPipe);
