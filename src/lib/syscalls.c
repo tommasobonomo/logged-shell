@@ -1,15 +1,16 @@
-#include "syscalls.h"
-#include "errors.h"
+#include "./syscalls.h"
+#include "./errors.h"
 #include "../daemon/daemon.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/msg.h>
 #include <fcntl.h>
+#include <errno.h>
 
-extern int msqid;
 extern pid_t pid_main;
 
 pid_t w_fork()
@@ -89,7 +90,7 @@ int w_execvp(const char *file, char *const argv[])
     int result = execvp(file, argv);
     if (result < 0)
     {
-        error_fatal(ERR_SYSCALL, "exec failed");
+        error_fatal(ERR_EXEC, argv[0]);
     }
     return result;
 }
@@ -104,13 +105,15 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     return result;
 }
 
-ssize_t w_read(int fd, void *buf, size_t count)
+int w_mkdir(const char *pathname, mode_t mode)
 {
-    ssize_t result = read(fd, buf, count);
-
-    if (result < 0)
+    int result = mkdir(pathname, mode);
+    if (result == -1)
     {
-        error_fatal(ERR_SYSCALL, "read failed");
+        if (errno != EEXIST)
+        {
+            error_fatal(ERR_SYSCALL, "mkdir failed");
+        }
     }
     return result;
 }

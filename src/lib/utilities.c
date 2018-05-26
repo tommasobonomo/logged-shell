@@ -1,8 +1,8 @@
+#include "./utilities.h"
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "utilities.h"
 #include "../parser/parser.h"
 #include "../lib/commands.h"
 #include "../lib/syscalls.h"
@@ -40,9 +40,6 @@ void printHelpAndExit()
     newLine("you also have to specify its path, use -p to do so");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
     printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n");
-
-    //TODO documentation resource
-
 
     exitAndNotifyDaemon(EXIT_SUCCESS);
 }

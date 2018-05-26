@@ -1,9 +1,9 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "./utilities.h"
 #include <unistd.h>
 #include <sys/types.h>
-#include "utilities.h"
 
 #define LOG_FORMAT_TXT 0
 #define LOG_FORMAT_CSV 1
@@ -18,20 +18,18 @@
  */
 typedef struct SubCommandResult
 {
-	int ID;
-	bool executed;
-	char subCommand[MAX_STRING_LENGHT];
-	char parameters; //TODO unused
-					 // STATS
-	int exitStatus;
+    bool executed;
+    char subCommand[MAX_STRING_LENGHT];
+	// STATS
 	pid_t pid;
-	double totTime;
-	time_t cputime;
+    int exitStatus;
+    double totRealTime;
+	double cputime;
 	long vmressize;
-	long swaps;
 	long softPageFaults;
-	long hardPageFaults;
-	long signals;
+    long hardPageFaults;
+    long swaps;
+    long signals;
 	long voluntary_ctxt_switches;
 	long nonvoluntary_ctxt_switches;
 } SubCommandResult;
@@ -51,9 +49,5 @@ typedef struct Command
 	int n_subCommands;
 	SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
-
-void commandCopy(Command *dst, Command *src);
-
-void subCommandCopy(SubCommandResult *dst, SubCommandResult *src);
 
 #endif

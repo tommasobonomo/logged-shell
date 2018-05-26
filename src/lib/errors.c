@@ -29,13 +29,15 @@ void error_fatal(int id, char const *msg)
             fprintf(stderr, "ERROR: %s\n", msg);
             perror(" --> ");
             break;
-        case ERR_CHILD:
-            fprintf(stderr, "ERROR on child doing: %s\n", msg);
+        case ERR_EXEC:
+            fprintf(stderr, "ERROR exec failed doing: %s\n", msg);
+            perror(" --> ");
             break;
         default:
             fprintf(stderr, "ERROR not specified: %s\n", msg);
             break;
     }
+
     exitAndNotifyDaemon(id);
 }
 

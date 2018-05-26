@@ -1,3 +1,4 @@
+#include "./daemon.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -9,17 +10,10 @@
 #include "../lib/utilities.h"
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
-#include "daemon.h"
 
 int check()
 {
-    if (mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS) == -1)
-    {
-        if (errno != EEXIST)
-        {
-            error_fatal(ERR_SYSCALL, "mkdir failed");
-        }
-    }
+    w_mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS);
 
     key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //scegliere percorso univovo
     DEBUG_PRINT("key: %d\n", key);

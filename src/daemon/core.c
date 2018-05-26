@@ -1,3 +1,4 @@
+#include "./daemon.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -9,14 +10,13 @@
 #include "../lib/utilities.h"
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
-#include "daemon.h"
 
 #define APPEND "a"
 
 void sighandler(int signum)
 {
-    //TODO si potrebbe aggiungere le informazioni di chiusura forzata al file di log
-    exit(128+signum);
+    msgctl(msqid, IPC_RMID, NULL);
+    exit(128 + signum);
 }
 
 void manageDaemonError(char const *error_msg, FILE *error_fd)
@@ -45,7 +45,7 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
-    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND);
+    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND); //TODO togliere wrapper (siamo nel demone)
 
     do
     {

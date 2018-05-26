@@ -1,19 +1,28 @@
-#include <signal.h>
+#include "./executer.h"
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/resource.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include "../statistics/statHelper.h"
-#include "../executer/executer.h"
 #include "../lib/syscalls.h"
 #include "../lib/errors.h"
 #include "../parser/parser.h"
 #include "../daemon/daemon.h"
 
-#define READ 0
-#define WRITE 1
 #define NULLFILE "/dev/null"
+
+typedef struct ThreadArgs
+{
+    int ID;
+    pthread_t *threads;
+    SubCommandResult *subCommandResult;
+    pid_t eid;
+    OperatorVars *operatorVars;
+    struct timeval start;
+} ThreadArgs;
 
 int setNullRedirections(struct Command *cmd)
 {
@@ -46,7 +55,7 @@ int countPipes(char *wholeCmd)
     while (start != NULL && end != NULL)
     {
         int length = (end - start) * sizeof(*start) + 1;
-        if (strncmp(start, "|", (size_t)length) == 0)
+        if (strncmp(start, "|", (size_t) length) == 0)
             pipes++;
 
         getNextSubCommand(wholeCmd, &start, &end);
@@ -83,7 +92,7 @@ void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool n
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (n_pipes)*2; i++)
+    for (i = pipeIndex * 2; i < (n_pipes) * 2; i++)
     {
         w_close(pipefds[i]);
     }
@@ -108,110 +117,129 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     }
 }
 
-//TODO gestore as a thread
-void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
+void finalizeSubCommand(ThreadArgs *args)
+{
+    struct rusage childUsage;
+    int statusExecuter;
+    struct timeval end;
+    double mtime, seconds, useconds;
+
+    wait4(args->eid, &statusExecuter, 0, &childUsage);
+
+    gettimeofday(&end, NULL);
+
+    seconds = end.tv_sec - args->start.tv_sec;
+    useconds = end.tv_usec - args->start.tv_usec;
+    mtime = seconds + useconds / 1000000;
+
+    saveProcessStats(args->subCommandResult, &childUsage);
+    args->subCommandResult->pid = args->eid;
+    args->subCommandResult->totRealTime = mtime;
+    args->subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
+
+    if (args->subCommandResult->exitStatus != 0)
+    {
+        //TODO log a video subCommandResult->subCommand
+    }
+
+
+    if (!args->operatorVars->nextPipe)
+    {
+        if (args->operatorVars->nextAnd)
+        {
+            if (args->subCommandResult->exitStatus != 0)
+            {
+                args->operatorVars->ignoreNextSubCmd = true;
+                strcpy(args->operatorVars->ignoreUntil, "&&");
+            }
+        }
+        else if (args->operatorVars->nextOr)
+        {
+            if (args->subCommandResult->exitStatus == 0)
+            {
+                args->operatorVars->ignoreNextSubCmd = true;
+                strcpy(args->operatorVars->ignoreUntil, "||");
+            }
+        }
+    }
+}
+
+void *waitExecuterAndfinalizeSubCommand(void *argument)
+{
+    ThreadArgs *threadArgs = (ThreadArgs *) argument;
+    finalizeSubCommand(argument);
+    if (threadArgs->operatorVars->prevPipe)
+    {
+        pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
+    }
+    free(threadArgs->operatorVars);
+    free(argument);
+    pthread_exit(NULL);
+}
+
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
                        OperatorVars *operatorVars)
 {
     DEBUG_PRINT("EXECUTING \"%s\"\n", subCommandResult->subCommand);
 
-    struct timeval start, end;
-    double mtime, seconds, useconds;
+    struct timeval start;
 
-    pid_t fidGestore = w_fork();
-    if (fidGestore == 0)
+    gettimeofday(&start, NULL);
+
+    pid_t eid = w_fork();
+    if (eid == 0)
     {
-        gettimeofday(&start, NULL);
+        // Executer process
 
-        pid_t eid = w_fork();
-        if (eid == 0)
-        {
-            // Executer process
+        //PREPARE PIPES IF NEEDED
+        managePipes(pipefds, n_pipes, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
 
-            //PREPARE PIPES IF NEEDED
-            managePipes(pipefds, n_pipes, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
+        //PREPARE REDIRECTIONS IF NEEDED
+        manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
+                           operatorVars->outFile);
 
-            //PREPARE REDIRECTIONS IF NEEDED
-            manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
-                               operatorVars->outFile);
+        //PREPARE ARGS
+        char *args[MAX_ARGUMENTS];
+        vectorizeStringArguments(subCommandResult->subCommand, args);
 
-            //PREPARE ARGS
-            char *args[MAX_ARGUMENTS];
-            vectorizeStringArguments(subCommandResult->subCommand, args);
+        //EXECUTE SUBCOMMAND
+        w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
 
-            //EXECUTE SUBCOMMAND
-            w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
-
-            //UNREACHABLE CODE
-        }
-        else
-        {
-            // Gestore process
-            int statusExecuter;
-            waitpid(eid, &statusExecuter, 0);
-
-            gettimeofday(&end, NULL);
-
-            seconds = end.tv_sec - start.tv_sec;
-            useconds = end.tv_usec - start.tv_usec;
-            mtime = seconds + useconds / 1000000;
-
-            getChildrenProcessStats(subCommandResult);
-            subCommandResult->pid = eid;
-            subCommandResult->totTime = mtime;
-            subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
-
-            //SEND RES TO PARENT
-            close(pipeResult[READ]);
-            write(pipeResult[WRITE], subCommandResult, sizeof(SubCommandResult));
-            close(pipeResult[WRITE]);
-        }
-        //END GESTORE
-    }
-
-    //CHIUSURA PIPES APERTE IN PRECEDENZA
-    if (operatorVars->prevPipe)
-        w_close(pipefds[(operatorVars->pipeIndex - 1) * 2]);
-    if (operatorVars->nextPipe)
-        w_close(pipefds[operatorVars->pipeIndex * 2 + 1]);
-
-    if (fidGestore == 0)
-    {
-        //Gestore
-        if (subCommandResult->exitStatus != 0)
-        {
-            error_fatal(ERR_CHILD, subCommandResult->subCommand);
-        }
-        else
-        {
-            exitAndNotifyDaemon(EXIT_SUCCESS);
-        }
+        //UNREACHABLE CODE
     }
     else
     {
         //Parent
-        if (operatorVars->nextAnd || operatorVars->nextOr)
-        {
-            int statusGestore;
-            int returnGestore;
-            waitpid(fidGestore, &statusGestore, 0);
 
-            returnGestore = WEXITSTATUS(statusGestore);
-            if (operatorVars->nextAnd)
+        //CHIUSURA PIPES APERTE IN PRECEDENZA
+        if (operatorVars->prevPipe)
+            w_close(pipefds[(operatorVars->pipeIndex - 1) * 2]);
+        if (operatorVars->nextPipe)
+            w_close(pipefds[operatorVars->pipeIndex * 2 + 1]);
+
+        ThreadArgs *args = malloc(sizeof(ThreadArgs));
+        args->ID = operatorVars->pipeIndex;
+        args->threads = threads;
+        args->subCommandResult = subCommandResult;
+        args->eid = eid;
+        args->operatorVars = operatorVars;
+        args->start = start;
+
+        if (operatorVars->nextPipe)
+        {
+            args->operatorVars = malloc(sizeof(OperatorVars));
+            *args->operatorVars = *operatorVars;
+            pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndfinalizeSubCommand, args);
+        }
+        else
+        {
+            if (operatorVars->prevPipe)
             {
-                if (returnGestore != 0)
-                {
-                    operatorVars->ignoreNextSubCmd = true;
-                    strcpy(operatorVars->ignoreUntil, "&&");
-                }
+                DEBUG_PRINT("Aspetto thread %d\n", operatorVars->pipeIndex - 1);
+                pthread_join(threads[operatorVars->pipeIndex - 1], NULL);
             }
-            else if (operatorVars->nextOr)
-            {
-                if (returnGestore == 0)
-                {
-                    operatorVars->ignoreNextSubCmd = true;
-                    strcpy(operatorVars->ignoreUntil, "||");
-                }
-            }
+            finalizeSubCommand(args);
+            free(args);
         }
     }
 }
