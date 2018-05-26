@@ -121,11 +121,8 @@ void manageFlags(int output_mode, char *output_path, int error_mode, char *error
         dup2(tmp_fd, STDOUT_FILENO);
         break;
     case MODE_FILEAPP:
-        tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-        dup2(tmp_fd, STDOUT_FILENO);
-        break;
     case MODE_FILEOVER:
-        tmp_fd = w_open(output_path, O_WRONLY | O_CREAT, USER_PERMS);
+        tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
         dup2(tmp_fd, STDOUT_FILENO);
         break;
     }
@@ -137,11 +134,8 @@ void manageFlags(int output_mode, char *output_path, int error_mode, char *error
         dup2(tmp_fd, STDERR_FILENO);
         break;
     case MODE_FILEAPP:
-        tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-        dup2(tmp_fd, STDERR_FILENO);
-        break;
     case MODE_FILEOVER:
-        tmp_fd = w_open(error_path, O_WRONLY | O_CREAT, USER_PERMS);
+        tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
         dup2(tmp_fd, STDERR_FILENO);
         break;
     }

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <fcntl.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -89,7 +90,17 @@ int main(int argc, char *argv[])
     flagVars.error_mode = cmd->error_mode;
     strcpy(flagVars.error_path, cmd->error_path);
 
-    //CREAZIONE PIPES |
+    if (flagVars.output_mode == MODE_FILEOVER)
+    {
+        int fd = w_open(flagVars.output_path, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
+        w_close(fd);
+    }
+    if (flagVars.error_mode == MODE_FILEOVER)
+    {
+        int fd = w_open(flagVars.error_path, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
+        w_close(fd);
+    }
+
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
     int *pipefds = malloc(n_fds * sizeof(int));
