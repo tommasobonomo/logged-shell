@@ -111,20 +111,24 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     }
 }
 
-void manageFlags(int output_mode, char *output_path, int error_mode, char *error_path)
+void manageFlags(int output_mode, char *output_path, int error_mode, char *error_path, bool nextPipe)
 {
     int tmp_fd;
-    switch (output_mode)
+    // Do not want to redirect output if already redirected for pipes
+    if (!nextPipe)
     {
-    case MODE_DISCARD:
-        tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-        dup2(tmp_fd, STDOUT_FILENO);
-        break;
-    case MODE_FILEAPP:
-    case MODE_FILEOVER:
-        tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-        dup2(tmp_fd, STDOUT_FILENO);
-        break;
+        switch (output_mode)
+        {
+        case MODE_DISCARD:
+            tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
+            dup2(tmp_fd, STDOUT_FILENO);
+            break;
+        case MODE_FILEAPP:
+        case MODE_FILEOVER:
+            tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
+            dup2(tmp_fd, STDOUT_FILENO);
+            break;
+        }
     }
 
     switch (error_mode)
@@ -222,7 +226,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
                            operatorVars->outFile);
 
         // MANAGE FLAGS
-        manageFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path);
+        manageFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path, operatorVars->nextPipe);
 
         //PREPARE ARGS
         char *args[MAX_ARGUMENTS];
