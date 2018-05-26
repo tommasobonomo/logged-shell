@@ -26,6 +26,8 @@ int w_execvp(const char *file, char *const argv[]);
 
 int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 
+int w_mkdir(const char *pathname, mode_t mode);
+
 void exitAndNotifyDaemon(int status);
 
 #endif

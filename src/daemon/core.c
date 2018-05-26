@@ -45,7 +45,7 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
-    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND);
+    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND); //TODO togliere wrapper (siamo nel demone)
 
     do
     {

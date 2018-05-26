@@ -67,6 +67,7 @@ void interrupt_sighandler(int signum)
 int main(int argc, char *argv[])
 {
     pid_main = getpid();
+    //TODO vedi il valore di ritorno
     msqid = check(); //Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
 
     int i;

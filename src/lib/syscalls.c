@@ -3,11 +3,13 @@
 #include "../daemon/daemon.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/msg.h>
 #include <fcntl.h>
+#include <errno.h>
 
 extern pid_t pid_main;
 
@@ -99,6 +101,19 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     if (result < 0)
     {
         error_fatal(ERR_SYSCALL, "msgsnd failed");
+    }
+    return result;
+}
+
+int w_mkdir(const char *pathname, mode_t mode)
+{
+    int result = mkdir(pathname, mode);
+    if (result == -1)
+    {
+        if (errno != EEXIST)
+        {
+            error_fatal(ERR_SYSCALL, "mkdir failed");
+        }
     }
     return result;
 }
