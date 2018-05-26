@@ -27,6 +27,7 @@ typedef struct OperatorVars
     bool outRedirect;
     char inFile[MAX_STRING_LENGHT];
     char outFile[MAX_STRING_LENGHT];
+    int outMode;
 } OperatorVars;
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
@@ -36,6 +37,6 @@ int countPipes(char *wholeCmd);
 
 int manageQuietMode(struct Command *cmd);
 
-void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile);
+void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode);
 
 #endif

@@ -32,6 +32,7 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->outRedirect = false;
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
+    operatorVars->outMode = MODE_FILEOVER;
 }
 
 void OperatorVarsNext(OperatorVars *operatorVars)
@@ -155,6 +156,17 @@ int main(int argc, char *argv[])
                 if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
+                    operatorVars.outMode = MODE_FILEOVER;
+                    readRedirectOperator = true;
+                    getNextSubCommand(p, &start, &end);
+                    p = end + 1;
+                    int lengthFile = (end - start + 1) * sizeof(char);
+                    sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
+                }
+                else if (strncmp(start, ">>", (size_t)lengthOperator) == 0)
+                {
+                    operatorVars.outRedirect = true;
+                    operatorVars.outMode = MODE_FILEAPP;
                     readRedirectOperator = true;
                     getNextSubCommand(p, &start, &end);
                     p = end + 1;
