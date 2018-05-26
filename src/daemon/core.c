@@ -26,6 +26,12 @@ void manageDaemonError(char const *error_msg, FILE *error_fd)
     exitAndNotifyDaemon(EXIT_FAILURE);
 }
 
+void manageDaemonErrorFile()
+{
+    msgctl(msqid, IPC_RMID, NULL);
+    exitAndNotifyDaemon(EXIT_FAILURE);
+}
+
 void core(int msqid_param)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
@@ -45,7 +51,11 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
-    FILE *error_fd = w_fopen(DAEMON_ERRORFILE, APPEND); //TODO togliere wrapper (siamo nel demone)
+    FILE *error_fd = fopen(DAEMON_ERRORFILE, APPEND);
+    if (error_fd == NULL)
+    {
+        manageDaemonErrorFile();
+    }
 
     do
     {
