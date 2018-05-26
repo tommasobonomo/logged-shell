@@ -49,7 +49,10 @@ void OperatorVarsNext(OperatorVars *operatorVars)
     operatorVars->nextOr = false;
 }
 
-// Handler di segnali per mandare un segnale di chiusura al demone comunque
+/**
+ * Signal handler to notify daemon unexpected closure
+ * @param signum Signal number
+ */
 void interrupt_sighandler(int signum)
 {
     switch (signum)
@@ -71,8 +74,8 @@ void interrupt_sighandler(int signum)
 int main(int argc, char *argv[])
 {
     pid_main = getpid();
-    //TODO vedi il valore di ritorno
-    msqid = check(); //Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
+    //TODO check del valore di ritorno
+    msqid = check();
 
     int i;
     for (i = 1; i <= 64; i++)
@@ -83,21 +86,20 @@ int main(int argc, char *argv[])
         }
     }
 
-    //SANITY CHECKS
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
 
     //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
-    int *pipefds = malloc(n_fds * sizeof(int));
+    int *pipefds = malloc(n_fds * sizeof(int)); //FREED IN end of main
     for (i = 0; i < n_fds; i += 2)
     {
         w_pipe(pipefds + i);
     }
 
     //CREAZIONE THREAD
-    pthread_t *threads = malloc(n_pipes * sizeof(pthread_t));
+    pthread_t *threads = malloc(n_pipes * sizeof(pthread_t)); //FREED IN end of main
 
     //ESECUZIONE SUBCOMANDI
     char *p = cmd->command;
@@ -179,7 +181,7 @@ int main(int argc, char *argv[])
             }
             else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
-                //fare niente
+                //nothing to do
             }
         } //else there is no operator
         //END - READ OPERATOR

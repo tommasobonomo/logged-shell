@@ -26,7 +26,12 @@ typedef struct OperatorVars
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
                        OperatorVars *operatorVars);
 
-int countPipes(char *wholeCmd);
+/**
+ * Count the number od the pipes "|" to expect in the whole command
+ * @param ptWholeCmd Pointer to the string containing the whole command (es. "ls -a | wc")
+ * @return The numer of the pipes in the whole command
+ */
+int countPipes(char *ptWholeCmd);
 
 int setNullRedirections(struct Command *cmd);
 

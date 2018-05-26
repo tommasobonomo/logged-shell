@@ -6,6 +6,7 @@
 #include "../parser/parser.h"
 #include "../lib/commands.h"
 #include "../lib/syscalls.h"
+#include "../lib/errors.h"
 
 /**
  * Little helper for printHelpAndExit to print a string to a new line
@@ -63,17 +64,6 @@ bool strStartWith(const char *str, const char *prefix)
 
 void sanityCheck()
 {
-    if (PIPE_BUF < sizeof(SubCommandResult))
-    {
-        fprintf(stderr, "FATAL ERROR!!!\n");
-        fprintf(stderr, "PIPE_BUF max size: %d\n", PIPE_BUF);
-        fprintf(stderr, "Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
-        exitAndNotifyDaemon(EXIT_FAILURE);
-    }
-    DEBUG_PRINT("\n");
-    DEBUG_PRINT("PIPE_BUF max size: %d\n", PIPE_BUF);
-    DEBUG_PRINT("Struct SubCommandResult size: %d\n", (int) sizeof(SubCommandResult));
-
     FILE *msgmaxFd = w_fopen("/proc/sys/kernel/msgmax", "r");
     unsigned int msgmax;
     fscanf(msgmaxFd, "%d", &msgmax);

@@ -42,29 +42,34 @@ int setNullRedirections(struct Command *cmd)
     return null_fd;
 }
 
-int countPipes(char *wholeCmd)
+int countPipes(char *ptWholeCmd)
 {
     char *start = NULL;
     char *end = NULL;
 
     int pipes = 0;
 
-    //SCANSIONE PER PIPE
-    getNextSubCommand(wholeCmd, &start, &end);
-    wholeCmd = end + 1;
+    //SCAN FOR PIPE
+    getNextSubCommand(ptWholeCmd, &start, &end);
+    ptWholeCmd = end + 1;
     while (start != NULL && end != NULL)
     {
-        int length = (end - start) * sizeof(*start) + 1;
+        int length = (end - start + 1) * sizeof(char);
         if (strncmp(start, "|", (size_t) length) == 0)
             pipes++;
 
-        getNextSubCommand(wholeCmd, &start, &end);
-        wholeCmd = end + 1;
+        getNextSubCommand(ptWholeCmd, &start, &end);
+        ptWholeCmd = end + 1;
     }
 
     return pipes;
 }
 
+/**
+ * Fill an array with a tokenized version of a string containing a program and its parameters
+ * @param argsString String of a program and its parameters
+ * @param argsVect Array to fill
+ */
 void vectorizeStringArguments(char argsString[], char *argsVect[])
 {
     int npar = 0;
@@ -80,21 +85,55 @@ void vectorizeStringArguments(char argsString[], char *argsVect[])
     argsVect[npar] = NULL;
 }
 
-void managePipes(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool nextPipe)
+/**
+ * Handy function responsabile for opening pipes, when necessary, and connect processes to the right sides of it<br>
+ * This function will also close unused pipes
+ * @param pipefds Array of pipe file descriptors
+ * @param n_pipes Number of pipes in <b>pipefds</b><br>
+ *                This number is half of the elements in <b>pipefds</b>: 1 pipe --> pipefds[2]
+ * @param pipeIndex Number of pipes ("|") already managed
+ * @param prevPipe Whether the previous operator was a pipe
+ * @param nextPipe Whether the next operator is a pipe
+ */
+void openAndManagePipesIfNeeded(int *pipefds, int n_pipes, int pipeIndex, bool prevPipe, bool nextPipe)
 {
     if (prevPipe == true)
     {
+        //Open read side
         w_dup2(pipefds[(pipeIndex - 1) * 2], STDIN_FILENO);
     }
     if (nextPipe == true)
     {
+        //Open write side
         w_dup2(pipefds[pipeIndex * 2 + 1], STDOUT_FILENO);
     }
 
     int i;
-    for (i = pipeIndex * 2; i < (n_pipes) * 2; i++)
+    for (i = pipeIndex * 2; i < n_pipes * 2; i++)
     {
+        //Close unused next pipe sides
         w_close(pipefds[i]);
+    }
+}
+
+/**
+ * Handy function responsabile for close previous opened pipes, if any
+ * @param pipefds Array of pipe file descriptors
+ * @param pipeIndex Number of pipes ("|") already managed
+ * @param prevPipe Whether the previous operator was a pipe
+ * @param nextPipe Whether the next operator is a pipe
+ */
+void closeOpenedPipes(int *pipefds, int pipeIndex, bool prevPipe, bool nextPipe)
+{
+    if (prevPipe)
+    {
+        //Close read side
+        w_close(pipefds[(pipeIndex - 1) * 2]);
+    }
+    if (nextPipe)
+    {
+        //Close write side
+        w_close(pipefds[pipeIndex * 2 + 1]);
     }
 }
 
@@ -117,6 +156,10 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     }
 }
 
+/**
+ * Wait for previous command to finish, save statistics and prepare environment for the next command to come
+ * @param args Internal variables
+ */
 void finalizeSubCommand(ThreadArgs *args)
 {
     struct rusage childUsage;
@@ -124,21 +167,20 @@ void finalizeSubCommand(ThreadArgs *args)
     struct timeval end;
     double mtime, seconds, useconds;
 
-	wait4(args->eid, &statusExecuter, 0, &childUsage);
-	if (strncmp(args->subCommandResult->subCommand, "cd ", 3) == 0)
-	{
-		char *currentDir = getcwd(NULL, 0);
+    wait4(args->eid, &statusExecuter, 0, &childUsage);
+    if (strncmp(args->subCommandResult->subCommand, "cd ", 3) == 0)
+    {
+        char *currentDir = getcwd(NULL, 0);
         char *selectedPath = args->subCommandResult->subCommand + 3;
-		DEBUG_PRINT("Working directory:  %s\n", currentDir);
-		DEBUG_PRINT("operatorVars     :  _%s_\n", selectedPath);
+        DEBUG_PRINT("Working directory:  %s\n", currentDir);
+        DEBUG_PRINT("operatorVars     :  _%s_\n", selectedPath);
 
-		if (strcmp(currentDir, selectedPath) != 0)
-		{
+        if (strcmp(currentDir, selectedPath) != 0)
+        {
             statusExecuter = w_chdir(selectedPath); //TODO check if exit status are corrects
-            DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0)); //TODO il free dov'è?
-		}
-		free(currentDir); //TODO is it needed?
-	}
+            DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0));
+        }
+    }
 
 
     gettimeofday(&end, NULL);
@@ -151,12 +193,6 @@ void finalizeSubCommand(ThreadArgs *args)
     args->subCommandResult->pid = args->eid;
     args->subCommandResult->totRealTime = mtime;
     args->subCommandResult->exitStatus = WEXITSTATUS(statusExecuter);
-
-    if (args->subCommandResult->exitStatus != 0)
-    {
-        //TODO log a video subCommandResult->subCommand
-    }
-
 
     if (!args->operatorVars->nextPipe)
     {
@@ -179,17 +215,23 @@ void finalizeSubCommand(ThreadArgs *args)
     }
 }
 
-void *waitExecuterAndfinalizeSubCommand(void *argument)
+/**
+ * A version of <b>finalizeSubCommand(...)</b> made for threads<br>
+ * This function provide the business logic to manage the thread that finalized a subCommand within a pipe
+ * @param args Internal variables (<b>ThreadArgs</b>)
+ * @return void
+ */
+void *finalizePipedSubCommand(void *args)
 {
-	finalizeSubCommand(argument);
-    ThreadArgs *threadArgs = (ThreadArgs *) argument;
-	if (threadArgs->operatorVars->prevPipe)
-	{
-		pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
-	}
-	free(threadArgs->operatorVars);
-	free(argument);
-	pthread_exit(NULL);
+    finalizeSubCommand(args);
+    ThreadArgs *threadArgs = (ThreadArgs *) args;
+    if (threadArgs->operatorVars->prevPipe)
+    {
+        pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
+    }
+    free(threadArgs->operatorVars);
+    free(args);
+    pthread_exit(NULL);
 }
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
@@ -207,7 +249,8 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         // Executer process
 
         //PREPARE PIPES IF NEEDED
-        managePipes(pipefds, n_pipes, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
+        openAndManagePipesIfNeeded(pipefds, n_pipes, operatorVars->pipeIndex, operatorVars->prevPipe,
+                                   operatorVars->nextPipe);
 
         //PREPARE REDIRECTIONS IF NEEDED
         manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
@@ -217,30 +260,27 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         char *args[MAX_ARGUMENTS];
         vectorizeStringArguments(subCommandResult->subCommand, args);
 
-		//EXECUTE SUBCOMMAND
-		if(strcmp(args[0], "cd") == 0) //builtin cd
-		{
-			strcpy(operatorVars->currentDirectory, args[1]);
+        //EXECUTE SUBCOMMAND
+        if (strcmp(args[0], "cd") == 0) //builtin cd
+        {
+            strcpy(operatorVars->currentDirectory, args[1]);
             DEBUG_PRINT("Copied path: %s\n", operatorVars->currentDirectory);
-			exit(EXIT_SUCCESS);
-		}
-		else //others
-		{
-			w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
-		}
-		//UNREACHABLE CODE
-	}
-	else
-	{
-		//Parent
+            exit(EXIT_SUCCESS);
+        }
+        else //others
+        {
+            w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
+        }
+        //UNREACHABLE CODE
+    }
+    else
+    {
+        //Parent
 
-        //CHIUSURA PIPES APERTE IN PRECEDENZA
-        if (operatorVars->prevPipe)
-            w_close(pipefds[(operatorVars->pipeIndex - 1) * 2]);
-        if (operatorVars->nextPipe)
-            w_close(pipefds[operatorVars->pipeIndex * 2 + 1]);
+        closeOpenedPipes(pipefds, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
 
-        ThreadArgs *args = malloc(sizeof(ThreadArgs));
+        ThreadArgs *args =
+                malloc(sizeof(ThreadArgs)); //FREED IN finalizePipedSubCommand(...) (by thread) OR at the and of this scope (by parent)
         args->ID = operatorVars->pipeIndex;
         args->threads = threads;
         args->subCommandResult = subCommandResult;
@@ -250,9 +290,9 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
 
         if (operatorVars->nextPipe)
         {
-            args->operatorVars = malloc(sizeof(OperatorVars));
+            args->operatorVars = malloc(sizeof(OperatorVars)); //FREED IN finalizePipedSubCommand(...)
             *args->operatorVars = *operatorVars;
-            pthread_create(&threads[operatorVars->pipeIndex], NULL, waitExecuterAndfinalizeSubCommand, args);
+            pthread_create(&threads[operatorVars->pipeIndex], NULL, finalizePipedSubCommand, args);
         }
         else
         {

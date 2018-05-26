@@ -15,7 +15,7 @@ int check()
 {
     w_mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS);
 
-    key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //scegliere percorso univovo
+    key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //choose unique path
     DEBUG_PRINT("key: %d\n", key);
 
     int msqid = msgget(key, USER_PERMS | IPC_CREAT | IPC_EXCL);
@@ -54,6 +54,7 @@ void send_msg(int msqid, Command *cmd)
 
 void send_close(int msqid)
 {
+    //TODO: Implementare un timeout per evitare demoni infiniti?
     proc_msg close;
     close.type = PROC_CLOSE;
     w_msgsnd(msqid, &close, PROCSZ, 0);

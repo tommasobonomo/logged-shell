@@ -149,7 +149,7 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
 
 Command *parseCommand(int argc, char *argv[])
 {
-    Command *result = malloc(sizeof(Command));
+    Command *result = malloc(sizeof(Command)); //FREED IN end of main
     addDefault(result);
     DEBUG_PRINT("Command allocato, default added\n\n");
 
