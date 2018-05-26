@@ -30,6 +30,4 @@ int setNullRedirections(struct Command *cmd);
 
 void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile);
 
-void resetRedirections(bool inRedirect, bool outRedirect, int *inFD, int *outFD);
-
 #endif

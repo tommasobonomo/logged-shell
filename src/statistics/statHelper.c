@@ -3,19 +3,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <time.h>
 #include "../lib/errors.h"
 #include "../lib/utilities.h"
 #include "../lib/commands.h"
 
-/*
- * USEFUL:
- * getrusage
- * /usr/bin/time -v "programName"
- * man proc
- * https://www.softprayog.in/tutorials/linux-process-execution-time
- * https://www.linux.com/news/discover-possibilities-proc-directory
- */
 
 void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage)
 {

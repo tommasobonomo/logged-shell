@@ -8,12 +8,12 @@
 #include <stdio.h>
 #include "../lib/commands.h"
 
-void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage);
-
 void printStatsCommand(FILE *fp, Command *cmd);
 
 void printStatsSubCommandTxt(FILE *fp, SubCommandResult *subCommandResult);
 
 void printStatsSubCommandCsv(FILE *fp, Command *cmd, SubCommandResult *subCommandResult);
+
+void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage);
 
 #endif

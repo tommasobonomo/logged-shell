@@ -1,9 +1,9 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include "./utilities.h"
 #include <unistd.h>
 #include <sys/types.h>
-#include "utilities.h"
 
 #define LOG_FORMAT_TXT 0
 #define LOG_FORMAT_CSV 1
@@ -49,9 +49,5 @@ typedef struct Command
 	int n_subCommands;
     SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
-
-void commandCopy(Command *dst, Command *src);
-
-void subCommandCopy(SubCommandResult *dst, SubCommandResult *src);
 
 #endif

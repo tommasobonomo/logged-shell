@@ -37,6 +37,7 @@ void error_fatal(int id, char const *msg)
             fprintf(stderr, "ERROR not specified: %s\n", msg);
             break;
     }
+
     exitAndNotifyDaemon(id);
 }
 

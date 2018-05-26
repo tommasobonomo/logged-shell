@@ -8,7 +8,6 @@
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
-#include "./statistics/statHelper.h"
 #include "./executer/executer.h"
 #include "./daemon/daemon.h"
 

@@ -1,4 +1,4 @@
-#include <signal.h>
+#include "./executer.h"
 #include <string.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -7,14 +7,11 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include "../statistics/statHelper.h"
-#include "../executer/executer.h"
 #include "../lib/syscalls.h"
 #include "../lib/errors.h"
 #include "../parser/parser.h"
 #include "../daemon/daemon.h"
 
-#define READ 0
-#define WRITE 1
 #define NULLFILE "/dev/null"
 
 typedef struct ThreadArgs
@@ -24,7 +21,6 @@ typedef struct ThreadArgs
     SubCommandResult *subCommandResult;
     pid_t eid;
     OperatorVars *operatorVars;
-    int *pipefds;
     struct timeval start;
 } ThreadArgs;
 
@@ -227,7 +223,6 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         args->subCommandResult = subCommandResult;
         args->eid = eid;
         args->operatorVars = operatorVars;
-        args->pipefds = pipefds;
         args->start = start;
 
         if (operatorVars->nextPipe)

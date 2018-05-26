@@ -1,3 +1,4 @@
+#include "./daemon.h"
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -9,7 +10,6 @@
 #include "../lib/utilities.h"
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
-#include "daemon.h"
 
 int check()
 {
