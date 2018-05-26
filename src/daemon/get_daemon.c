@@ -1,3 +1,4 @@
+#include "./daemon.h"
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
@@ -5,7 +6,6 @@
 #include <sys/stat.h>
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
-#include "daemon.h"
 
 void daemonize(int msqid)
 {

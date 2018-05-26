@@ -22,8 +22,7 @@ OBJ = 	$(BIN)/main.o \
 		$(BIN)/statHelper.o \
 		$(BIN)/daemon_api.o \
 		$(BIN)/core.o \
-		$(BIN)/get_daemon.o \
-		$(BIN)/commands.o
+		$(BIN)/get_daemon.o
 
 
 .PHONY = build debug checkDebug clean
@@ -62,9 +61,6 @@ $(BIN):
 # object files
 $(BIN)/main.o: $(SRC)/main.c
 	gcc -c $(SRC)/main.c -o $(BIN)/main.o $(FLAGS)
-
-$(BIN)/commands.o: $(LIBRARY)/commands.c $(LIBRARY)/commands.h
-	gcc -c $(LIBRARY)/commands.c -o $(BIN)/commands.o $(FLAGS)
 
 $(BIN)/parser.o: $(PARSER)/parser.c $(PARSER)/parser.h
 	gcc -c $(PARSER)/parser.c -o $(BIN)/parser.o $(FLAGS)

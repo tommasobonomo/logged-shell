@@ -1,9 +1,9 @@
+#include "./parser.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "../lib/errors.h"
 #include "../daemon/daemon.h"
-#include "parser.h"
 
 /**
  * Add all the default parameters
