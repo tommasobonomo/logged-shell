@@ -220,6 +220,11 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("errormode: %d\n", result->error_mode);
                     DEBUG_PRINT("errorpath: %s\n", result->error_path);
                 }
+                else if (strStartWith(&argv[currArgc][1], ARG_QUIET))
+                {
+                    setQuietMode(result, QUIET);
+                    DEBUG_PRINT("quiet mode: %d", QUIET);
+                }
                 else
                 {
                     error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);

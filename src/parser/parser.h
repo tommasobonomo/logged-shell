@@ -14,6 +14,7 @@
 #define ARG_ERRSCREEN "e"
 #define ARG_ERRFILEAPP "A"
 #define ARG_ERRFILEOVER "X"
+#define ARG_QUIET "q"
 
 // MNEMONIC ARGUMENTS
 #define ARG_MNEM_LOGPATH "path"

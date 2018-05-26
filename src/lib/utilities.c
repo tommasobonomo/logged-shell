@@ -33,6 +33,8 @@ void printHelpAndExit(int status)
     printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\tprints command output to screen instead of creating a");
     newLine("log file");
     printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILE\tspecifies the full path for the log FILE\n");
+    printf("  -"ARG_QUIET", --"ARG_MNEM_QUIET"\t\tdo-not-bother-me mode, neither output nor errors will");
+    newLine("be displayed");
     printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"=FILE\tuse overwrite mode when writing command output to FILE\n");
     printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tcommand errors will be overwritten in FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
