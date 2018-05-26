@@ -5,6 +5,14 @@
 #include <sys/types.h>
 #include <string.h>
 
+typedef struct FlagRedirectVars
+{
+    int output_mode;
+    char output_path[MAX_STRING_LENGHT];
+    int error_mode;
+    char error_path[MAX_STRING_LENGHT];
+} FlagRedirectVars;
+
 typedef struct OperatorVars
 {
     int pipeIndex;
@@ -22,11 +30,11 @@ typedef struct OperatorVars
 } OperatorVars;
 
 void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
-                       OperatorVars *operatorVars);
+                       OperatorVars *operatorVars, FlagRedirectVars *flagVars);
 
 int countPipes(char *wholeCmd);
 
-int setNullRedirections(struct Command *cmd);
+int manageQuietMode(struct Command *cmd);
 
 void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile);
 

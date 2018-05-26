@@ -19,6 +19,7 @@ void addDefault(Command *cmd)
     cmd->output_path[0] = '\0';
     cmd->error_mode = MODE_SCREEN;
     cmd->error_path[0] = '\0';
+    cmd->quiet_mode = NOT_QUIET;
     cmd->n_subCommands = 0;
 }
 
@@ -97,6 +98,10 @@ void setErrorPath(Command *cmd, char *path)
     }
 }
 
+void setQuietMode(Command *cmd, int mode)
+{
+    cmd->quiet_mode = mode;
+}
 
 /**
  * Move <b>argc</b> to the next parameter if possible
@@ -291,6 +296,11 @@ Command *parseCommand(int argc, char *argv[])
                     DEBUG_PRINT("error_mode: %d\n", result->error_mode);
                     DEBUG_PRINT("error_path: %s\n", result->error_path);
                 }
+                else if (strStartWith(&argv[currArgc][2], ARG_MNEM_QUIET))
+                {
+                    setQuietMode(result, QUIET);
+                    DEBUG_PRINT("quiet mode: %d", QUIET);
+                }
                 else if (strStartWith(&argv[currArgc][2], ARG_MNEM_VERSION))
                 {
                     printVersionAndExit();
@@ -320,14 +330,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-        case '|':
-        case ';':
-        case '<':
-        case '>':
-        case '&':
-            return true;
-        default:
-            return false;
+    case '|':
+    case ';':
+    case '<':
+    case '>':
+    case '&':
+        return true;
+    default:
+        return false;
     }
 }
 

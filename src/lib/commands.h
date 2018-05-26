@@ -13,23 +13,26 @@
 #define MODE_FILEAPP 2
 #define MODE_FILEOVER 3
 
+#define NOT_QUIET 0
+#define QUIET 1
+
 /**
  * Struct where a single sub-command is stored
  */
 typedef struct SubCommandResult
 {
-    bool executed;
-    char subCommand[MAX_STRING_LENGHT];
+	bool executed;
+	char subCommand[MAX_STRING_LENGHT];
 	// STATS
 	pid_t pid;
-    int exitStatus;
-    double totRealTime;
+	int exitStatus;
+	double totRealTime;
 	double cputime;
 	long vmressize;
 	long softPageFaults;
-    long hardPageFaults;
-    long swaps;
-    long signals;
+	long hardPageFaults;
+	long swaps;
+	long signals;
 	long voluntary_ctxt_switches;
 	long nonvoluntary_ctxt_switches;
 } SubCommandResult;
@@ -39,15 +42,16 @@ typedef struct SubCommandResult
  */
 typedef struct Command
 {
-    char command[MAX_STRING_LENGHT];
-    char log_path[MAX_STRING_LENGHT];
+	char command[MAX_STRING_LENGHT];
+	char log_path[MAX_STRING_LENGHT];
 	int log_format;
 	int output_mode;
-    char output_path[MAX_STRING_LENGHT];
+	char output_path[MAX_STRING_LENGHT];
 	int error_mode;
-    char error_path[MAX_STRING_LENGHT];
+	char error_path[MAX_STRING_LENGHT];
 	int n_subCommands;
-    SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
+	int quiet_mode;
+	SubCommandResult subCommandResults[MAX_SUBCOMMANDS];
 } Command;
 
 #endif

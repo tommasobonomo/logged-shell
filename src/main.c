@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <fcntl.h>
 #include "./lib/syscalls.h"
 #include "./lib/commands.h"
 #include "./parser/parser.h"
@@ -51,17 +52,17 @@ void interrupt_sighandler(int signum)
 {
     switch (signum)
     {
-        case SIGTERM:
-        case SIGQUIT:
-            exitAndNotifyDaemon(EXIT_SUCCESS);
-            break;
-        case SIGINT:
-            fprintf(stderr, "\n(Command not logged)\n");
-            exitAndNotifyDaemon(128 + signum);
-            break;
-        default:
-            DEBUG_PRINT("Signal: %d\n", signum);
-            exitAndNotifyDaemon(128 + signum);
+    case SIGTERM:
+    case SIGQUIT:
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    case SIGINT:
+        fprintf(stderr, "\n(Command not logged)\n");
+        exitAndNotifyDaemon(128 + signum);
+        break;
+    default:
+        DEBUG_PRINT("Signal: %d\n", signum);
+        exitAndNotifyDaemon(128 + signum);
     }
 }
 
@@ -84,7 +85,23 @@ int main(int argc, char *argv[])
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
 
-    //CREAZIONE PIPES |
+    FlagRedirectVars flagVars;
+    flagVars.output_mode = cmd->output_mode;
+    strcpy(flagVars.output_path, cmd->output_path);
+    flagVars.error_mode = cmd->error_mode;
+    strcpy(flagVars.error_path, cmd->error_path);
+
+    if (flagVars.output_mode == MODE_FILEOVER)
+    {
+        int fd = w_open(flagVars.output_path, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
+        w_close(fd);
+    }
+    if (flagVars.error_mode == MODE_FILEOVER)
+    {
+        int fd = w_open(flagVars.error_path, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
+        w_close(fd);
+    }
+
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
     int *pipefds = malloc(n_fds * sizeof(int));
@@ -107,7 +124,7 @@ int main(int argc, char *argv[])
     initOperatorVars(&operatorVars);
 
     // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
-    int null_fd = setNullRedirections(cmd);
+    int null_fd = manageQuietMode(cmd);
 
     if (cmd->command[0] == '\0')
     {
@@ -129,13 +146,13 @@ int main(int argc, char *argv[])
         p = end + 1;
 
         // Controllo NUM_REDIR_CHECKS volte se l'operatore è < o >, altrimenti leggo operatore
-        for (i = 0; i < NUM_REDIR_CHECKS; i++) //TODO perchè NUM_REDIR_CHECKS = 2?
+        for (i = 0; i < NUM_REDIR_CHECKS; i++)
         {
             if (start != NULL && end != NULL)
             {
                 lengthOperator = (end - start + 1) * sizeof(char);
                 bool readRedirectOperator = false;
-                if (strncmp(start, ">", (size_t) lengthOperator) == 0)
+                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     readRedirectOperator = true;
@@ -144,7 +161,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
+                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
                     readRedirectOperator = true;
@@ -167,19 +184,19 @@ int main(int argc, char *argv[])
         {
             lengthOperator = (end - start + 1) * sizeof(char);
 
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
             {
                 //fare niente
             }
@@ -191,12 +208,12 @@ int main(int argc, char *argv[])
         if (!operatorVars.ignoreNextSubCmd)
         {
             tmpSubCmdResult->executed = true;
-            executeSubCommand(tmpSubCmdResult, pipefds, n_pipes, threads, &operatorVars);
+            executeSubCommand(tmpSubCmdResult, pipefds, n_pipes, threads, &operatorVars, &flagVars);
         }
         else
         {
             tmpSubCmdResult->executed = false;
-            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
+            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t)lengthOperator) != 0)
             {
                 operatorVars.ignoreNextSubCmd = false;
             }
@@ -220,14 +237,14 @@ int main(int argc, char *argv[])
             p = end + 1;
         }
     }
-//DO NOT REMOVE THIS CODE - Zanna_37 -
-//     //ATTENDO TUTTI I FIGLI
-//    pid_t pidFigli;
-//    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-//    {
-//        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
-//    }
-//END - DO NOT REMOVE THIS CODE - Zanna_37 -
+    //DO NOT REMOVE THIS CODE - Zanna_37 -
+    //     //ATTENDO TUTTI I FIGLI
+    //    pid_t pidFigli;
+    //    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
+    //    {
+    //        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
+    //    }
+    //END - DO NOT REMOVE THIS CODE - Zanna_37 -
 
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)
