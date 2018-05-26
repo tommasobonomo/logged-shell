@@ -3,10 +3,12 @@
 
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <stdio.h>
 #include "../lib/commands.h"
 
-void getChildrenProcessStats(SubCommandResult *subCommandResult);
+void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage);
 
 void printStatsCommand(FILE *fp, Command *cmd);
 

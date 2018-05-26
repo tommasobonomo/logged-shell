@@ -11,6 +11,7 @@
  */
 void addDefault(Command *cmd)
 {
+    memset(cmd, -1, sizeof(Command));
     cmd->command[0] = '\0';
     strcpy(cmd->log_path, DEFAULT_LOGPATH_TXT);
     cmd->log_format = LOG_FORMAT_TXT;
@@ -319,14 +320,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-    case '|':
-    case ';':
-    case '<':
-    case '>':
-    case '&':
-        return true;
-    default:
-        return false;
+        case '|':
+        case ';':
+        case '<':
+        case '>':
+        case '&':
+            return true;
+        default:
+            return false;
     }
 }
 

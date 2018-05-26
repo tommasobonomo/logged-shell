@@ -14,13 +14,14 @@ typedef struct OperatorVars
     bool nextOr;
     bool ignoreNextSubCmd;
     char ignoreUntil[2 + 1];
+
     bool inRedirect;
     bool outRedirect;
     char inFile[MAX_STRING_LENGHT];
     char outFile[MAX_STRING_LENGHT];
 } OperatorVars;
 
-void executeSubCommand(SubCommandResult *subCommandResult, int *pipeResult, int *pipefds, int n_pipes,
+void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_pipes, pthread_t *threads,
                        OperatorVars *operatorVars);
 
 int countPipes(char *wholeCmd);

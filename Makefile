@@ -10,7 +10,7 @@ EXECUTER = $(SRC)/executer
 STATISTICS = $(SRC)/statistics
 DAEMON = $(SRC)/daemon
 
-FLAGS = -std=gnu90
+FLAGS = -std=gnu90 -lpthread
 
 # list of object files, needs to be kept updated
 OBJ = 	$(BIN)/main.o \
