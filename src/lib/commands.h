@@ -22,7 +22,7 @@
 typedef struct SubCommandResult
 {
     bool executed;
-    char subCommand[MAX_STRING_LENGHT];
+    char subCommand[MAX_STRING_LENGTH];
 	// STATS
     pid_t pid;
     pid_t pgid;
@@ -44,15 +44,15 @@ typedef struct SubCommandResult
  */
 typedef struct Command
 {
-    char command[MAX_STRING_LENGHT];
-    char log_path[MAX_STRING_LENGHT];
+    char command[MAX_STRING_LENGTH];
+    char log_path[MAX_STRING_LENGTH];
 	int log_format;
 	int output_mode;
-    char output_path[MAX_STRING_LENGHT];
+    char output_path[MAX_STRING_LENGTH];
 	int error_mode;
-    char error_path[MAX_STRING_LENGHT];
+    char error_path[MAX_STRING_LENGTH];
 	int n_subCommands;
-	char username[MAX_STRING_LENGHT];
+	char username[MAX_STRING_LENGTH];
 	__uid_t uid;
 	int quiet_mode;
 	SubCommandResult subCommandResults[MAX_SUBCOMMANDS];

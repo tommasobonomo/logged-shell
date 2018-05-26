@@ -34,6 +34,11 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
     operatorVars->outMode = MODE_FILEOVER;
+
+    if (getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory)) == NULL)
+    {
+        // TODO: gestisci fallimento
+    }
 }
 
 void OperatorVarsNext(OperatorVars *operatorVars)
@@ -49,7 +54,10 @@ void OperatorVarsNext(OperatorVars *operatorVars)
     operatorVars->nextOr = false;
 }
 
-// Handler di segnali per mandare un segnale di chiusura al demone comunque
+/**
+ * Signal handler to notify daemon unexpected closure
+ * @param signum Signal number
+ */
 void interrupt_sighandler(int signum)
 {
     switch (signum)
@@ -71,8 +79,8 @@ void interrupt_sighandler(int signum)
 int main(int argc, char *argv[])
 {
     pid_main = getpid();
-    //TODO vedi il valore di ritorno
-    msqid = check(); //Comunicazione iniziale con demone, va fatta all'inizio dell'esecuzione
+    //TODO check del valore di ritorno
+    msqid = check();
 
     int i;
     for (i = 1; i <= 64; i++)
@@ -83,7 +91,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    //SANITY CHECKS
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
 
@@ -113,14 +120,14 @@ int main(int argc, char *argv[])
     //CREAZIONE PIPES |
     int n_pipes = countPipes(cmd->command);
     int n_fds = 2 * n_pipes;
-    int *pipefds = malloc(n_fds * sizeof(int));
+    int *pipefds = malloc(n_fds * sizeof(int)); //FREED IN end of main
     for (i = 0; i < n_fds; i += 2)
     {
         w_pipe(pipefds + i);
     }
 
     //CREAZIONE THREAD
-    pthread_t *threads = malloc(n_pipes * sizeof(pthread_t));
+    pthread_t *threads = malloc(n_pipes * sizeof(pthread_t)); //FREED IN end of main
 
     //ESECUZIONE SUBCOMANDI
     char *p = cmd->command;
@@ -161,7 +168,7 @@ int main(int argc, char *argv[])
             {
                 lengthOperator = (end - start + 1) * sizeof(char);
                 bool readRedirectOperator = false;
-                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
+                if (strncmp(start, ">", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEOVER;
@@ -181,7 +188,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
+                else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
                     readRedirectOperator = true;
@@ -204,21 +211,21 @@ int main(int argc, char *argv[])
         {
             lengthOperator = (end - start + 1) * sizeof(char);
 
-            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
             {
-                //fare niente
+                //nothing to do
             }
         } //else there is no operator
         //END - READ OPERATOR
@@ -233,7 +240,7 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t)lengthOperator) != 0)
+            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
             {
                 operatorVars.ignoreNextSubCmd = false;
             }
@@ -244,8 +251,8 @@ int main(int argc, char *argv[])
         {
             operatorVars.inRedirect = false;
             operatorVars.outRedirect = false;
-            memset(operatorVars.inFile, 0, MAX_STRING_LENGHT);
-            memset(operatorVars.outFile, 0, MAX_STRING_LENGHT);
+            memset(operatorVars.inFile, 0, MAX_STRING_LENGTH);
+            memset(operatorVars.outFile, 0, MAX_STRING_LENGTH);
         }
 
         //PREPARE TO NEXT CYCLE

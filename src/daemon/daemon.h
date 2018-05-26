@@ -46,33 +46,29 @@ typedef struct proc_msg
 
 // API
 /**
- * Controlla se è presente una coda di messaggi, se si restituisce il suo
- * identificativo (sapendo che il demone è in esevuzione), altrimenti
- * crea una nuova coda di messaggi e inizializza il demone.
- * Comunica al demone che vi è una nuova istanza del tool in esecuzione.
- * @return l'identificativo della coda di messaggi, nuova o già presente.
- */
+* Create daemon if needed and establish a connection with it<br>
+* Should be done at the beginning of execution
+* @return Message queue ID, new or yet present
+*/
 int check();
 
 /**
- * Manda la struttura SubCommandResult come messaggio alla coda di messaggi
- * letta dal demone.
- * @param msqid l'identificativo della coda di messaggi
- * @param subres il puntatore alla struttura del sottocomando
+ * Send a message to the daemon
+ * @param msqid Message queue ID toward which send
+ * @param cmd Pointer to the <b>Command</b> to send
  */
 void send_msg(int msqid, Command *cmd);
 
 /**
- * Manda un messaggio proc_msg di tipo PROC_CLOSE per segnalare la chiusura di un processo. Da mandare sempre, anche in caso di terminazione forzata!
- * TODO: Implementare un timeout per evitare demoni infiniti?
- * @param msqid la msg_queue di riferimento per il processo e il demone
+ * Notify the daemon that current process has finish<br>
+ * <b>This message should always be sent, even when fatal errors occured in current process</b>
+ * @param msqid Message queue ID toward which send
  */
 void send_close(int msqid);
 
 /**
- * Crea un demone continuando l'esecuzione fuori dalla funzione del processo padre (doppio fork).
- * Praticamente, se un processo chiama questa funzione, verra' creato un demone e il processo continuera' la sua esecuzione
- * @param msqid ID della coda di messaggi utilizzata dal demone nella funzione core
+ * Create a fully working daemon without ruin current execution
+ * @param msqid Message queue ID to use to communicate with
  */
 void daemonize(int msqid);
 
