@@ -4,12 +4,12 @@
 #include "../lib/commands.h"
 
 #define MSGQUE_PATH "."										   // Path per la msg_queue, impostato di default alla directory corrente
-#define MSGQUE_NUM 1										   // ID numerico della msg_queue, impostato di default a 1
+#define MSGQUE_NUM 37										   // ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DAEMON_ERRORFILE "/tmp/" TOOL_FOLDER "/daemon_errors.log"
 
-extern int msqid; // ID msg_queue creata ed attiva
+int msqid; // ID msg_queue creata ed attiva
 
 // Core.c
 /**
@@ -50,7 +50,7 @@ typedef struct proc_msg
 * Should be done at the beginning of execution
 * @return Message queue ID, new or yet present
 */
-int check();
+int createOrGetDaemon();
 
 /**
  * Send a message to the daemon

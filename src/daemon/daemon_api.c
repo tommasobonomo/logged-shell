@@ -11,7 +11,7 @@
 #include "../lib/errors.h"
 #include "../lib/syscalls.h"
 
-int check()
+int createOrGetDaemon()
 {
     w_mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS);
 

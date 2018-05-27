@@ -100,7 +100,10 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     int result = msgsnd(msqid, msgp, msgsz, msgflg);
     if (result < 0)
     {
-        error_fatal(ERR_SYSCALL, "msgsnd failed");
+        if (((proc_msg *) msgp)->type == PROC_CLOSE)
+            error_warning(ERR_SYSCALL, "msg queue seems yet closed");
+        else
+            error_fatal(ERR_SYSCALL, "msgsnd failed");
     }
     return result;
 }
@@ -130,7 +133,7 @@ int w_mkdir(const char *pathname, mode_t mode)
 
 void exitAndNotifyDaemon(int status)
 {
-    if (pid_main == getpid() && getppid() != 1)
+    if (pid_main == getpid())
     {
         send_close(msqid);
     }

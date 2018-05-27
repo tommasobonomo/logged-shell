@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <signal.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <fcntl.h>
@@ -67,8 +68,12 @@ void interrupt_sighandler(int signum)
             exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         case SIGINT:
-            fprintf(stderr, "\n(Command not logged)\n");
-            exitAndNotifyDaemon(128 + signum);
+            error_fatal(ERR_X, "Command not logged");
+            break;
+        case SIGUSR1:
+            exitAndNotifyDaemon(EXIT_SUCCESS);
+        case SIGUSR2:
+            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_ERRORFILE"\"");
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
@@ -80,7 +85,7 @@ int main(int argc, char *argv[])
 {
     pid_main = getpid();
     //TODO check del valore di ritorno
-    msqid = check();
+    msqid = createOrGetDaemon();
 
     int i;
     for (i = 1; i <= 64; i++)
@@ -142,11 +147,6 @@ int main(int argc, char *argv[])
     // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
     int null_fd = manageQuietMode(cmd);
 
-    if (cmd->command[0] == '\0')
-    {
-        error_fatal(ERR_BAD_ARG_X, "Command to execute not specified");
-    }
-
     getNextSubCommand(p, &start, &end);
     p = end + 1;
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, ">>", (size_t)lengthOperator) == 0)
+                else if (strncmp(start, ">>", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEAPP;
@@ -288,7 +288,20 @@ int main(int argc, char *argv[])
     free(cmd);
     // END FREEING DYNAMICALLY ALLOCATED MEMORY
 
-    exitAndNotifyDaemon(EXIT_SUCCESS);
+    //SUSPEND WAITING FOR DAEMON ACK
+    sigset_t mask, oldmask;
+    //Set up the mask of signals to temporarily block
+    sigemptyset(&mask);
+    sigaddset(&mask, SIGUSR1);
+
+    //Wait for a signal to arrive
+    sigprocmask(SIG_BLOCK, &mask, &oldmask);
+    while (true)
+    {
+        sigsuspend(&oldmask);
+    }
+    sigprocmask(SIG_UNBLOCK, &mask, NULL);
+
     //UNREACHABLE CODE
     return 1;
 }

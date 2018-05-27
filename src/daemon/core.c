@@ -7,11 +7,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 #include "../lib/utilities.h"
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
 
 #define APPEND "a"
+
+extern pid_t pid_main; //TODO STRONZATA ENORME
 
 void sighandler(int signum)
 {
@@ -19,17 +22,27 @@ void sighandler(int signum)
     exit(128 + signum);
 }
 
-void manageDaemonError(char const *error_msg, FILE *error_fd)
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd)
 {
-    fprintf(error_fd, "ERROR: %s --> %s\n", error_msg, strerror(errno));
+    time_t now = time(NULL);
+    struct tm nowFormatted = *localtime(&now);
+    fprintf(error_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+                      "  ERROR: %s %s --> %s\n",
+            nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
+            nowFormatted.tm_min, nowFormatted.tm_sec,
+            error_msg, secondary_msg, strerror(errno));
+    fclose(error_fd);
+
+    kill(pid_main, SIGUSR2);
+
     msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_FAILURE);
+    exit(37); //TODO cambia
 }
 
 void manageDaemonErrorFile()
 {
     msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_FAILURE);
+    exit(37); //TODO cambia
 }
 
 void core(int msqid_param)
@@ -67,7 +80,7 @@ void core(int msqid_param)
             result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             if (result < 0)
             {
-                manageDaemonError("msgrcv failed", error_fd);
+                manageDaemonError("msgrcv statistic failed", NULL, error_fd);
             }
 
             FILE *fp;
@@ -75,7 +88,7 @@ void core(int msqid_param)
             if (fp == NULL)
             {
                 // Fallita creazione file
-                manageDaemonError("failed to create logfile", error_fd);
+                manageDaemonError("failed to create logfile", s_msg.cmd.log_path, error_fd);
             }
 
             Command cmd;
@@ -84,12 +97,13 @@ void core(int msqid_param)
 
             fclose(fp);
             errno = 0;
+            kill(pid_main, SIGUSR1);
         }
         else
         {
             if (result < 0)
             {
-                manageDaemonError("msgrcv failed", error_fd);
+                manageDaemonError("msgrcv signal failed", NULL, error_fd);
             }
 
             if (p_msg.type == PROC_INIT)

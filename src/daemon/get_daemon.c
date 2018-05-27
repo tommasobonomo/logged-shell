@@ -31,7 +31,7 @@ void daemonize(int msqid)
 		// Termino il padre
 		if (cid > 0)
 		{
-            exitAndNotifyDaemon(EXIT_SUCCESS);
+            exit(EXIT_SUCCESS);
 		}
 
 		// Chiudo tutti i fd
