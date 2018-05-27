@@ -159,6 +159,6 @@ void w_realpath(char *path, char *log_path)
     realpath(path, log_path);
     if (errno != 0)
     {
-        error_fatal(ERR_BAD_ARG_X, "log path does not exist", EXIT_FAILURE);
+        error_fatal(ERR_SYSCALL, "path error", EXIT_FAILURE);
     }
 }
