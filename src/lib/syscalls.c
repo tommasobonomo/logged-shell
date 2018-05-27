@@ -176,3 +176,12 @@ pid_t w_wait4(pid_t pid, int *wstatus, int options,
     }
     return result;
 }
+
+char *w_getcwd(char *buf, size_t size)
+{
+    char *res = getcwd(buf, size);
+    if (res == NULL)
+    {
+        error_fatal(ERR_SYSCALL, "getcwd failed");
+    }
+}

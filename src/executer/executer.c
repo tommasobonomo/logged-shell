@@ -205,7 +205,7 @@ void finalizeSubCommand(ThreadArgs *args)
     wait4(args->eid, &statusExecuter, 0, &childUsage);
     if (strncmp(args->subCommandResult->subCommand, "cd ", 3) == 0)
     {
-        char *currentDir = getcwd(NULL, 0);
+        char *currentDir = w_getcwd(NULL, 0);
         char *selectedPath = args->subCommandResult->subCommand + 3;
         DEBUG_PRINT("Working directory:  %s\n", currentDir);
         DEBUG_PRINT("operatorVars     :  _%s_\n", selectedPath);
@@ -217,7 +217,7 @@ void finalizeSubCommand(ThreadArgs *args)
             {
                 error_warning(ERR_SYSCALL, "changing directory failed");
             }
-            DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0));
+            DEBUG_PRINT("Nuovo path: %s\n", w_getcwd(NULL, 0));
         }
     }
 

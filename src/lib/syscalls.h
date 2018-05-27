@@ -2,6 +2,7 @@
 #define SYSCALLS_H
 
 #include <sys/types.h>
+#include <sys/resource.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -35,5 +36,10 @@ int w_mkdir(const char *pathname, mode_t mode);
 void exitAndNotifyDaemon(int status);
 
 void w_realpath(char *path, char *log_path);
+
+pid_t w_wait4(pid_t pid, int *wstatus, int options,
+              struct rusage *rusage);
+
+char *w_getcwd(char *buf, size_t size);
 
 #endif

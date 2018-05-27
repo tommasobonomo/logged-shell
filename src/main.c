@@ -35,10 +35,7 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
 
-    if (getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory)) == NULL)
-    {
-        // TODO: gestisci fallimento
-    }
+    w_getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory));
 }
 
 void OperatorVarsNext(OperatorVars *operatorVars)
@@ -62,23 +59,23 @@ void interrupt_sighandler(int signum)
 {
     switch (signum)
     {
-        case SIGTERM:
-        case SIGQUIT:
-            exitAndNotifyDaemon(EXIT_SUCCESS);
-            break;
-        case SIGINT:
-            error_fatal(ERR_X, "Command not logged!");
-            break;
-        case SIGUSR1:
-            printf(COLOR_GREEN"Logging success!\n"COLOR_RESET);
-            exitAndNotifyDaemon(EXIT_SUCCESS);
-            break;
-        case SIGUSR2:
-            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_INTERNAL_LOGFILE"\"");
-            break;
-        default:
-            DEBUG_PRINT("Signal: %d\n", signum);
-            exitAndNotifyDaemon(128 + signum);
+    case SIGTERM:
+    case SIGQUIT:
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    case SIGINT:
+        error_fatal(ERR_X, "Command not logged!");
+        break;
+    case SIGUSR1:
+        printf(COLOR_GREEN "Logging success!\n" COLOR_RESET);
+        exitAndNotifyDaemon(EXIT_SUCCESS);
+        break;
+    case SIGUSR2:
+        error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \"" DAEMON_INTERNAL_LOGFILE "\"");
+        break;
+    default:
+        DEBUG_PRINT("Signal: %d\n", signum);
+        exitAndNotifyDaemon(128 + signum);
     }
 }
 
@@ -92,20 +89,18 @@ int main(int argc, char *argv[])
     {
         switch (i)
         {
-            case SIGKILL:
-            case SIGCHLD:
-            case SIGCONT:
-            case SIGSTOP:
-            case SIGTSTP:
-            case 32:
-            case 33:
-                break;
-            default:
-                w_signal(i, interrupt_sighandler);
-                break;
+        case SIGKILL:
+        case SIGCHLD:
+        case SIGCONT:
+        case SIGSTOP:
+        case SIGTSTP:
+        case 32:
+        case 33:
+            break;
+        default:
+            w_signal(i, interrupt_sighandler);
+            break;
         }
-
-
     }
 
     sanityCheck();
@@ -188,7 +183,7 @@ int main(int argc, char *argv[])
             {
                 lengthOperator = (end - start + 1) * sizeof(char);
                 bool redirectOperatorWasRead = false;
-                if (strncmp(start, ">", (size_t) lengthOperator) == 0)
+                if (strncmp(start, ">", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEOVER;
@@ -198,7 +193,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, ">>", (size_t) lengthOperator) == 0)
+                else if (strncmp(start, ">>", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEAPP;
@@ -208,7 +203,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
+                else if (strncmp(start, "<", (size_t)lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
                     redirectOperatorWasRead = true;
@@ -231,19 +226,19 @@ int main(int argc, char *argv[])
         {
             lengthOperator = (end - start + 1) * sizeof(char);
 
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+            if (strncmp(start, "|", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "&&", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, "||", (size_t)lengthOperator) == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+            else if (strncmp(start, ";", (size_t)lengthOperator) == 0)
             {
                 //nothing to do
             }
@@ -260,10 +255,10 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if(start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
+            if (start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
             {
                 //ignora prossimi sottocomandi fino al prossimo operatore diverso dal precedente
-                if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
+                if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t)lengthOperator) != 0)
                 {
                     operatorVars.ignoreNextSubCmd = false;
                 }
