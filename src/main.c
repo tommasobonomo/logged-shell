@@ -94,12 +94,19 @@ int main(int argc, char *argv[])
         switch (i)
         {
             case SIGKILL:
+                /* FALLTHRU */
             case SIGCHLD:
+                /* FALLTHRU */
             case SIGCONT:
+                /* FALLTHRU */
             case SIGSTOP:
+                /* FALLTHRU */
             case SIGTSTP:
+                /* FALLTHRU */
             case 32:
+                /* FALLTHRU */
             case 33:
+                /* FALLTHRU */
                 break;
             default:
                 w_signal(i, interrupt_sighandler);

@@ -55,7 +55,7 @@ void daemonize(int msqid)
             }
         }
 
-        daemonLog("DEMONE UP", "", daemon_log_fd);
+        daemonLog("DAEMON ON", "", daemon_log_fd);
 
         core(msqid, daemon_log_fd);
     } // Parent esce normalmente

@@ -22,7 +22,7 @@ int msqid; // ID msg_queue creata ed attiva
  * Esegue la logica del demone sulla msg_queue msqid_param: legge messaggi passati, decidendo anche quando terminare
  * @param msqid_param la msg_queue sulla dalla quale il demone legge i messaggi
  */
-void core(int msqid_param, FILE *error_fd);
+void core(int msqid_param, FILE *daemon_log_fd);
 
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
@@ -78,8 +78,8 @@ void send_close(int msqid);
  */
 void daemonize(int msqid);
 
-void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd, pid_t pid_main);
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd, pid_t pid_main);
 
-void daemonLog(char const *error_msg, char const *secondary_msg, FILE *error_fd);
+void daemonLog(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd);
 
 #endif

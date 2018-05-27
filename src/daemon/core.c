@@ -18,27 +18,27 @@ void sighandler(int signum)
     exit(128 + signum);
 }
 
-void daemonLog(char const *error_msg, char const *secondary_msg, FILE *error_fd)
+void daemonLog(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd)
 {
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
-    fprintf(error_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+    fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
                       "  LOG: %s %s\n",
             nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
             nowFormatted.tm_min, nowFormatted.tm_sec,
             error_msg, secondary_msg);
 }
 
-void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd, pid_t pid_main)
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd, pid_t pid_main)
 {
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
-    fprintf(error_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+    fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
                       "  ERROR: %s %s --> %s\n",
             nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
             nowFormatted.tm_min, nowFormatted.tm_sec,
             error_msg, secondary_msg, strerror(errno));
-    fclose(error_fd);
+    fclose(daemon_log_fd);
 
     if (pid_main == MAIN_PID_UNKNOWN)
     {
@@ -51,7 +51,7 @@ void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *e
     }
 }
 
-void core(int msqid_param, FILE *error_fd)
+void core(int msqid_param, FILE *daemon_log_fd)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
     msqid = msqid_param;
@@ -80,7 +80,7 @@ void core(int msqid_param, FILE *error_fd)
             result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             if (result < 0)
             {
-                manageDaemonError("msgrcv statistic failed", NULL, error_fd, MAIN_PID_UNKNOWN);
+                manageDaemonError("msgrcv statistic failed", NULL, daemon_log_fd, MAIN_PID_UNKNOWN);
             }
             else
             {
@@ -91,7 +91,7 @@ void core(int msqid_param, FILE *error_fd)
                 fp = fopen(s_msg.cmd.log_path, APPEND);
                 if (fp == NULL)
                 {
-                    manageDaemonError("failed to create logfile", s_msg.cmd.log_path, error_fd, cmd.pid_main);
+                    manageDaemonError("failed to create logfile", s_msg.cmd.log_path, daemon_log_fd, cmd.pid_main);
                 }
                 else
                 {
@@ -107,7 +107,7 @@ void core(int msqid_param, FILE *error_fd)
         {
             if (result < 0)
             {
-                manageDaemonError("msgrcv signal failed", NULL, error_fd, MAIN_PID_UNKNOWN);
+                manageDaemonError("msgrcv signal failed", NULL, daemon_log_fd, MAIN_PID_UNKNOWN);
             }
             else
             {
@@ -123,8 +123,10 @@ void core(int msqid_param, FILE *error_fd)
         }
     } while (proc_count > 0);
 
+    daemonLog("DAEMON SHUTDOWN", "", daemon_log_fd);
+
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
-    fclose(error_fd);
+    fclose(daemon_log_fd);
     msgctl(msqid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
 }
