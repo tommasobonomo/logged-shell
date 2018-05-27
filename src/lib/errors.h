@@ -16,8 +16,9 @@
  * @param id The message id, useful for the template. Exit code<br>
  *           Can be one of the ERR_...
  * @param msg Custom message that will be insert in the template
+ * @param exit_status Exit status to use for exit
  */
-void error_fatal(int id, char const *msg);
+void error_fatal(int id, char const *msg, int exit_status);
 
 /**
  * Instead of closing the program in case of errors, it just warns the user

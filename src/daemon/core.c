@@ -15,7 +15,7 @@
 void sighandler(int signum)
 {
     msgctl(msqid, IPC_RMID, NULL);
-    exit(128 + signum);
+    exit(EXIT_FATAL_SIGNAL + signum);
 }
 
 void daemonLog(char const *error_msg, FILE *daemon_internal_log_fd)
@@ -44,7 +44,7 @@ void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *d
     {
         fclose(daemon_internal_log_fd);
         msgctl(msqid, IPC_RMID, NULL);
-        exit(37); //TODO cambia
+        exit(EXIT_FAILURE);
     }
     else
     {

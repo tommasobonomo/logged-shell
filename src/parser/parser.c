@@ -29,13 +29,13 @@ void setCommand(Command *cmd, char *str_cmd)
 {
     if (cmd->command[0] != '\0')
     {
-        error_fatal(ERR_BAD_ARG_X, "command alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "command alredy specified", EXIT_PARAMETER_FAILURE);
     }
     else
     {
         if (str_cmd[0] == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "command to execute not specified");
+            error_fatal(ERR_BAD_ARG_X, "command to execute not specified", EXIT_PARAMETER_FAILURE);
         }
         else
         {
@@ -48,13 +48,13 @@ void setLogfile(Command *cmd, char *path)
 {
     if (strcmp(cmd->log_path, DEFAULT_LOGPATH_TXT) != 0 && strcmp(cmd->log_path, DEFAULT_LOGPATH_CSV) != 0)
     {
-        error_fatal(ERR_BAD_ARG_X, "log path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "log path alredy specified", EXIT_PARAMETER_FAILURE);
     }
     else
     {
         if (path[0] == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "log path not specified");
+            error_fatal(ERR_BAD_ARG_X, "log path not specified", EXIT_PARAMETER_FAILURE);
         }
         else
         {
@@ -76,7 +76,7 @@ void setLogformat(Command *cmd, char *format)
     }
     else
     {
-        error_fatal(ERR_BAD_ARG_X, format);
+        error_fatal(ERR_BAD_ARG_X, format, EXIT_PARAMETER_FAILURE);
     }
 }
 
@@ -94,13 +94,13 @@ void setOutputPath(Command *cmd, char *path)
 {
     if (cmd->output_path[0] != '\0')
     {
-        error_fatal(ERR_BAD_ARG_X, "output path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "output path alredy specified", EXIT_PARAMETER_FAILURE);
     }
     else
     {
         if (path[0] == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "output path not specified");
+            error_fatal(ERR_BAD_ARG_X, "output path not specified", EXIT_PARAMETER_FAILURE);
         }
         else
         {
@@ -113,13 +113,13 @@ void setErrorPath(Command *cmd, char *path)
 {
     if (cmd->error_path[0] != '\0')
     {
-        error_fatal(ERR_BAD_ARG_X, "error path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "error path alredy specified", EXIT_PARAMETER_FAILURE);
     }
     else
     {
         if (path[0] == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "error path not specified");
+            error_fatal(ERR_BAD_ARG_X, "error path not specified", EXIT_PARAMETER_FAILURE);
         }
         else
         {
@@ -144,7 +144,7 @@ void nextParam(int *currArgc, int argc)
     (*currArgc)++;
     if (*currArgc >= argc)
     {
-        error_fatal(ERR_BAD_ARGS, NULL);
+        error_fatal(ERR_BAD_ARGS, NULL, EXIT_PARAMETER_FAILURE);
     }
 }
 
@@ -169,7 +169,7 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
         getFromHere++;
         if (*getFromHere == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "argument needed after =");
+            error_fatal(ERR_BAD_ARG_X, "argument needed after =", EXIT_PARAMETER_FAILURE);
         }
     }
     else
@@ -284,7 +284,7 @@ Command *parseCommand(int argc, char *argv[])
                 }
                 else
                 {
-                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
+                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc], EXIT_PARAMETER_FAILURE);
                 }
             }
             else
@@ -360,7 +360,7 @@ Command *parseCommand(int argc, char *argv[])
                 }
                 else
                 {
-                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
+                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc], EXIT_PARAMETER_FAILURE);
                 }
             }
         }

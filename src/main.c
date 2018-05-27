@@ -67,14 +67,16 @@ void interrupt_sighandler(int signum)
             exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         case SIGINT:
-            error_fatal(ERR_X, "Command not logged!");
+            error_fatal(ERR_X, "Command not logged!", EXIT_FATAL_SIGNAL + signum);
             break;
         case SIGUSR1:
-            printf(COLOR_GREEN"Logging success!\n"COLOR_RESET);
+            printf(COLOR_GREEN"Command has been logged!\n"COLOR_RESET);
             exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         case SIGUSR2:
-            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_INTERNAL_LOGFILE"\"");
+            error_fatal(ERR_X,
+                        "The logging service encountered an error\nPlease check logs at \""DAEMON_INTERNAL_LOGFILE"\"",
+                        EXIT_FAILURE);
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
@@ -113,7 +115,7 @@ int main(int argc, char *argv[])
 
     if (cmd->command[0] == '\0')
     {
-        error_fatal(ERR_BAD_ARG_X, "command not specified");
+        error_fatal(ERR_BAD_ARG_X, "command not specified", EXIT_PARAMETER_FAILURE);
     }
 
     FlagRedirectVars flagVars;
@@ -260,7 +262,7 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if(start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
+            if (start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
             {
                 //ignora prossimi sottocomandi fino al prossimo operatore diverso dal precedente
                 if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
@@ -288,14 +290,6 @@ int main(int argc, char *argv[])
             ptCommand = end + 1;
         }
     }
-    //DO NOT REMOVE THIS CODE - Zanna_37 -
-    //     //ATTENDO TUTTI I FIGLI
-    //    pid_t pidFigli;
-    //    while ((pidFigli = waitpid(-1, NULL, 0)) != -1)
-    //    {
-    //        DEBUG_PRINT("terminato figlio %d\n", pidFigli);
-    //    }
-    //END - DO NOT REMOVE THIS CODE - Zanna_37 -
 
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)
@@ -327,5 +321,5 @@ int main(int argc, char *argv[])
     sigprocmask(SIG_UNBLOCK, &mask, NULL);
 
     //UNREACHABLE CODE
-    return 1;
+    return EXIT_FAILURE;
 }

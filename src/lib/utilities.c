@@ -69,7 +69,7 @@ void showLogAndExit(const char *path)
         {
             printf("Mmmm, have you already tried executing some commands?\n\n");
         }
-        error_fatal(ERR_IO_FILE, path);
+        error_fatal(ERR_IO_FILE, path, EXIT_PARAMETER_FAILURE);
     }
 
     printf(COLOR_GREEN"\nLOG PATH:"COLOR_RESET" %s\n\n", path);

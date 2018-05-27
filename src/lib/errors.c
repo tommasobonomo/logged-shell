@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void error_fatal(int id, char const *msg)
+void error_fatal(int id, char const *msg, int exit_status)
 {
     switch (id)
     {
@@ -40,7 +40,7 @@ void error_fatal(int id, char const *msg)
             break;
     }
 
-    exitAndNotifyDaemon(id);
+    exitAndNotifyDaemon(exit_status);
 }
 
 void error_warning(int id, char const *msg)

@@ -10,8 +10,8 @@
 #define MSGQUE_PATH "/tmp/"TOOL_FOLDER      // Path per la msg_queue, impostato di default alla directory corrente
 #define MSGQUE_NUM 37
 // ID numerico della msg_queue, impostato di default a 1
-#define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
-#define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
+#define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log.
+#define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log.
 #define DAEMON_INTERNAL_LOGFILE "/tmp/" TOOL_FOLDER "/daemon_internal.log"
 #define DAEMON_INTERNAL_LOGFILE2 "/tmp/" TOOL_FOLDER "/daemon_internal2.log"
 
