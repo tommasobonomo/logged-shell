@@ -12,13 +12,21 @@
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
 
-#define APPEND "a"
-#define MAIN_PID_UNKNOWN (-1)
-
 void sighandler(int signum)
 {
     msgctl(msqid, IPC_RMID, NULL);
     exit(128 + signum);
+}
+
+void daemonLog(char const *error_msg, char const *secondary_msg, FILE *error_fd)
+{
+    time_t now = time(NULL);
+    struct tm nowFormatted = *localtime(&now);
+    fprintf(error_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+                      "  LOG: %s %s\n",
+            nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
+            nowFormatted.tm_min, nowFormatted.tm_sec,
+            error_msg, secondary_msg);
 }
 
 void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd, pid_t pid_main)
@@ -43,13 +51,7 @@ void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *e
     }
 }
 
-void manageDaemonErrorFile()
-{
-    msgctl(msqid, IPC_RMID, NULL);
-    exit(37); //TODO cambia
-}
-
-void core(int msqid_param)
+void core(int msqid_param, FILE *error_fd)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
     msqid = msqid_param;
@@ -67,12 +69,6 @@ void core(int msqid_param)
     stat_msg s_msg;
     proc_msg p_msg;
     int proc_count = 0;
-
-    FILE *error_fd = fopen(DAEMON_ERRORFILE, APPEND);
-    if (error_fd == NULL)
-    {
-        manageDaemonErrorFile();
-    }
 
     do
     {

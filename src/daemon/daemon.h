@@ -1,13 +1,19 @@
 #ifndef DAEMON_H
 #define DAEMON_H
 
+#include <stdio.h>
 #include "../lib/commands.h"
 
-#define MSGQUE_PATH "."                                           // Path per la msg_queue, impostato di default alla directory corrente
-#define MSGQUE_NUM 37                                           // ID numerico della msg_queue, impostato di default a 1
+#define MAIN_PID_UNKNOWN (-1)
+#define APPEND "a"
+
+#define MSGQUE_PATH "/tmp/"TOOL_FOLDER                                           // Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_NUM 37
+// ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
-#define DAEMON_ERRORFILE "/tmp/" TOOL_FOLDER "/daemon_errors.log"
+#define DAEMON_LOGFILE "/tmp/" TOOL_FOLDER "/daemon_log.log"
+#define DAEMON_LOGFILE2 "/tmp/" TOOL_FOLDER "/daemon_log2.log"
 
 int msqid; // ID msg_queue creata ed attiva
 
@@ -16,7 +22,7 @@ int msqid; // ID msg_queue creata ed attiva
  * Esegue la logica del demone sulla msg_queue msqid_param: legge messaggi passati, decidendo anche quando terminare
  * @param msqid_param la msg_queue sulla dalla quale il demone legge i messaggi
  */
-void core(int msqid_param);
+void core(int msqid_param, FILE *error_fd);
 
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
@@ -71,5 +77,9 @@ void send_close(int msqid);
  * @param msqid Message queue ID to use to communicate with
  */
 void daemonize(int msqid);
+
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd, pid_t pid_main);
+
+void daemonLog(char const *error_msg, char const *secondary_msg, FILE *error_fd);
 
 #endif

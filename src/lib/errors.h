@@ -8,6 +8,7 @@
 #define ERR_IO_FILE 5
 #define ERR_SYSCALL 6
 #define ERR_EXEC 7
+#define ERR_SIGNAL 8
 
 /**
  * Useful function to print a template error and exit the program<br>

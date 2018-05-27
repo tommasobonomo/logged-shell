@@ -28,7 +28,9 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     sighandler_t oldSighandler = signal(signum, handler);
     if (oldSighandler == SIG_ERR)
     {
-        error_warning(ERR_SYSCALL, "can't catch signal");
+        char signum_str[4];
+        sprintf(signum_str, "%d", signum);
+        error_warning(ERR_SIGNAL, signum_str);
     }
 
     return oldSighandler;

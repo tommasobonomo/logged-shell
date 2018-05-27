@@ -74,7 +74,7 @@ void interrupt_sighandler(int signum)
             printf(ANSI_COLOR_GREEN"Logging success!\n"ANSI_COLOR_RESET);
             exitAndNotifyDaemon(EXIT_SUCCESS);
         case SIGUSR2:
-            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_ERRORFILE"\"");
+            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_LOGFILE"\"");
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
@@ -91,10 +91,22 @@ int main(int argc, char *argv[])
     int i;
     for (i = 1; i <= 64; i++)
     {
-        if (i != SIGTSTP && i != SIGCONT && i != SIGCHLD)
+        switch (i)
         {
-            w_signal(i, interrupt_sighandler);
+            case SIGKILL:
+            case SIGCHLD:
+            case SIGCONT:
+            case SIGSTOP:
+            case SIGTSTP:
+            case 32:
+            case 33:
+                break;
+            default:
+                w_signal(i, interrupt_sighandler);
+                break;
         }
+
+
     }
 
     sanityCheck();
