@@ -40,7 +40,7 @@ void printHelpAndExit(int status)
     printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tuse overwrite mode when writing command errors to FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
     printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n");
-    printf("");
+    printf("\nFurther documentation can be found in documents/Documentation.pdf\n");
 
     exitAndNotifyDaemon(status);
 }
