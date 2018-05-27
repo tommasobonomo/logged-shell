@@ -13,8 +13,7 @@
 #include "../statistics/statHelper.h"
 
 #define APPEND "a"
-
-extern pid_t pid_main; //TODO STRONZATA ENORME
+#define MAIN_PID_UNKNOWN (-1)
 
 void sighandler(int signum)
 {
@@ -22,7 +21,7 @@ void sighandler(int signum)
     exit(128 + signum);
 }
 
-void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd)
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *error_fd, pid_t pid_main)
 {
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
@@ -33,10 +32,15 @@ void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *e
             error_msg, secondary_msg, strerror(errno));
     fclose(error_fd);
 
-    kill(pid_main, SIGUSR2);
-
-    msgctl(msqid, IPC_RMID, NULL);
-    exit(37); //TODO cambia
+    if (pid_main == MAIN_PID_UNKNOWN)
+    {
+        msgctl(msqid, IPC_RMID, NULL);
+        exit(37); //TODO cambia
+    }
+    else
+    {
+        kill(pid_main, SIGUSR2);
+    }
 }
 
 void manageDaemonErrorFile()
@@ -80,39 +84,45 @@ void core(int msqid_param)
             result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             if (result < 0)
             {
-                manageDaemonError("msgrcv statistic failed", NULL, error_fd);
+                manageDaemonError("msgrcv statistic failed", NULL, error_fd, MAIN_PID_UNKNOWN);
             }
-
-            FILE *fp;
-            fp = fopen(s_msg.cmd.log_path, APPEND);
-            if (fp == NULL)
+            else
             {
-                // Fallita creazione file
-                manageDaemonError("failed to create logfile", s_msg.cmd.log_path, error_fd);
+                Command cmd;
+                cmd = s_msg.cmd;
+
+                FILE *fp;
+                fp = fopen(s_msg.cmd.log_path, APPEND);
+                if (fp == NULL)
+                {
+                    manageDaemonError("failed to create logfile", s_msg.cmd.log_path, error_fd, cmd.pid_main);
+                }
+                else
+                {
+                    printStatsCommand(fp, &cmd);
+
+                    fclose(fp);
+                    errno = 0;
+                    kill(cmd.pid_main, SIGUSR1);
+                }
             }
-
-            Command cmd;
-            cmd = s_msg.cmd;
-            printStatsCommand(fp, &cmd);
-
-            fclose(fp);
-            errno = 0;
-            kill(pid_main, SIGUSR1);
         }
         else
         {
             if (result < 0)
             {
-                manageDaemonError("msgrcv signal failed", NULL, error_fd);
+                manageDaemonError("msgrcv signal failed", NULL, error_fd, MAIN_PID_UNKNOWN);
             }
-
-            if (p_msg.type == PROC_INIT)
+            else
             {
-                proc_count++;
-            }
-            else if (p_msg.type == PROC_CLOSE)
-            {
-                proc_count--;
+                if (p_msg.type == PROC_INIT)
+                {
+                    proc_count++;
+                }
+                else if (p_msg.type == PROC_CLOSE)
+                {
+                    proc_count--;
+                }
             }
         }
     } while (proc_count > 0);

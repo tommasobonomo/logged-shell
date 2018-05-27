@@ -3,8 +3,8 @@
 
 #include "../lib/commands.h"
 
-#define MSGQUE_PATH "."										   // Path per la msg_queue, impostato di default alla directory corrente
-#define MSGQUE_NUM 37										   // ID numerico della msg_queue, impostato di default a 1
+#define MSGQUE_PATH "."                                           // Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_NUM 37                                           // ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DAEMON_ERRORFILE "/tmp/" TOOL_FOLDER "/daemon_errors.log"
@@ -21,27 +21,27 @@ void core(int msqid_param);
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
 #define COMMAND_SIZE sizeof(Command) // Messaggio stat_msg
-#define PROCSZ 0					 // Messaggio proc_msg
+#define PROCSZ 0                     // Messaggio proc_msg
 
 // Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
 #define USER_PERMS 0600
 #define USER_AND_DAEMON_PERMS 0755
 
 // Tipologie di messaggio
-#define STAT 1		 // Messaggio di statistiche
+#define STAT 1         // Messaggio di statistiche
 #define PROC_INIT 2  // Messaggio di inizio processo
 #define PROC_CLOSE 3 // Messaggio di fine processo
 
 // Strutture dei messaggi
 typedef struct stat_msg
 {
-	long type;   // > 0
-	Command cmd; //payload, sara' struttura del subcommandresult
+    long type;   // > 0
+    Command cmd; //payload, sara' struttura del subcommandresult
 } stat_msg;
 
 typedef struct proc_msg
 {
-	long type;
+    long type;
 } proc_msg;
 
 // API

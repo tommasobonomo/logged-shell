@@ -28,6 +28,8 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
 
 int w_chdir(char *path);
 
+pid_t w_setsid();
+
 int w_mkdir(const char *pathname, mode_t mode);
 
 void exitAndNotifyDaemon(int status);

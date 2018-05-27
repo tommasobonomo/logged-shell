@@ -28,7 +28,7 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     sighandler_t oldSighandler = signal(signum, handler);
     if (oldSighandler == SIG_ERR)
     {
-        error_fatal(ERR_SYSCALL, "can't catch signals");
+        error_warning(ERR_SYSCALL, "can't catch signal");
     }
 
     return oldSighandler;
@@ -113,9 +113,19 @@ int w_chdir(char *path)
     int res = chdir(path);
     if (res == -1)
     {
-        error_warning(ERR_SYSCALL, "change of working directory failed");
+        error_fatal(ERR_SYSCALL, "changing directory failed");
     }
     return res;
+}
+
+pid_t w_setsid()
+{
+    pid_t result = setsid();
+    if (result < 0)
+    {
+        error_fatal(ERR_X, "New session and new process group failed\n");
+    }
+    return result;
 }
 
 int w_mkdir(const char *pathname, mode_t mode)

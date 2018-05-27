@@ -68,9 +68,10 @@ void interrupt_sighandler(int signum)
             exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         case SIGINT:
-            error_fatal(ERR_X, "Command not logged");
+            error_fatal(ERR_X, "Command not logged!");
             break;
         case SIGUSR1:
+            printf(ANSI_COLOR_GREEN"Logging success!\n"ANSI_COLOR_RESET);
             exitAndNotifyDaemon(EXIT_SUCCESS);
         case SIGUSR2:
             error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_ERRORFILE"\"");
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
     {
         if (i != SIGTSTP && i != SIGCONT && i != SIGCHLD)
         {
-            signal(i, interrupt_sighandler);
+            w_signal(i, interrupt_sighandler);
         }
     }
 
@@ -115,6 +116,9 @@ int main(int argc, char *argv[])
         int fd = w_open(flagVars.error_path, O_WRONLY | O_CREAT | O_TRUNC, USER_PERMS);
         w_close(fd);
     }
+
+    //SAVE CURRENT PID
+    cmd->pid_main = getpid();
 
     //USERNAME AND UID
     struct passwd *pws;
@@ -276,7 +280,7 @@ int main(int argc, char *argv[])
     // Chiudo eventuale ridirezione output
     if (null_fd != -1)
     {
-        close(null_fd);
+        w_close(null_fd);
     }
 
     //SEND COMMAND-RESULT

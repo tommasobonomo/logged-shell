@@ -44,6 +44,7 @@ typedef struct SubCommandResult
  */
 typedef struct Command
 {
+    pid_t pid_main;
     char command[MAX_STRING_LENGTH];
     char log_path[MAX_STRING_LENGTH];
 	int log_format;

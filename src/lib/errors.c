@@ -9,34 +9,34 @@ void error_fatal(int id, char const *msg)
     switch (id)
     {
         case ERR_X:
-            fprintf(stderr, COLOR_RED"ERROR: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR: %s\n"ANSI_COLOR_RESET, msg);
             break;
         case ERR_BAD_ARGS:
-            fprintf(stderr, COLOR_RED"ERROR: Bad arguments\n"COLOR_NORMAL);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR: Bad arguments\n"ANSI_COLOR_RESET);
             printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_BAD_ARG_X:
-            fprintf(stderr, COLOR_RED"ERROR, bad argument: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR, bad argument: %s\n"ANSI_COLOR_RESET, msg);
             printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_UNKNOWN_ARG_X:
-            fprintf(stderr, COLOR_RED"ERROR, unknown argument: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR, unknown argument: %s\n"ANSI_COLOR_RESET, msg);
             printHelpAndExit(EXIT_FAILURE);
             break;
         case ERR_IO_FILE:
-            fprintf(stderr, COLOR_RED"ERROR, can't open file: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR, can't open file: %s\n"ANSI_COLOR_RESET, msg);
             perror(" --> ");
             break;
         case ERR_SYSCALL:
-            fprintf(stderr, COLOR_RED"ERROR: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR: %s\n"ANSI_COLOR_RESET, msg);
             perror(" --> ");
             break;
         case ERR_EXEC:
-            fprintf(stderr, COLOR_RED"ERROR exec failed doing: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR exec failed doing: %s\n"ANSI_COLOR_RESET, msg);
             perror(" --> ");
             break;
         default:
-            fprintf(stderr, COLOR_RED"ERROR not specified: %s\n"COLOR_NORMAL, msg);
+            fprintf(stderr, ANSI_COLOR_RED"ERROR not specified: %s\n"ANSI_COLOR_RESET, msg);
             break;
     }
 

@@ -30,8 +30,8 @@ int manageQuietMode(struct Command *cmd)
     if (cmd->quiet_mode == QUIET)
     {
         null_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-        dup2(null_fd, STDOUT_FILENO);
-        dup2(null_fd, STDERR_FILENO);
+        w_dup2(null_fd, STDOUT_FILENO);
+        w_dup2(null_fd, STDERR_FILENO);
     }
     return null_fd;
 }
@@ -139,7 +139,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     if (inRedirect)
     {
         tmpFD = w_open(inFile, O_RDONLY, USER_PERMS);
-        dup2(tmpFD, STDIN_FILENO);
+        w_dup2(tmpFD, STDIN_FILENO);
     }
 
     // Redirect output if flag is set
@@ -153,7 +153,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
         {
             tmpFD = w_open(outFile, O_WRONLY | O_CREAT | O_APPEND, USER_PERMS);
         }
-        dup2(tmpFD, STDOUT_FILENO);
+        w_dup2(tmpFD, STDOUT_FILENO);
     }
 }
 
@@ -167,12 +167,12 @@ void manageFlags(int output_mode, char *output_path, int error_mode, char *error
         {
             case MODE_DISCARD:
                 tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-                dup2(tmp_fd, STDOUT_FILENO);
+                w_dup2(tmp_fd, STDOUT_FILENO);
                 break;
             case MODE_FILEAPP:
             case MODE_FILEOVER:
                 tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-                dup2(tmp_fd, STDOUT_FILENO);
+                w_dup2(tmp_fd, STDOUT_FILENO);
                 break;
         }
     }
@@ -181,12 +181,12 @@ void manageFlags(int output_mode, char *output_path, int error_mode, char *error
     {
         case MODE_DISCARD:
             tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-            dup2(tmp_fd, STDERR_FILENO);
+            w_dup2(tmp_fd, STDERR_FILENO);
             break;
         case MODE_FILEAPP:
         case MODE_FILEOVER:
             tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-            dup2(tmp_fd, STDERR_FILENO);
+            w_dup2(tmp_fd, STDERR_FILENO);
             break;
     }
 }
