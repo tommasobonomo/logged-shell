@@ -202,7 +202,7 @@ void finalizeSubCommand(ThreadArgs *args)
     struct timeval end;
     double mtime, seconds, useconds;
 
-    wait4(args->eid, &statusExecuter, 0, &childUsage);
+    w_wait4(args->eid, &statusExecuter, 0, &childUsage);
     if (strncmp(args->subCommandResult->subCommand, "cd ", 3) == 0)
     {
         char *currentDir = w_getcwd(NULL, 0);

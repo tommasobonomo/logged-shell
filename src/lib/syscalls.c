@@ -157,8 +157,7 @@ void exitAndNotifyDaemon(int status)
     exit(status);
 }
 
-pid_t w_wait4(pid_t pid, int *wstatus, int options,
-              struct rusage *rusage)
+pid_t w_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
 {
     pid_t result = wait4(pid, wstatus, options, rusage);
     if (result == -1)
@@ -173,7 +172,7 @@ char *w_getcwd(char *buf, size_t size)
     char *result = getcwd(buf, size);
     if (result == NULL)
     {
-        error_fatal(ERR_SYSCALL, "getcwd failed");
+        error_fatal(ERR_SYSCALL, "getcwd failed", EXIT_FAILURE);
     }
     return result;
 }
@@ -183,7 +182,7 @@ key_t w_ftok(const char *pathname, int proj_id)
     key_t result = ftok(pathname, proj_id);
     if (result == -1)
     {
-        error_fatal(ERR_SYSCALL, "ftok failed");
+        error_fatal(ERR_SYSCALL, "ftok failed", EXIT_FAILURE);
     }
     return result;
 }
