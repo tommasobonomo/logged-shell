@@ -7,7 +7,7 @@
 #define PID_MAIN_UNKNOWN (-1)
 #define APPEND "a"
 
-#define MSGQUE_PATH "/tmp/"TOOL_FOLDER                                           // Path per la msg_queue, impostato di default alla directory corrente
+#define MSGQUE_PATH "/tmp/"TOOL_FOLDER      // Path per la msg_queue, impostato di default alla directory corrente
 #define MSGQUE_NUM 37
 // ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
@@ -29,23 +29,32 @@ void core(int msqid_param, FILE *daemon_internal_log_fd);
 #define COMMAND_SIZE sizeof(Command) // Messaggio stat_msg
 #define PROC_SIZE 0                     // Messaggio proc_msg
 
-// Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
+/**
+ * Permessi di default, lettura e scrittura al solo utente
+ */
 #define USER_PERMS 0600
 #define USER_AND_DAEMON_PERMS 0744
 #define UMASK_PERMS 027
 
-// Tipologie di messaggio
+/**
+ * Message types
+ */
 #define TYPE_STAT 1         // Messaggio di statistiche
 #define TYPE_PROC_INIT 2  // Messaggio di inizio processo
 #define TYPE_PROC_CLOSE 3 // Messaggio di fine processo
 
-// Strutture dei messaggi
+/**
+ * Statistics messages struct
+ */
 typedef struct stat_msg
 {
     long type;   // > 0
     Command cmd; //payload, sara' struttura del subcommandresult
 } stat_msg;
 
+/**
+ * Processes messages struct
+ */
 typedef struct proc_msg
 {
     long type;
@@ -79,8 +88,21 @@ void send_close(int msqid);
  */
 void daemonize(int msqid);
 
+/**
+ * If an internal error has been encountere, it notifies <br>
+ * the main program and prints the error in its internal log
+ * @param error_msg error identifier
+ * @param secondary_msg second part of the error message
+ * @param daemon_internal_log_fd file descriptor for the internal log file
+ * @param pid_main process id for the main program
+ */
 void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_internal_log_fd, pid_t pid_main);
 
+/**
+ * Logs less important errors than manageDaemonError(...)
+ * @param error_msg error message to be printed
+ * @param daemon_internal_log_fd file descriptor for the internal log file
+ */
 void daemonLog(char const *error_msg, FILE *daemon_internal_log_fd);
 
 #endif

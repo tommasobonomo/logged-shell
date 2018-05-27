@@ -19,6 +19,11 @@
  */
 void error_fatal(int id, char const *msg);
 
+/**
+ * Instead of closing the program in case of errors, it just warns the user
+ * @param id The message id, useful for the template
+ * @param msg Custom message that will be insert in the template
+ */
 void error_warning(int id, char const *msg);
 
 #endif
