@@ -10,6 +10,7 @@
 #include <sys/msg.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <string.h>
 
 extern pid_t pid_main;
 
@@ -102,7 +103,7 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     int result = msgsnd(msqid, msgp, msgsz, msgflg);
     if (result < 0)
     {
-        if (((proc_msg *) msgp)->type == PROC_CLOSE)
+        if (((proc_msg *)msgp)->type == PROC_CLOSE)
             error_warning(ERR_SYSCALL, "msg queue seems yet closed");
         else
             error_fatal(ERR_SYSCALL, "msgsnd failed");
@@ -150,4 +151,14 @@ void exitAndNotifyDaemon(int status)
         send_close(msqid);
     }
     exit(status);
+}
+
+void w_realpath(char *path, char *log_path)
+{
+    errno = 0;
+    realpath(path, log_path);
+    if (errno != 0)
+    {
+        error_fatal(ERR_BAD_ARG_X, "log path does not exist");
+    }
 }

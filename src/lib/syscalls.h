@@ -34,4 +34,6 @@ int w_mkdir(const char *pathname, mode_t mode);
 
 void exitAndNotifyDaemon(int status);
 
+void w_realpath(char *path, char *log_path);
+
 #endif

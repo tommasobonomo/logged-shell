@@ -56,7 +56,7 @@ void setLogfile(Command *cmd, char *path)
         }
         else
         {
-            strcpy(cmd->log_path, path);
+            w_realpath(path, cmd->log_path);
         }
     }
 }
@@ -102,7 +102,7 @@ void setOutputPath(Command *cmd, char *path)
         }
         else
         {
-            strcpy(cmd->output_path, path);
+            w_realpath(path, cmd->log_path);
         }
     }
 }
@@ -121,7 +121,7 @@ void setErrorPath(Command *cmd, char *path)
         }
         else
         {
-            strcpy(cmd->error_path, path);
+            w_realpath(path, cmd->log_path);
         }
     }
 }
@@ -381,14 +381,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-        case '|':
-        case ';':
-        case '<':
-        case '>':
-        case '&':
-            return true;
-        default:
-            return false;
+    case '|':
+    case ';':
+    case '<':
+    case '>':
+    case '&':
+        return true;
+    default:
+        return false;
     }
 }
 

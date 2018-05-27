@@ -23,7 +23,7 @@ void daemonLog(char const *error_msg, char const *secondary_msg, FILE *daemon_lo
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
     fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
-                      "  LOG: %s %s\n",
+                           "  LOG: %s %s\n",
             nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
             nowFormatted.tm_min, nowFormatted.tm_sec,
             error_msg, secondary_msg);
@@ -34,7 +34,7 @@ void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *d
     time_t now = time(NULL);
     struct tm nowFormatted = *localtime(&now);
     fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
-                      "  ERROR: %s %s --> %s\n",
+                           "  ERROR: %s %s --> %s\n",
             nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
             nowFormatted.tm_min, nowFormatted.tm_sec,
             error_msg, secondary_msg, strerror(errno));
