@@ -152,13 +152,3 @@ void exitAndNotifyDaemon(int status)
     }
     exit(status);
 }
-
-void w_realpath(char *path, char *log_path)
-{
-    errno = 0;
-    realpath(path, log_path);
-    if (errno != 0)
-    {
-        error_fatal(ERR_SYSCALL, "path error", EXIT_FAILURE);
-    }
-}

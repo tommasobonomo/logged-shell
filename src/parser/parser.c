@@ -58,7 +58,7 @@ void setLogfile(Command *cmd, char *path)
         }
         else
         {
-            w_realpath(path, cmd->log_path);
+            realpath(path, cmd->log_path);
         }
     }
 }
@@ -104,7 +104,7 @@ void setOutputPath(Command *cmd, char *path)
         }
         else
         {
-            w_realpath(path, cmd->log_path);
+            realpath(path, cmd->log_path);
         }
     }
 }
@@ -123,7 +123,7 @@ void setErrorPath(Command *cmd, char *path)
         }
         else
         {
-            w_realpath(path, cmd->log_path);
+            realpath(path, cmd->log_path);
         }
     }
 }
