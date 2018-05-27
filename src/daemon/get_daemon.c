@@ -51,7 +51,7 @@ void daemonize(int msqid)
             else
             {
                 msgctl(msqid, IPC_RMID, NULL);
-                exit(37); //TODO cambia
+                exit(EXIT_FAILURE);
             }
         }
 

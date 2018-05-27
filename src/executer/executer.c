@@ -313,7 +313,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         }
         else //others
         {
-            w_execvp(args[0], args); //TODO gestire un comando nella cartella corrente e non solo nella path di sistema
+            w_execvp(args[0], args);
         }
         //UNREACHABLE CODE
     }

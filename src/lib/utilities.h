@@ -22,8 +22,15 @@ typedef enum
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
 
+/**
+ * Internal errors
+ */
+#define EXIT_PARAMETER_FAILURE 2
+#define EXIT_CMD_NOT_FOUND_FAILURE 127
+#define EXIT_FATAL_SIGNAL 128
+
 #ifdef DEBUG
-#include <stdio.h> //TODO is it needed?
+#include <stdio.h>
 #define DEBUG_PRINT( ... ) fprintf (stderr, __VA_ARGS__ )
 #else
 #define DEBUG_PRINT( ... )

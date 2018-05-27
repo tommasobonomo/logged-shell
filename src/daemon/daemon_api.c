@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 #include "../lib/commands.h"
 #include "../lib/utilities.h"
 #include "../lib/errors.h"
@@ -28,7 +29,7 @@ int createOrGetDaemon()
         msqid = msgget(key, USER_PERMS | IPC_CREAT);
         if (msqid < 0)
         {
-            error_fatal(ERR_SYSCALL, "msgget failed");
+            error_fatal(ERR_SYSCALL, "msgget failed", EXIT_FAILURE);
         }
     }
     DEBUG_PRINT("msqid: %d\n", msqid);
@@ -54,7 +55,6 @@ void send_msg(int msqid, Command *cmd)
 
 void send_close(int msqid)
 {
-    //TODO: Implementare un timeout per evitare demoni infiniti?
     proc_msg close;
     close.type = TYPE_PROC_CLOSE;
     w_msgsnd(msqid, &close, PROC_SIZE, 0);
