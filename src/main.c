@@ -71,7 +71,7 @@ void interrupt_sighandler(int signum)
             error_fatal(ERR_X, "Command not logged!");
             break;
         case SIGUSR1:
-            printf(ANSI_COLOR_GREEN"Logging success!\n"ANSI_COLOR_RESET);
+            printf(COLOR_GREEN"Logging success!\n"COLOR_RESET);
             exitAndNotifyDaemon(EXIT_SUCCESS);
         case SIGUSR2:
             error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_LOGFILE"\"");
