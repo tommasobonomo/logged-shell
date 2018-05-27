@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <sys/msg.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/msg.h>
@@ -19,7 +23,7 @@ pid_t w_fork()
     pid_t fid = fork();
     if (fid < 0)
     {
-        error_fatal(ERR_SYSCALL, "Error during forking procedure\n", EXIT_FAILURE);
+        error_fatal(ERR_SYSCALL, "Error during forking procedure", EXIT_FAILURE);
     }
     return fid;
 }
@@ -113,12 +117,12 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
 
 int w_chdir(char *path)
 {
-    int res = chdir(path);
-    if (res == -1)
+    int result = chdir(path);
+    if (result == -1)
     {
         error_fatal(ERR_SYSCALL, "changing directory failed", EXIT_FAILURE);
     }
-    return res;
+    return result;
 }
 
 pid_t w_setsid()
@@ -151,4 +155,34 @@ void exitAndNotifyDaemon(int status)
         send_close(msqid);
     }
     exit(status);
+}
+
+pid_t w_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
+{
+    pid_t result = wait4(pid, wstatus, options, rusage);
+    if (result == -1)
+    {
+        error_warning(ERR_SYSCALL, "wait4 failed");
+    }
+    return result;
+}
+
+char *w_getcwd(char *buf, size_t size)
+{
+    char *result = getcwd(buf, size);
+    if (result == NULL)
+    {
+        error_fatal(ERR_SYSCALL, "getcwd failed", EXIT_FAILURE);
+    }
+    return result;
+}
+
+key_t w_ftok(const char *pathname, int proj_id)
+{
+    key_t result = ftok(pathname, proj_id);
+    if (result == -1)
+    {
+        error_fatal(ERR_SYSCALL, "ftok failed", EXIT_FAILURE);
+    }
+    return result;
 }

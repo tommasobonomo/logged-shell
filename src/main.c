@@ -35,10 +35,7 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
 
-    if (getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory)) == NULL)
-    {
-        // TODO: gestisci fallimento
-    }
+    w_getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory));
 }
 
 void OperatorVarsNext(OperatorVars *operatorVars)
@@ -106,8 +103,6 @@ int main(int argc, char *argv[])
                 w_signal(i, interrupt_sighandler);
                 break;
         }
-
-
     }
 
     sanityCheck();
@@ -262,7 +257,7 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if (start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
+            if(start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
             {
                 //ignora prossimi sottocomandi fino al prossimo operatore diverso dal precedente
                 if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
