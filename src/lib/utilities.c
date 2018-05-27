@@ -78,7 +78,7 @@ void showLogAndExit(const char *path)
     char line[MAX_STRING_LENGTH];
     while(fgets(line, MAX_STRING_LENGTH, log_fd) != NULL)
     {
-        printf(line);
+        printf("%s", line);
     }
 
     fclose(log_fd);
