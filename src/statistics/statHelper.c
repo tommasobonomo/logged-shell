@@ -10,7 +10,6 @@
 #include "../lib/utilities.h"
 #include "../lib/commands.h"
 
-
 void saveProcessStats(SubCommandResult *subCommandResult, struct rusage *usage)
 {
     subCommandResult->cputime = (usage->ru_stime.tv_sec + usage->ru_stime.tv_usec) / 1000000.0;
@@ -48,9 +47,15 @@ void printStatsCommand(FILE *fp, Command *cmd)
     }
     else if (cmd->log_format == LOG_FORMAT_CSV)
     {
-        fprintf(fp, "\"command log time\",\"whole command\",\"n° subcommand\",username,UID,subcommand,PID,PGRP,SID,\"exit status\",\"elapsed time\","
-                    "\"CPU time used\",\"max ram size\",\"soft page faults\",\"hard page faults\",swaps,\"signals received\","
-                    "\"vol. context switches\",\"inv. context switches\"\n");
+        char tmp[MAX_STRING_LENGTH];
+        fgets(tmp, MAX_STRING_LENGTH, fp);
+        if (tmp == NULL)
+        {
+
+            fprintf(fp, "\"command log time\",\"whole command\",\"n° subcommand\",username,UID,subcommand,PID,PGRP,SID,\"exit status\",\"elapsed time\","
+                        "\"CPU time used\",\"max ram size\",\"soft page faults\",\"hard page faults\",swaps,\"signals received\","
+                        "\"vol. context switches\",\"inv. context switches\"\n");
+        }
         int i;
         for (i = 0; i < cmd->n_subCommands; i++)
         {
