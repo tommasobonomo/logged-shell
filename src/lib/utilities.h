@@ -52,6 +52,9 @@ void showLogAndExit(const char *path);
  */
 bool strStartWith(const char *str, const char *prefix);
 
+/**
+ * Important checks that make the program close if necessary
+ */
 void sanityCheck();
 
 #endif

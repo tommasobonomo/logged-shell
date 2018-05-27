@@ -5,6 +5,9 @@
 #include <sys/types.h>
 #include <string.h>
 
+/**
+ * Struct used for flag redirections
+ */
 typedef struct FlagRedirectVars
 {
     int output_mode;
@@ -13,6 +16,9 @@ typedef struct FlagRedirectVars
     char error_path[MAX_STRING_LENGTH];
 } FlagRedirectVars;
 
+/**
+ * Struct containing variables related to operators
+ */
 typedef struct OperatorVars
 {
     int pipeIndex;
@@ -42,8 +48,21 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
  */
 int countPipes(char *ptWholeCmd);
 
+/**
+ * Function used to manage quiet mode (no command output nor errors on screen)
+ * @param cmd used to access quiet mode variable
+ * @return null_fd
+ */
 int manageQuietMode(struct Command *cmd);
 
+/**
+ * Function used to manage redirections between commands
+ * @param inRedirect
+ * @param outRedirect
+ * @param inFile
+ * @param outFile
+ * @param outMode
+ */
 void manageInterCommandRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode);
 
 #endif
