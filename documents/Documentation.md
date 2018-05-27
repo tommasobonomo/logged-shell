@@ -72,9 +72,9 @@ Alcune delle principali features implementate:
 
 ## Compilazione
 
-È necessario eseguire il tool `make` nella cartella del progetto. A partire da i file `.c`, verranno creati i file oggetto salvati nella cartella temporanea `/bin` e linkati a creare l'eseguibile `xlogger`.
+È necessario eseguire il tool `make` nella cartella del progetto. A partire da i file `.c`, verranno creati i file oggetto salvati nella cartella `.../Logged_shell/bin` e linkati a creare l'eseguibile `xlogger` sempre nella stessa.
 
-La regola `make clean` rimuove la directory `/bin` e eventualmente la cartella del tool creata nella directory `/tmp` nella root.
+La regola `make clean` rimuove invece la directory `../Logged_shell/bin` e l'eventuale cartella di log creata in `/tmp`.
 
 ---
 
