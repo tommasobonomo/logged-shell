@@ -1,7 +1,5 @@
 # Documentazione Xlogger
 
----
-
 ## Usage
 
 __`./bin/xlogger [OPTION]... "[SCRIPT]"`__
@@ -86,13 +84,13 @@ Vi sono una varietà di flag passabili al tool per modificare il suo comportamen
 - `-A`, `-apperr=FILE`: identico al flag precedente, eccetto che appende gli errori invece che l'output;
 - `-e`, `--printerr`: stampa gli errori a video, comportamento di default;
 - `-f`, `--format=FORMAT`: specifica il formato del file di log contenente le statistiche. Può essere `"txt"`(default) o `"csv"`;
-- `--nerr` e/o `--nout`: non stampa errori o output dei sottocomandi, rispettivamente. Stampa eventuali errori o output del tool normalmente;
+- `--nerr` e/o `--nout`: non stampa errori e/o output dei sottocomandi, rispettivamente, mentre eventuali errori e/o output del tool sono stampati normalmente;
 - `-o`, `--printout`: stampa l'output dei sottocomandi a video;
 - `-p`, `--path=FILE`: specifica il file dove scrivere le statistiche;
 - `-q`, `--quiet`: non stampare assolutamente niente a video, nemmeno errori o output del tool;
 - `-s`, `--show`: stampa le statistiche contenute nel file di log direttamente a video nel terminal;
-- `-s`, `--showcust=FILE`: stampa le statistiche contenute nel file di log personalizzato direttamente a video;
-- `-x`, `--overout=FILE`: sovrascrivi il FILE durante la stampa degli output dei sottocomandi a quel FILE; 
-- `-X`, `--overerr=FILE`: sovrascrivi il FILE durante la stampa degli errori dei sottocomandi a quel FILE;
+- `-S`, `--cshow=FILE`: stampa le statistiche contenute nel file di log personalizzato direttamente a video;
+- `-x`, `--overout=FILE`: sovrascrivi nel FILE stampando gli output dei sottocomandi;
+- `-X`, `--overerr=FILE`: sovrascrivi nel FILE stampando gli errori dei sottocomandi;
 - `--help`: mostra la schermata di help e termina;
 - `--version`: stampa la versione corrente del tool e termina.
