@@ -30,7 +30,7 @@ _documentazione in `./Documents`_
 
 
 ## Componenti del gruppo
-- `[186633]` **Francesco Cadei**
-- `[186520]` **Andrea Zanotto**
-- `[186354]` **Tommaso Bonomo**
 - `[182003]` **Federico Favotto**
+- `[186354]` **Tommaso Bonomo**
+- `[186520]` **Andrea Zanotto**
+- `[186633]` **Francesco Cadei**
