@@ -1,6 +1,7 @@
 #include "./parser.h"
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <ctype.h>
 #include "../lib/errors.h"
 #include "../daemon/daemon.h"
@@ -11,7 +12,7 @@
  */
 void addDefault(Command *cmd)
 {
-    memset(cmd, -1, sizeof(Command));
+    memset(cmd, 0, sizeof(Command));
     cmd->command[0] = '\0';
     strcpy(cmd->log_path, DEFAULT_LOGPATH_TXT);
     cmd->log_format = LOG_FORMAT_TXT;
@@ -56,7 +57,7 @@ void setLogfile(Command *cmd, char *path)
         }
         else
         {
-            strcpy(cmd->log_path, path);
+            realpath(path, cmd->log_path); // TODO should wrap
         }
     }
 }
@@ -191,83 +192,7 @@ Command *parseCommand(int argc, char *argv[])
     {
         if (argv[currArgc][0] == '-')
         {
-            if (argv[currArgc][1] != '-')
-            {
-                //NORMAL ARG
-                if (strStartWith(&argv[currArgc][1], ARG_LOGPATH))
-                {
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setLogfile(result, secondaryArg);
-                    DEBUG_PRINT("path logfile: %s\n", result->log_path);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_LOGFORMAT))
-                {
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setLogformat(result, secondaryArg); // Replaces default logpath if needed
-                    DEBUG_PRINT("format: %d\n", result->log_format);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_OUTSCREEN))
-                {
-                    setOutputMode(result, MODE_SCREEN);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_ERRSCREEN))
-                {
-                    setErrorMode(result, MODE_SCREEN);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEAPP))
-                {
-                    setOutputMode(result, MODE_FILEAPP);
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setOutputPath(result, secondaryArg);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
-                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEAPP))
-                {
-                    setErrorMode(result, MODE_FILEAPP);
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setErrorPath(result, secondaryArg);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
-                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEOVER))
-                {
-                    setOutputMode(result, MODE_FILEOVER);
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setOutputPath(result, secondaryArg);
-                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
-                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEOVER))
-                {
-                    setErrorMode(result, MODE_FILEOVER);
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    setErrorPath(result, secondaryArg);
-                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
-                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_QUIET))
-                {
-                    setQuietMode(result, QUIET);
-                    DEBUG_PRINT("quiet mode: %d", QUIET);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_SHOWDEFLOG))
-                {
-                    showLogAndExit(DEFAULT_LOGPATH_TXT);
-                }
-                else if (strStartWith(&argv[currArgc][1], ARG_SHOWCUSTLOG))
-                {
-                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
-                    showLogAndExit(secondaryArg);
-                }
-                else
-                {
-                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
-                }
-            }
-            else
+            if (argv[currArgc][1] == '-')
             {
                 //MNEMONIC ARG:
                 if (strStartWith(&argv[currArgc][2], ARG_MNEM_HELP))
@@ -361,6 +286,82 @@ Command *parseCommand(int argc, char *argv[])
                     error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
                 }
             }
+            else
+            {
+                //NORMAL ARG
+                if (strStartWith(&argv[currArgc][1], ARG_LOGPATH))
+                {
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setLogfile(result, secondaryArg);
+                    DEBUG_PRINT("path logfile: %s\n", result->log_path);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_LOGFORMAT))
+                {
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setLogformat(result, secondaryArg); // Replaces default logpath if needed
+                    DEBUG_PRINT("format: %d\n", result->log_format);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTSCREEN))
+                {
+                    setOutputMode(result, MODE_SCREEN);
+                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRSCREEN))
+                {
+                    setErrorMode(result, MODE_SCREEN);
+                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEAPP))
+                {
+                    setOutputMode(result, MODE_FILEAPP);
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setOutputPath(result, secondaryArg);
+                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEAPP))
+                {
+                    setErrorMode(result, MODE_FILEAPP);
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setErrorPath(result, secondaryArg);
+                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_OUTFILEOVER))
+                {
+                    setOutputMode(result, MODE_FILEOVER);
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setOutputPath(result, secondaryArg);
+                    DEBUG_PRINT("outputmode: %d\n", result->output_mode);
+                    DEBUG_PRINT("outputpath: %s\n", result->output_path);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_ERRFILEOVER))
+                {
+                    setErrorMode(result, MODE_FILEOVER);
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    setErrorPath(result, secondaryArg);
+                    DEBUG_PRINT("errormode: %d\n", result->error_mode);
+                    DEBUG_PRINT("errorpath: %s\n", result->error_path);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_QUIET))
+                {
+                    setQuietMode(result, QUIET);
+                    DEBUG_PRINT("quiet mode: %d", QUIET);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_SHOWDEFLOG))
+                {
+                    showLogAndExit(DEFAULT_LOGPATH_TXT);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_SHOWCUSTLOG))
+                {
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    showLogAndExit(secondaryArg);
+                }
+                else
+                {
+                    error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
+                }
+            }
         }
         else
         {
@@ -435,7 +436,7 @@ void getNextSubCommand(char *str, char **start, char **end)
                         *start = *end = &str[i];
                         exit = true;
                     }
-                    else
+                    else //it's not the first so terminate current
                     {
                         exit = true;
                     }
@@ -451,7 +452,9 @@ void getNextSubCommand(char *str, char **start, char **end)
                         *start = *end = &str[i];
                     }
                     else //it's not the first so terminate current //e.g. abcd;
+                    {
                         exit = true;
+                    }
                 }
 
                 precSpecial = true;

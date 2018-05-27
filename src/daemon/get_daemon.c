@@ -29,7 +29,7 @@ void daemonize(int msqid)
             exit(EXIT_SUCCESS);
         }
 
-        // Chiudo tutti i fd
+        // Close all file descriptors
         int x;
         for (x = 0; x < sysconf(_SC_OPEN_MAX); x++)
         {
@@ -37,16 +37,16 @@ void daemonize(int msqid)
         }
 
         /*resettign File Creation Mask */
-        umask(027);
+        umask(UMASK_PERMS);
 
-        //File to store daemon errors
-        FILE *daemon_log_fd = fopen(DAEMON_LOGFILE, APPEND);
-        if (daemon_log_fd == NULL)
+        //File to store daemon internal logs
+        FILE *daemon_internal_log_fd = fopen(DAEMON_INTERNAL_LOGFILE, APPEND);
+        if (daemon_internal_log_fd == NULL)
         {
-            daemon_log_fd = fopen(DAEMON_LOGFILE2, APPEND);
-            if (daemon_log_fd != NULL)
+            daemon_internal_log_fd = fopen(DAEMON_INTERNAL_LOGFILE2, APPEND);
+            if (daemon_internal_log_fd != NULL)
             {
-                manageDaemonError("Can't open daemon error file", DAEMON_LOGFILE, daemon_log_fd, MAIN_PID_UNKNOWN);
+                manageDaemonError("Can't open daemon error file", DAEMON_INTERNAL_LOGFILE, daemon_internal_log_fd, PID_MAIN_UNKNOWN);
             }
             else
             {
@@ -55,8 +55,8 @@ void daemonize(int msqid)
             }
         }
 
-        daemonLog("DAEMON ON", "", daemon_log_fd);
+        daemonLog("DAEMON ON", daemon_internal_log_fd);
 
-        core(msqid, daemon_log_fd);
-    } // Parent esce normalmente
+        core(msqid, daemon_internal_log_fd);
+    } // Parent continue normally
 }

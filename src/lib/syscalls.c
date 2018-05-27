@@ -36,7 +36,7 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     return oldSighandler;
 }
 
-int w_open(const char *pathname, int mode, mode_t permissions) //TODO why use permission?
+int w_open(const char *pathname, int mode, mode_t permissions)
 {
     int fd = open(pathname, mode, permissions);
     if (fd < 0)
@@ -102,7 +102,7 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     int result = msgsnd(msqid, msgp, msgsz, msgflg);
     if (result < 0)
     {
-        if (((proc_msg *) msgp)->type == PROC_CLOSE)
+        if (((proc_msg *) msgp)->type == TYPE_PROC_CLOSE)
             error_warning(ERR_SYSCALL, "msg queue seems yet closed");
         else
             error_fatal(ERR_SYSCALL, "msgsnd failed");
