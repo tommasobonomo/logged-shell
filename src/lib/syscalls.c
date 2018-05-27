@@ -28,7 +28,9 @@ sighandler_t w_signal(int signum, sighandler_t handler)
     sighandler_t oldSighandler = signal(signum, handler);
     if (oldSighandler == SIG_ERR)
     {
-        error_fatal(ERR_SYSCALL, "can't catch signals");
+        char signum_str[4];
+        sprintf(signum_str, "%d", signum);
+        error_warning(ERR_SIGNAL, signum_str);
     }
 
     return oldSighandler;
@@ -100,7 +102,10 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     int result = msgsnd(msqid, msgp, msgsz, msgflg);
     if (result < 0)
     {
-        error_fatal(ERR_SYSCALL, "msgsnd failed");
+        if (((proc_msg *) msgp)->type == PROC_CLOSE)
+            error_warning(ERR_SYSCALL, "msg queue seems yet closed");
+        else
+            error_fatal(ERR_SYSCALL, "msgsnd failed");
     }
     return result;
 }
@@ -110,9 +115,19 @@ int w_chdir(char *path)
     int res = chdir(path);
     if (res == -1)
     {
-        error_warning(ERR_SYSCALL, "change of working directory failed");
+        error_fatal(ERR_SYSCALL, "changing directory failed");
     }
     return res;
+}
+
+pid_t w_setsid()
+{
+    pid_t result = setsid();
+    if (result < 0)
+    {
+        error_fatal(ERR_X, "New session and new process group failed\n");
+    }
+    return result;
 }
 
 int w_mkdir(const char *pathname, mode_t mode)
@@ -130,7 +145,7 @@ int w_mkdir(const char *pathname, mode_t mode)
 
 void exitAndNotifyDaemon(int status)
 {
-    if (pid_main == getpid() && getppid() != 1)
+    if (pid_main == getpid())
     {
         send_close(msqid);
     }

@@ -27,11 +27,18 @@ void setCommand(Command *cmd, char *str_cmd)
 {
     if (cmd->command[0] != '\0')
     {
-        error_fatal(ERR_X, "command alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "command alredy specified");
     }
     else
     {
-        strcpy(cmd->command, str_cmd);
+        if (str_cmd[0] == '\0')
+        {
+            error_fatal(ERR_BAD_ARG_X, "command to execute not specified");
+        }
+        else
+        {
+            strcpy(cmd->command, str_cmd);
+        }
     }
 }
 
@@ -39,11 +46,18 @@ void setLogfile(Command *cmd, char *path)
 {
     if (strcmp(cmd->log_path, DEFAULT_LOGPATH_TXT) != 0 && strcmp(cmd->log_path, DEFAULT_LOGPATH_CSV) != 0)
     {
-        error_fatal(ERR_X, "log path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "log path alredy specified");
     }
     else
     {
-        strcpy(cmd->log_path, path);
+        if (path[0] == '\0')
+        {
+            error_fatal(ERR_BAD_ARG_X, "log path not specified");
+        }
+        else
+        {
+            strcpy(cmd->log_path, path);
+        }
     }
 }
 
@@ -78,11 +92,18 @@ void setOutputPath(Command *cmd, char *path)
 {
     if (cmd->output_path[0] != '\0')
     {
-        error_fatal(ERR_X, "output path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "output path alredy specified");
     }
     else
     {
-        strcpy(cmd->output_path, path);
+        if (path[0] == '\0')
+        {
+            error_fatal(ERR_BAD_ARG_X, "output path not specified");
+        }
+        else
+        {
+            strcpy(cmd->output_path, path);
+        }
     }
 }
 
@@ -90,11 +111,18 @@ void setErrorPath(Command *cmd, char *path)
 {
     if (cmd->error_path[0] != '\0')
     {
-        error_fatal(ERR_X, "error path alredy specified");
+        error_fatal(ERR_BAD_ARG_X, "error path alredy specified");
     }
     else
     {
-        strcpy(cmd->error_path, path);
+        if (path[0] == '\0')
+        {
+            error_fatal(ERR_BAD_ARG_X, "error path not specified");
+        }
+        else
+        {
+            strcpy(cmd->error_path, path);
+        }
     }
 }
 
@@ -139,7 +167,7 @@ char *getSecondaryArg(const int argc, char *argv[], int *currArgc)
         getFromHere++;
         if (*getFromHere == '\0')
         {
-            error_fatal(ERR_BAD_ARG_X, "log file path");
+            error_fatal(ERR_BAD_ARG_X, "argument needed after =");
         }
     }
     else
@@ -225,6 +253,15 @@ Command *parseCommand(int argc, char *argv[])
                     setQuietMode(result, QUIET);
                     DEBUG_PRINT("quiet mode: %d", QUIET);
                 }
+                else if (strStartWith(&argv[currArgc][1], ARG_SHOWDEFLOG))
+                {
+                    showLogAndExit(DEFAULT_LOGPATH_TXT);
+                }
+                else if (strStartWith(&argv[currArgc][1], ARG_SHOWCUSTLOG))
+                {
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    showLogAndExit(secondaryArg);
+                }
                 else
                 {
                     error_fatal(ERR_UNKNOWN_ARG_X, argv[currArgc]);
@@ -306,6 +343,15 @@ Command *parseCommand(int argc, char *argv[])
                     setQuietMode(result, QUIET);
                     DEBUG_PRINT("quiet mode: %d", QUIET);
                 }
+                else if (strStartWith(&argv[currArgc][2], ARG_MNEM_SHOWDEFLOG))
+                {
+                    showLogAndExit(DEFAULT_LOGPATH_TXT);
+                }
+                else if (strStartWith(&argv[currArgc][2], ARG_MNEM_SHOWCUSTLOG))
+                {
+                    char *secondaryArg = getSecondaryArg(argc, argv, &currArgc);
+                    showLogAndExit(secondaryArg);
+                }
                 else if (strStartWith(&argv[currArgc][2], ARG_MNEM_VERSION))
                 {
                     printVersionAndExit();
@@ -335,14 +381,14 @@ bool isspecial(char c)
 {
     switch (c)
     {
-    case '|':
-    case ';':
-    case '<':
-    case '>':
-    case '&':
-        return true;
-    default:
-        return false;
+        case '|':
+        case ';':
+        case '<':
+        case '>':
+        case '&':
+            return true;
+        default:
+            return false;
     }
 }
 

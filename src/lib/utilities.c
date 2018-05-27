@@ -7,6 +7,7 @@
 #include "../lib/commands.h"
 #include "../lib/syscalls.h"
 #include "../lib/errors.h"
+#include "../daemon/daemon.h"
 
 /**
  * Little helper for printHelpAndExit to print a string to a new line
@@ -35,6 +36,8 @@ void printHelpAndExit(int status)
     printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILE\tspecifies the full path for the log FILE\n");
     printf("  -"ARG_QUIET", --"ARG_MNEM_QUIET"\t\tdo-not-bother-me mode, neither output nor errors will");
     newLine("be displayed");
+    printf("  -"ARG_SHOWDEFLOG", --"ARG_MNEM_SHOWDEFLOG"\t\tshow default log file right here in terminal\n");
+    printf("  -"ARG_SHOWCUSTLOG", --"ARG_MNEM_SHOWCUSTLOG"=FILE\tshow custom log FILE content\n");
     printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"=FILE\tuse overwrite mode when writing command output to FILE\n");
     printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tcommand errors will be overwritten in FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
@@ -52,6 +55,33 @@ void printVersionAndExit()
     printf(" - Federico Favotto\n");
     printf(" - Andrea Zanotto\n");
 
+    exitAndNotifyDaemon(EXIT_SUCCESS);
+}
+
+void showLogAndExit(const char *path)
+{
+    FILE *log_fd;
+    log_fd = fopen(path, "r");
+
+    if (log_fd == NULL)
+    {
+        printf(COLOR_RED"\nLOG PATH:"COLOR_RESET" %s\n\n", path);
+        if (strcmp(path, DEFAULT_LOGPATH_TXT) == 0)
+        {
+            printf("Mmmm, have you already tried executing some commands?\n\n");
+        }
+        error_fatal(ERR_IO_FILE, path);
+    }
+
+    printf(COLOR_GREEN"\nLOG PATH:"COLOR_RESET" %s\n\n", path);
+
+    char line[MAX_STRING_LENGTH];
+    while(fgets(line, MAX_STRING_LENGTH, log_fd) != NULL)
+    {
+        printf(line);
+    }
+
+    fclose(log_fd);
     exitAndNotifyDaemon(EXIT_SUCCESS);
 }
 

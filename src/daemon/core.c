@@ -7,11 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 #include "../lib/utilities.h"
 #include "../lib/syscalls.h"
 #include "../statistics/statHelper.h"
-
-#define APPEND "a"
 
 void sighandler(int signum)
 {
@@ -19,20 +18,40 @@ void sighandler(int signum)
     exit(128 + signum);
 }
 
-void manageDaemonError(char const *error_msg, FILE *error_fd)
+void daemonLog(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd)
 {
-    fprintf(error_fd, "ERROR: %s --> %s\n", error_msg, strerror(errno));
-    msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_FAILURE);
+    time_t now = time(NULL);
+    struct tm nowFormatted = *localtime(&now);
+    fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+                      "  LOG: %s %s\n",
+            nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
+            nowFormatted.tm_min, nowFormatted.tm_sec,
+            error_msg, secondary_msg);
 }
 
-void manageDaemonErrorFile()
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd, pid_t pid_main)
 {
-    msgctl(msqid, IPC_RMID, NULL);
-    exitAndNotifyDaemon(EXIT_FAILURE);
+    time_t now = time(NULL);
+    struct tm nowFormatted = *localtime(&now);
+    fprintf(daemon_log_fd, "%d-%02d-%02d %02d:%02d:%02d\n"
+                      "  ERROR: %s %s --> %s\n",
+            nowFormatted.tm_year + 1900, nowFormatted.tm_mon + 1, nowFormatted.tm_mday, nowFormatted.tm_hour,
+            nowFormatted.tm_min, nowFormatted.tm_sec,
+            error_msg, secondary_msg, strerror(errno));
+    fclose(daemon_log_fd);
+
+    if (pid_main == MAIN_PID_UNKNOWN)
+    {
+        msgctl(msqid, IPC_RMID, NULL);
+        exit(37); //TODO cambia
+    }
+    else
+    {
+        kill(pid_main, SIGUSR2);
+    }
 }
 
-void core(int msqid_param)
+void core(int msqid_param, FILE *daemon_log_fd)
 {
     // Setto la variabile globale msqid per la gestione tramite sighandler
     msqid = msqid_param;
@@ -51,12 +70,6 @@ void core(int msqid_param)
     proc_msg p_msg;
     int proc_count = 0;
 
-    FILE *error_fd = fopen(DAEMON_ERRORFILE, APPEND);
-    if (error_fd == NULL)
-    {
-        manageDaemonErrorFile();
-    }
-
     do
     {
         int result = msgrcv(msqid, &p_msg, PROCSZ, 0, 0);
@@ -67,44 +80,53 @@ void core(int msqid_param)
             result = msgrcv(msqid, &s_msg, COMMAND_SIZE, STAT, 0);
             if (result < 0)
             {
-                manageDaemonError("msgrcv failed", error_fd);
+                manageDaemonError("msgrcv statistic failed", NULL, daemon_log_fd, MAIN_PID_UNKNOWN);
             }
-
-            FILE *fp;
-            fp = fopen(s_msg.cmd.log_path, APPEND);
-            if (fp == NULL)
+            else
             {
-                // Fallita creazione file
-                manageDaemonError("failed to create logfile", error_fd);
+                Command cmd;
+                cmd = s_msg.cmd;
+
+                FILE *fp;
+                fp = fopen(s_msg.cmd.log_path, APPEND);
+                if (fp == NULL)
+                {
+                    manageDaemonError("failed to create logfile", s_msg.cmd.log_path, daemon_log_fd, cmd.pid_main);
+                }
+                else
+                {
+                    printStatsCommand(fp, &cmd);
+
+                    fclose(fp);
+                    errno = 0;
+                    kill(cmd.pid_main, SIGUSR1);
+                }
             }
-
-            Command cmd;
-            cmd = s_msg.cmd;
-            printStatsCommand(fp, &cmd);
-
-            fclose(fp);
-            errno = 0;
         }
         else
         {
             if (result < 0)
             {
-                manageDaemonError("msgrcv failed", error_fd);
+                manageDaemonError("msgrcv signal failed", NULL, daemon_log_fd, MAIN_PID_UNKNOWN);
             }
-
-            if (p_msg.type == PROC_INIT)
+            else
             {
-                proc_count++;
-            }
-            else if (p_msg.type == PROC_CLOSE)
-            {
-                proc_count--;
+                if (p_msg.type == PROC_INIT)
+                {
+                    proc_count++;
+                }
+                else if (p_msg.type == PROC_CLOSE)
+                {
+                    proc_count--;
+                }
             }
         }
     } while (proc_count > 0);
 
+    daemonLog("DAEMON SHUTDOWN", "", daemon_log_fd);
+
     // Se esce dal ciclo, non ci sono piu' processi in esecuzione, quindi si termina automaticamente
-    fclose(error_fd);
+    fclose(daemon_log_fd);
     msgctl(msqid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
 }

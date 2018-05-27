@@ -4,6 +4,8 @@
 #include "../lib/commands.h"
 
 // NORMAL ARGUMENTS
+#define ARG_SHOWDEFLOG "s"
+#define ARG_SHOWCUSTLOG "S"
 #define ARG_LOGPATH "p"
 #define ARG_LOGFORMAT "f"
 
@@ -17,6 +19,8 @@
 #define ARG_QUIET "q"
 
 // MNEMONIC ARGUMENTS
+#define ARG_MNEM_SHOWDEFLOG "show"
+#define ARG_MNEM_SHOWCUSTLOG "showcust"
 #define ARG_MNEM_LOGPATH "path"
 #define ARG_MNEM_LOGFORMAT "format"
 
