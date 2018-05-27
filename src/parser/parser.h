@@ -20,7 +20,7 @@
 
 // MNEMONIC ARGUMENTS
 #define ARG_MNEM_SHOWDEFLOG "show"
-#define ARG_MNEM_SHOWCUSTLOG "showcust"
+#define ARG_MNEM_SHOWCUSTLOG "cshow"
 #define ARG_MNEM_LOGPATH "path"
 #define ARG_MNEM_LOGFORMAT "format"
 

@@ -44,6 +44,6 @@ int countPipes(char *ptWholeCmd);
 
 int manageQuietMode(struct Command *cmd);
 
-void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode);
+void manageInterCommandRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode);
 
 #endif

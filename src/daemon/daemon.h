@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "../lib/commands.h"
 
-#define MAIN_PID_UNKNOWN (-1)
+#define PID_MAIN_UNKNOWN (-1)
 #define APPEND "a"
 
 #define MSGQUE_PATH "/tmp/"TOOL_FOLDER                                           // Path per la msg_queue, impostato di default alla directory corrente
@@ -12,8 +12,8 @@
 // ID numerico della msg_queue, impostato di default a 1
 #define DEFAULT_LOGPATH_TXT "/tmp/" TOOL_FOLDER "/default.txt" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
 #define DEFAULT_LOGPATH_CSV "/tmp/" TOOL_FOLDER "/default.csv" // Path del file di log. TODO: aggiungere l'opzione per customizzarlo
-#define DAEMON_LOGFILE "/tmp/" TOOL_FOLDER "/daemon_log.log"
-#define DAEMON_LOGFILE2 "/tmp/" TOOL_FOLDER "/daemon_log2.log"
+#define DAEMON_INTERNAL_LOGFILE "/tmp/" TOOL_FOLDER "/daemon_internal.log"
+#define DAEMON_INTERNAL_LOGFILE2 "/tmp/" TOOL_FOLDER "/daemon_internal2.log"
 
 int msqid; // ID msg_queue creata ed attiva
 
@@ -22,21 +22,22 @@ int msqid; // ID msg_queue creata ed attiva
  * Esegue la logica del demone sulla msg_queue msqid_param: legge messaggi passati, decidendo anche quando terminare
  * @param msqid_param la msg_queue sulla dalla quale il demone legge i messaggi
  */
-void core(int msqid_param, FILE *daemon_log_fd);
+void core(int msqid_param, FILE *daemon_internal_log_fd);
 
 // Message
 // Memoria occupata dai due tipi di messaggio. Non bisogna conteggiare il campo type nella quantità di memoria del messaggio
 #define COMMAND_SIZE sizeof(Command) // Messaggio stat_msg
-#define PROCSZ 0                     // Messaggio proc_msg
+#define PROC_SIZE 0                     // Messaggio proc_msg
 
 // Permessi di default, lettura e scrittura al solo utente. TODO: Sono i permessi giusti?
 #define USER_PERMS 0600
-#define USER_AND_DAEMON_PERMS 0755
+#define USER_AND_DAEMON_PERMS 0744
+#define UMASK_PERMS 027
 
 // Tipologie di messaggio
-#define STAT 1         // Messaggio di statistiche
-#define PROC_INIT 2  // Messaggio di inizio processo
-#define PROC_CLOSE 3 // Messaggio di fine processo
+#define TYPE_STAT 1         // Messaggio di statistiche
+#define TYPE_PROC_INIT 2  // Messaggio di inizio processo
+#define TYPE_PROC_CLOSE 3 // Messaggio di fine processo
 
 // Strutture dei messaggi
 typedef struct stat_msg
@@ -78,8 +79,8 @@ void send_close(int msqid);
  */
 void daemonize(int msqid);
 
-void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd, pid_t pid_main);
+void manageDaemonError(char const *error_msg, char const *secondary_msg, FILE *daemon_internal_log_fd, pid_t pid_main);
 
-void daemonLog(char const *error_msg, char const *secondary_msg, FILE *daemon_log_fd);
+void daemonLog(char const *error_msg, FILE *daemon_internal_log_fd);
 
 #endif

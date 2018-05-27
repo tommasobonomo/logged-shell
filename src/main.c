@@ -34,7 +34,6 @@ void initOperatorVars(OperatorVars *operatorVars)
     operatorVars->outRedirect = false;
     operatorVars->inFile[0] = '\0';
     operatorVars->outFile[0] = '\0';
-    operatorVars->outMode = MODE_FILEOVER;
 
     if (getcwd(operatorVars->currentDirectory, sizeof(operatorVars->currentDirectory)) == NULL)
     {
@@ -73,8 +72,9 @@ void interrupt_sighandler(int signum)
         case SIGUSR1:
             printf(COLOR_GREEN"Logging success!\n"COLOR_RESET);
             exitAndNotifyDaemon(EXIT_SUCCESS);
+            break;
         case SIGUSR2:
-            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_LOGFILE"\"");
+            error_fatal(ERR_X, "The logging service encountered an error\nPlease check logs at \""DAEMON_INTERNAL_LOGFILE"\"");
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
@@ -85,7 +85,6 @@ void interrupt_sighandler(int signum)
 int main(int argc, char *argv[])
 {
     pid_main = getpid();
-    //TODO check del valore di ritorno
     msqid = createOrGetDaemon();
 
     int i;
@@ -94,19 +93,12 @@ int main(int argc, char *argv[])
         switch (i)
         {
             case SIGKILL:
-                /* FALLTHRU */
             case SIGCHLD:
-                /* FALLTHRU */
             case SIGCONT:
-                /* FALLTHRU */
             case SIGSTOP:
-                /* FALLTHRU */
             case SIGTSTP:
-                /* FALLTHRU */
             case 32:
-                /* FALLTHRU */
             case 33:
-                /* FALLTHRU */
                 break;
             default:
                 w_signal(i, interrupt_sighandler);
@@ -118,6 +110,11 @@ int main(int argc, char *argv[])
 
     sanityCheck();
     Command *cmd = parseCommand(argc, argv);
+
+    if (cmd->command[0] == '\0')
+    {
+        error_fatal(ERR_BAD_ARG_X, "command not specified");
+    }
 
     FlagRedirectVars flagVars;
     flagVars.output_mode = cmd->output_mode;
@@ -158,7 +155,7 @@ int main(int argc, char *argv[])
     pthread_t *threads = malloc(n_pipes * sizeof(pthread_t)); //FREED IN end of main
 
     //ESECUZIONE SUBCOMANDI
-    char *p = cmd->command;
+    char *ptCommand = cmd->command;
     char *start = NULL;
     char *end = NULL;
     int lengthOperator;
@@ -170,10 +167,10 @@ int main(int argc, char *argv[])
     // Controlla e setta eventuali direzioni di stdput ed stderror come specificato dai flags
     int null_fd = manageQuietMode(cmd);
 
-    getNextSubCommand(p, &start, &end);
-    p = end + 1;
+    getNextSubCommand(ptCommand, &start, &end);
+    ptCommand = end + 1;
 
-    while (start != NULL && end != NULL)
+    while (start != NULL && end != NULL && cmd->n_subCommands < MAX_SUBCOMMANDS)
     {
         SubCommandResult *tmpSubCmdResult = &cmd->subCommandResults[cmd->n_subCommands];
 
@@ -181,8 +178,8 @@ int main(int argc, char *argv[])
         sprintf(tmpSubCmdResult->subCommand, "%.*s", length, start);
 
         // Leggo operatore o redir
-        getNextSubCommand(p, &start, &end);
-        p = end + 1;
+        getNextSubCommand(ptCommand, &start, &end);
+        ptCommand = end + 1;
 
         // Controllo NUM_REDIR_CHECKS volte se l'operatore è < o >, altrimenti leggo operatore
         for (i = 0; i < NUM_REDIR_CHECKS; i++)
@@ -190,14 +187,14 @@ int main(int argc, char *argv[])
             if (start != NULL && end != NULL)
             {
                 lengthOperator = (end - start + 1) * sizeof(char);
-                bool readRedirectOperator = false;
+                bool redirectOperatorWasRead = false;
                 if (strncmp(start, ">", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEOVER;
-                    readRedirectOperator = true;
-                    getNextSubCommand(p, &start, &end);
-                    p = end + 1;
+                    redirectOperatorWasRead = true;
+                    getNextSubCommand(ptCommand, &start, &end);
+                    ptCommand = end + 1;
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
@@ -205,26 +202,26 @@ int main(int argc, char *argv[])
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEAPP;
-                    readRedirectOperator = true;
-                    getNextSubCommand(p, &start, &end);
-                    p = end + 1;
+                    redirectOperatorWasRead = true;
+                    getNextSubCommand(ptCommand, &start, &end);
+                    ptCommand = end + 1;
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
                 else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
-                    readRedirectOperator = true;
-                    getNextSubCommand(p, &start, &end);
-                    p = end + 1;
+                    redirectOperatorWasRead = true;
+                    getNextSubCommand(ptCommand, &start, &end);
+                    ptCommand = end + 1;
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.inFile, "%.*s", lengthFile, start);
                 }
 
-                if (readRedirectOperator)
+                if (redirectOperatorWasRead)
                 {
-                    getNextSubCommand(p, &start, &end);
-                    p = end + 1;
+                    getNextSubCommand(ptCommand, &start, &end);
+                    ptCommand = end + 1;
                 }
             }
         }
@@ -263,9 +260,13 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
+            if(start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
             {
-                operatorVars.ignoreNextSubCmd = false;
+                //ignora prossimi sottocomandi fino al prossimo operatore diverso dal precedente
+                if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)
+                {
+                    operatorVars.ignoreNextSubCmd = false;
+                }
             }
         }
 
@@ -283,8 +284,8 @@ int main(int argc, char *argv[])
 
         if (start != NULL && end != NULL)
         {
-            getNextSubCommand(p, &start, &end);
-            p = end + 1;
+            getNextSubCommand(ptCommand, &start, &end);
+            ptCommand = end + 1;
         }
     }
     //DO NOT REMOVE THIS CODE - Zanna_37 -

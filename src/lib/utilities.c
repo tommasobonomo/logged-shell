@@ -24,22 +24,20 @@ void printHelpAndExit(int status)
     printf("Execute and get useful statistics from SCRIPT, logging them to file.\n\n");
 
     printf("  -"ARG_OUTFILEAPP", --"ARG_MNEM_OUTFILEAPP"=FILE\tuse append mode when writing command output to FILE\n");
-    printf("  -"ARG_ERRFILEAPP", --"ARG_MNEM_ERRFILEAPP"=FILE\tcommand errors will be appended to FILE\n");
-    printf("  -"ARG_ERRSCREEN", --"ARG_MNEM_ERRSCREEN"\tprints command errors to screen instead of creating a");
-    newLine("log file");
+    printf("  -"ARG_ERRFILEAPP", --"ARG_MNEM_ERRFILEAPP"=FILE\tuse append mode when writing command errors to FILE\n");
+    printf("  -"ARG_ERRSCREEN", --"ARG_MNEM_ERRSCREEN"\tprints command errors to screen\n");
     printf("  -"ARG_LOGFORMAT", --"ARG_MNEM_LOGFORMAT"=FORMAT\tspecifies the FORMAT for the log file, choose from");
     newLine("\"txt\" (default) or \"csv\"");
     printf("      --"ARG_MNEM_ERRDISCARD"\t\tdiscards command errors\n");
     printf("      --"ARG_MNEM_OUTDISCARD"\t\tdiscards command output\n");
-    printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\tprints command output to screen instead of creating a");
-    newLine("log file");
-    printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILE\tspecifies the full path for the log FILE\n");
+    printf("  -"ARG_OUTSCREEN", --"ARG_MNEM_OUTSCREEN"\tprints command output to screen\n");
+    printf("  -"ARG_LOGPATH", --"ARG_MNEM_LOGPATH"=FILE\tspecifies the path for the log FILE\n");
     printf("  -"ARG_QUIET", --"ARG_MNEM_QUIET"\t\tdo-not-bother-me mode, neither output nor errors will");
-    newLine("be displayed");
+    newLine("be displayed on screen");
     printf("  -"ARG_SHOWDEFLOG", --"ARG_MNEM_SHOWDEFLOG"\t\tshow default log file right here in terminal\n");
-    printf("  -"ARG_SHOWCUSTLOG", --"ARG_MNEM_SHOWCUSTLOG"=FILE\tshow custom log FILE content\n");
+    printf("  -"ARG_SHOWCUSTLOG", --"ARG_MNEM_SHOWCUSTLOG"=FILE\tshow custom log file right here in terminal\n");
     printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"=FILE\tuse overwrite mode when writing command output to FILE\n");
-    printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tcommand errors will be overwritten in FILE\n");
+    printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tuse overwrite mode when writing command errors to FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
     printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n");
 
@@ -101,9 +99,9 @@ void sanityCheck()
     {
         fprintf(stderr, "FATAL ERROR!!!\n");
         fprintf(stderr, "MSGMAX max size: %d\n", msgmax);
-        fprintf(stderr, "Struct Command size: %d\n", (int) sizeof(Command));
+        fprintf(stderr, "Struct Command size: %d\n", (int) COMMAND_SIZE);
         exitAndNotifyDaemon(EXIT_FAILURE);
     }
     DEBUG_PRINT("MSGMAX max size: %d\n", msgmax);
-    DEBUG_PRINT("Struct Command size: %d\n", (int) sizeof(Command));
+    DEBUG_PRINT("Struct Command size: %d\n", (int) COMMAND_SIZE);
 }

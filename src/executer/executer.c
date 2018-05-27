@@ -48,8 +48,8 @@ int countPipes(char *ptWholeCmd)
     ptWholeCmd = end + 1;
     while (start != NULL && end != NULL)
     {
-        int length = (end - start + 1) * sizeof(char);
-        if (strncmp(start, "|", (size_t) length) == 0)
+        size_t length = (end - start + 1) * sizeof(char);
+        if (strncmp(start, "|", length) == 0)
             pipes++;
 
         getNextSubCommand(ptWholeCmd, &start, &end);
@@ -76,7 +76,7 @@ void vectorizeStringArguments(char argsString[], char *argsVect[])
         p = strtok(NULL, " ");
         npar++;
     }
-    argsVect[npar] = NULL;
+    argsVect[npar] = NULL; //last element MUST always be NULL
 }
 
 /**
@@ -103,7 +103,7 @@ void openAndManagePipesIfNeeded(int *pipefds, int n_pipes, int pipeIndex, bool p
     }
 
     int i;
-    for (i = pipeIndex * 2; i < n_pipes * 2; i++)
+    for (i = (pipeIndex + 1) * 2; i < n_pipes * 2; i++)
     {
         //Close unused next pipe sides
         w_close(pipefds[i]);
@@ -131,7 +131,7 @@ void closeOpenedPipes(int *pipefds, int pipeIndex, bool prevPipe, bool nextPipe)
     }
 }
 
-void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode)
+void manageInterCommandRedirections(bool inRedirect, bool outRedirect, char *inFile, char *outFile, int outMode)
 {
     int tmpFD;
 
@@ -157,7 +157,7 @@ void manageRedirections(bool inRedirect, bool outRedirect, char *inFile, char *o
     }
 }
 
-void manageFlags(int output_mode, char *output_path, int error_mode, char *error_path, bool nextPipe)
+void manageOutErrFlags(int output_mode, char *output_path, int error_mode, char *error_path, bool nextPipe)
 {
     int tmp_fd;
     // Do not want to redirect output if already redirected for pipes
@@ -213,7 +213,11 @@ void finalizeSubCommand(ThreadArgs *args)
 
         if (strcmp(currentDir, selectedPath) != 0)
         {
-            statusExecuter = w_chdir(selectedPath); //TODO check if exit status are corrects
+            statusExecuter = chdir(selectedPath);
+            if (statusExecuter == -1)
+            {
+                error_warning(ERR_SYSCALL, "changing directory failed");
+            }
             DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0));
         }
     }
@@ -289,11 +293,12 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
                                    operatorVars->nextPipe);
 
         //PREPARE REDIRECTIONS IF NEEDED
-        manageRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
-                           operatorVars->outFile, operatorVars->outMode);
+        manageInterCommandRedirections(operatorVars->inRedirect, operatorVars->outRedirect, operatorVars->inFile,
+                                       operatorVars->outFile, operatorVars->outMode);
 
         // MANAGE FLAGS
-        manageFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path, operatorVars->nextPipe);
+        manageOutErrFlags(flagVars->output_mode, flagVars->output_path, flagVars->error_mode, flagVars->error_path,
+                          operatorVars->nextPipe);
 
         //PREPARE ARGS
         char *args[MAX_ARGUMENTS];

@@ -34,8 +34,8 @@ int createOrGetDaemon()
     DEBUG_PRINT("msqid: %d\n", msqid);
 
     proc_msg init;
-    init.type = PROC_INIT;
-    w_msgsnd(msqid, &init, PROCSZ, 0);
+    init.type = TYPE_PROC_INIT;
+    w_msgsnd(msqid, &init, PROC_SIZE, 0);
 
     return msqid;
 }
@@ -46,7 +46,7 @@ void send_msg(int msqid, Command *cmd)
 
     memset(&msg, 0, sizeof(stat_msg)); //initialize padding
 
-    msg.type = STAT;
+    msg.type = TYPE_STAT;
     msg.cmd = *cmd;
 
     w_msgsnd(msqid, &msg, COMMAND_SIZE, 0);
@@ -56,6 +56,6 @@ void send_close(int msqid)
 {
     //TODO: Implementare un timeout per evitare demoni infiniti?
     proc_msg close;
-    close.type = PROC_CLOSE;
-    w_msgsnd(msqid, &close, PROCSZ, 0);
+    close.type = TYPE_PROC_CLOSE;
+    w_msgsnd(msqid, &close, PROC_SIZE, 0);
 }
