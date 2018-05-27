@@ -116,12 +116,12 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
 
 int w_chdir(char *path)
 {
-    int res = chdir(path);
-    if (res == -1)
+    int result = chdir(path);
+    if (result == -1)
     {
         error_fatal(ERR_SYSCALL, "changing directory failed");
     }
-    return res;
+    return result;
 }
 
 pid_t w_setsid()
@@ -179,19 +179,20 @@ pid_t w_wait4(pid_t pid, int *wstatus, int options,
 
 char *w_getcwd(char *buf, size_t size)
 {
-    char *res = getcwd(buf, size);
-    if (res == NULL)
+    char *result = getcwd(buf, size);
+    if (result == NULL)
     {
         error_fatal(ERR_SYSCALL, "getcwd failed");
     }
+    return result;
 }
 
 key_t w_ftok(const char *pathname, int proj_id)
 {
-    key_t res = ftok(pathname, proj_id);
-    if (res == -1)
+    key_t result = ftok(pathname, proj_id);
+    if (result == -1)
     {
         error_fatal(ERR_SYSCALL, "ftok failed");
     }
-    return res;
+    return result;
 }
