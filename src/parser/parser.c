@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include "../lib/errors.h"
 #include "../daemon/daemon.h"
+#include "../lib/syscalls.h"
 
 /**
  * Add all the default parameters
