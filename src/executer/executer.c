@@ -165,32 +165,31 @@ void manageOutErrFlags(int output_mode, char *output_path, int error_mode, char 
     {
         switch (output_mode)
         {
-            case MODE_DISCARD:
-                tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-                w_dup2(tmp_fd, STDOUT_FILENO);
-                break;
-            case MODE_FILEAPP:
-            case MODE_FILEOVER:
-                tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-                w_dup2(tmp_fd, STDOUT_FILENO);
-                break;
+        case MODE_DISCARD:
+            tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
+            w_dup2(tmp_fd, STDOUT_FILENO);
+            break;
+        case MODE_FILEAPP:
+        case MODE_FILEOVER:
+            tmp_fd = w_open(output_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
+            w_dup2(tmp_fd, STDOUT_FILENO);
+            break;
         }
     }
 
     switch (error_mode)
     {
-        case MODE_DISCARD:
-            tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
-            w_dup2(tmp_fd, STDERR_FILENO);
-            break;
-        case MODE_FILEAPP:
-        case MODE_FILEOVER:
-            tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
-            w_dup2(tmp_fd, STDERR_FILENO);
-            break;
+    case MODE_DISCARD:
+        tmp_fd = w_open(NULLFILE, O_WRONLY, USER_PERMS);
+        w_dup2(tmp_fd, STDERR_FILENO);
+        break;
+    case MODE_FILEAPP:
+    case MODE_FILEOVER:
+        tmp_fd = w_open(error_path, O_WRONLY | O_APPEND | O_CREAT, USER_PERMS);
+        w_dup2(tmp_fd, STDERR_FILENO);
+        break;
     }
 }
-
 
 /**
  * Wait for previous command to finish, save statistics and prepare environment for the next command to come
@@ -221,7 +220,6 @@ void finalizeSubCommand(ThreadArgs *args)
             DEBUG_PRINT("Nuovo path: %s\n", getcwd(NULL, 0));
         }
     }
-
 
     gettimeofday(&end, NULL);
 
@@ -264,7 +262,7 @@ void finalizeSubCommand(ThreadArgs *args)
 void *finalizePipedSubCommand(void *args)
 {
     finalizeSubCommand(args);
-    ThreadArgs *threadArgs = (ThreadArgs *) args;
+    ThreadArgs *threadArgs = (ThreadArgs *)args;
     if (threadArgs->operatorVars->prevPipe)
     {
         pthread_join(threadArgs->threads[threadArgs->ID - 1], NULL);
@@ -324,7 +322,7 @@ void executeSubCommand(SubCommandResult *subCommandResult, int *pipefds, int n_p
         closeOpenedPipes(pipefds, operatorVars->pipeIndex, operatorVars->prevPipe, operatorVars->nextPipe);
 
         ThreadArgs *args =
-                malloc(sizeof(ThreadArgs)); //FREED IN finalizePipedSubCommand(...) (by thread) OR at the and of this scope (by parent)
+            malloc(sizeof(ThreadArgs)); //FREED IN finalizePipedSubCommand(...) (by thread) OR at the and of this scope (by parent)
         args->ID = operatorVars->pipeIndex;
         args->threads = threads;
         args->subCommandResult = subCommandResult;

@@ -5,9 +5,12 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
+#include <sys/msg.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys/msg.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
@@ -103,7 +106,7 @@ int w_msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg)
     int result = msgsnd(msqid, msgp, msgsz, msgflg);
     if (result < 0)
     {
-        if (((proc_msg *) msgp)->type == TYPE_PROC_CLOSE)
+        if (((proc_msg *)msgp)->type == TYPE_PROC_CLOSE)
             error_warning(ERR_SYSCALL, "msg queue seems yet closed");
         else
             error_fatal(ERR_SYSCALL, "msgsnd failed");
@@ -161,4 +164,15 @@ void w_realpath(char *path, char *log_path)
     {
         error_fatal(ERR_BAD_ARG_X, "log path does not exist");
     }
+}
+
+pid_t w_wait4(pid_t pid, int *wstatus, int options,
+              struct rusage *rusage)
+{
+    pid_t result = wait4(pid, wstatus, options, rusage);
+    if (result == -1)
+    {
+        error_warning(ERR_SYSCALL, "wait4 failed");
+    }
+    return result;
 }
