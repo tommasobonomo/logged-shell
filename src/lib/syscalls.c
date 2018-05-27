@@ -185,3 +185,13 @@ char *w_getcwd(char *buf, size_t size)
         error_fatal(ERR_SYSCALL, "getcwd failed");
     }
 }
+
+key_t w_ftok(const char *pathname, int proj_id)
+{
+    key_t res = ftok(pathname, proj_id);
+    if (res == -1)
+    {
+        error_fatal(ERR_SYSCALL, "ftok failed");
+    }
+    return res;
+}

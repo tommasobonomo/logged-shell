@@ -42,4 +42,6 @@ pid_t w_wait4(pid_t pid, int *wstatus, int options,
 
 char *w_getcwd(char *buf, size_t size);
 
+key_t w_ftok(const char *pathname, int proj_id);
+
 #endif

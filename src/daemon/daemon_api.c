@@ -15,7 +15,7 @@ int createOrGetDaemon()
 {
     w_mkdir("/tmp/" TOOL_FOLDER, USER_AND_DAEMON_PERMS);
 
-    key_t key = ftok(MSGQUE_PATH, MSGQUE_NUM); //choose unique path
+    key_t key = w_ftok(MSGQUE_PATH, MSGQUE_NUM); //choose unique path
     DEBUG_PRINT("key: %d\n", key);
 
     int msqid = msgget(key, USER_PERMS | IPC_CREAT | IPC_EXCL);
