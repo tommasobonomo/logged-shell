@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
     char *ptCommand = cmd->command;
     char *start = NULL;
     char *end = NULL;
-    int lengthOperator;
+    size_t lengthOperator;
 
     //variabili per operatori
     OperatorVars operatorVars;
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, ">>", (size_t) lengthOperator) == 0)
+                else if (strncmp(start, ">>", lengthOperator) == 0)
                 {
                     operatorVars.outRedirect = true;
                     operatorVars.outMode = MODE_FILEAPP;
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
                     int lengthFile = (end - start + 1) * sizeof(char);
                     sprintf(operatorVars.outFile, "%.*s", lengthFile, start);
                 }
-                else if (strncmp(start, "<", (size_t) lengthOperator) == 0)
+                else if (strncmp(start, "<", lengthOperator) == 0)
                 {
                     operatorVars.inRedirect = true;
                     redirectOperatorWasRead = true;
@@ -227,23 +227,31 @@ int main(int argc, char *argv[])
         if (start != NULL && end != NULL)
         {
             lengthOperator = (end - start + 1) * sizeof(char);
+            char *tmpOperator = malloc(lengthOperator + sizeof(char));
+            strncpy(tmpOperator, start, lengthOperator);
+            tmpOperator[(end - start + 1)] = '\0'; //Safe check
 
-            if (strncmp(start, "|", (size_t) lengthOperator) == 0)
+            if (strcmp(tmpOperator, "|") == 0)
             {
                 operatorVars.nextPipe = true;
             }
-            else if (strncmp(start, "&&", (size_t) lengthOperator) == 0)
+            else if (strcmp(tmpOperator, "&&") == 0)
             {
                 operatorVars.nextAnd = true;
             }
-            else if (strncmp(start, "||", (size_t) lengthOperator) == 0)
+            else if (strcmp(tmpOperator, "||") == 0)
             {
                 operatorVars.nextOr = true;
             }
-            else if (strncmp(start, ";", (size_t) lengthOperator) == 0)
+            else if (strcmp(tmpOperator, ";") == 0)
             {
                 //nothing to do
             }
+            else
+            {
+                error_fatal(ERR_UNKNOWN_ARG_X, tmpOperator, EXIT_PARAMETER_FAILURE);
+            }
+            free(tmpOperator);
         } //else there is no operator
         //END - READ OPERATOR
 
@@ -257,7 +265,7 @@ int main(int argc, char *argv[])
         else
         {
             tmpSubCmdResult->executed = false;
-            if(start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
+            if (start != NULL && strncmp(start, "|", 1) != 0) //always ignore when next is a pipe
             {
                 //ignora prossimi sottocomandi fino al prossimo operatore diverso dal precedente
                 if (start != NULL && strncmp(start, operatorVars.ignoreUntil, (size_t) lengthOperator) != 0)

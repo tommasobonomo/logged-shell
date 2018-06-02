@@ -8,11 +8,11 @@ typedef enum
 
 #define MAX_STRING_LENGTH 90
 #define MAX_SUBCOMMANDS 40
-#define MAX_ARGUMENTS 50 //TODO fai almeno dei controlli
+#define MAX_ARGUMENTS 50
 
 #define TOOL_NAME "xlogger"
 #define TOOL_FOLDER TOOL_NAME"-ZZN5V7KH3H"
-#define TOOL_VERSION_CODE "1.23.4 'copenhagen'" //TODO update version
+#define TOOL_VERSION_CODE "1.23.4 'copenhagen'"
 
 #define COLOR_RED     "\x1b[31m"
 #define COLOR_GREEN   "\x1b[32m"
