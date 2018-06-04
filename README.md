@@ -2,9 +2,11 @@
 
 ### Progetto 2 - Statistiche comandi ed analisi
 
+Implementazione di una shell _(non interattiva)_ in grado di comprendere, eseguire e loggare comandi.
+
 ## Compilazione
 
-Aprire un terminale nella directory corrente (vedere `cd --help` per posizionarsi correttamente se necessario) ed eseguire:
+Aprire un terminale nella directory corrente _(vedere `cd --help` per posizionarsi correttamente se necessario)_ ed eseguire:
 
 ```
 make build
@@ -25,9 +27,7 @@ Per maggiori informazioni:
 ```
 ./xlogger --help
 ```
-
-_Documentazione in `./Documents`_
-
+_Ulteriore documentazione in `./Documents`._
 
 ## Componenti del gruppo
 - `[182003]` **Federico Favotto**
