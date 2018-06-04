@@ -27,7 +27,7 @@ Per maggiori informazioni:
 ```
 ./xlogger --help
 ```
-_Ulteriore documentazione in `./Documents`._
+_Ulteriore documentazione in `./documents`._
 
 ## Componenti del gruppo
 - `[182003]` **Federico Favotto**
