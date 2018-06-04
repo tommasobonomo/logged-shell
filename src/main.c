@@ -64,6 +64,7 @@ void interrupt_sighandler(int signum)
             exitAndNotifyDaemon(EXIT_SUCCESS);
             break;
         case SIGINT:
+            fprintf(stderr, "\n"); //to indent
             error_fatal(ERR_X, "Command not logged!", EXIT_FATAL_SIGNAL + signum);
             break;
         case SIGUSR1:
@@ -77,7 +78,7 @@ void interrupt_sighandler(int signum)
             break;
         default:
             DEBUG_PRINT("Signal: %d\n", signum);
-            exitAndNotifyDaemon(128 + signum);
+            exitAndNotifyDaemon(EXIT_FATAL_SIGNAL + signum);
     }
 }
 
