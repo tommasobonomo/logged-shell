@@ -39,8 +39,8 @@ void printHelpAndExit(int status)
     printf("  -"ARG_OUTFILEOVER", --"ARG_MNEM_OUTFILEOVER"=FILE\tuse overwrite mode when writing command output to FILE\n");
     printf("  -"ARG_ERRFILEOVER", --"ARG_MNEM_ERRFILEOVER"=FILE\tuse overwrite mode when writing command errors to FILE\n");
     printf("      --"ARG_MNEM_HELP"\t\tshows this help and exits\n");
-    printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n");
-    printf("\nFurther documentation can be found in documents/Documentation.pdf\n");
+    printf("      --"ARG_MNEM_VERSION"\t\tprints the current version of this tool and exits\n\n");
+    printf("Further documentation aviable locally in: <LoggedShell/documents/Documentation.pdf>\n");
 
     exitAndNotifyDaemon(status);
 }
@@ -49,10 +49,10 @@ void printVersionAndExit()
 {
     printf(""TOOL_NAME" "TOOL_VERSION_CODE"\n\n");
     printf("Created in Trento with <3 by:\n");
-    printf(" - Tommaso Bonomo\n");
-    printf(" - Francesco Cadei\n");
-    printf(" - Federico Favotto\n");
-    printf(" - Andrea Zanotto\n");
+    printf(" 182003 - Federico Favotto\n");
+    printf(" 186354 - Tommaso Bonomo\n");
+    printf(" 186520 - Andrea Zanotto\n");
+    printf(" 186633 - Francesco Cadei\n");
 
     exitAndNotifyDaemon(EXIT_SUCCESS);
 }
