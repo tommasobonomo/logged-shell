@@ -14,17 +14,13 @@ void daemonize(int msqid)
 
     if (cid == 0)
     {
-        // Crea una nuova sessione e un gruppo di processo
         w_setsid();
-
-        // Cambio directory
         w_chdir("/");
 
-        // Primo figlio
-        cid = w_fork();
+        pid_t cid2 = w_fork();
 
-        // Termino il padre
-        if (cid > 0)
+        // Exit parent
+        if (cid2 > 0)
         {
             exit(EXIT_SUCCESS);
         }
@@ -58,5 +54,8 @@ void daemonize(int msqid)
         daemonLog("DAEMON ON", daemon_internal_log_fd);
 
         core(msqid, daemon_internal_log_fd);
-    } // Parent continue normally
+    } else {
+        waitpid(cid, NULL, 0);
+        // Parent continue normally
+    }
 }

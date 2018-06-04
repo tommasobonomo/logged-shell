@@ -20,12 +20,12 @@ extern pid_t pid_main;
 
 pid_t w_fork()
 {
-    pid_t fid = fork();
-    if (fid < 0)
+    pid_t cid = fork();
+    if (cid < 0)
     {
         error_fatal(ERR_SYSCALL, "Error during forking procedure", EXIT_FAILURE);
     }
-    return fid;
+    return cid;
 }
 
 sighandler_t w_signal(int signum, sighandler_t handler)
