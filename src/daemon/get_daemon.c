@@ -3,6 +3,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/msg.h>
 #include "../lib/errors.h"
@@ -14,7 +15,9 @@ void daemonize(int msqid)
 
     if (cid == 0)
     {
+        // Create a new session and a process group
         w_setsid();
+        //Change directory
         w_chdir("/");
 
         pid_t cid2 = w_fork();
@@ -42,7 +45,8 @@ void daemonize(int msqid)
             daemon_internal_log_fd = fopen(DAEMON_INTERNAL_LOGFILE2, APPEND);
             if (daemon_internal_log_fd != NULL)
             {
-                manageDaemonError("Can't open daemon error file", DAEMON_INTERNAL_LOGFILE, daemon_internal_log_fd, PID_MAIN_UNKNOWN);
+                manageDaemonError("Can't open daemon error file", DAEMON_INTERNAL_LOGFILE, daemon_internal_log_fd,
+                                  PID_MAIN_UNKNOWN);
             }
             else
             {
@@ -54,7 +58,9 @@ void daemonize(int msqid)
         daemonLog("DAEMON ON", daemon_internal_log_fd);
 
         core(msqid, daemon_internal_log_fd);
-    } else {
+    }
+    else
+    {
         waitpid(cid, NULL, 0);
         // Parent continue normally
     }
