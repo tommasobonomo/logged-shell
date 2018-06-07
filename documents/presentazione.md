@@ -40,12 +40,12 @@ Exit status conforme agli standard.
 
 _Posizionarsi in `.bin/`_
 
-## Comandi semplici
+## Comandi base
 
-Copia 10G di zeri su `/dev/null`
+Copia 10GB di zeri su `/dev/null`
 
 ```bash
-./xlogger "dd if=/dev/zero of=/dev/null count=10 bs=1G"
+./xlogger "dd if=/dev/zero of=/dev/null count=10 bs=1GB"
 ```
 
 ## Comandi interattivi
@@ -56,14 +56,14 @@ Copia 10G di zeri su `/dev/null`
 
 ## Operatori logici
 
-- Tentativo di creare un file senza avere i permessi sufficienti
-- Semplice `ls`
+Tentativo di creare un file senza possedere permessi sufficienti `<logic_op>` stampa della data corrente.
+
 ```bash
 ./xlogger "touch /test && date"
 ./xlogger "touch /test || date"
 ```
 
-## Redirezione
+## Redirezioni
 
 ```bash
 ./xlogger "ls > out.txt"
@@ -81,34 +81,33 @@ Copia 10G di zeri su `/dev/null`
 
 ## Gestione path custom
 
-**Output dei comandi su "/tmp/output", errori su "/tmp/error" e statistiche su "/tmp/stats"**
-- Semplice `ls`
-- Tentativo di creare un file senza avere i permessi sufficienti
+Output dei comandi su `/tmp/output`, errori su `/tmp/error` e statistiche su `/tmp/stats`.
+
 
 ```bash
-./xlogger "ls; touch /test" -x "/tmp/output" -X "/tmp/error" -p "/tmp/stats"
+./xlogger "ls -alF; touch /test" -x "/tmp/output" -X "/tmp/error" -p "/tmp/stats"
 ```
 
 ## Statistiche su file CSV
 
 ```bash
-./xlogger "ls -alF | grep xlogger; echo hello" --format=csv -p="/tmp/stats.csv"
+./xlogger "ls | grep xlogger; echo hello" --format=csv -p="/tmp/stats.csv"
 ```
 
 ## Istanze multiple
 
 ```bash
-./xlogger "sleep 8" & ./xlogger "sleep 12" & ./xlogger "sleep 10" &
-
 htop
+
+./xlogger "sleep 8" & ./xlogger "sleep 12" & ./xlogger "sleep 10" &
 ```
 
 ## Multithread e Concorrenza pipe
 
 ```bash
-./xlogger "ls; echo hello; sleep 100 | sleep 150 | sleep 50"
-
 htop
+
+./xlogger "ls; echo hello; sleep 100 | sleep 150 | sleep 50"
 ```
 
 ```bash
@@ -118,6 +117,8 @@ time ./xlogger "sleep 1; sleep 3 | sleep 2"
 ## Gestioni segnali
 
 ```bash
+htop
+
 ./xlogger "sleep 100"
 
 ctrl-c
@@ -127,5 +128,5 @@ echo $?
 
 ctrl-z
 fg
-close TTY
+close terminal
 ```
